@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/authContext/AuthContext';
-import Layout from './component/layout/Layout';
+import MainLayout from './component/layout/MainLayout';
 import LoginPage from './page/LoginPage';
 import HomePage from './page/HomePage';
 import ProtectedRoute from './component/auth/ProtectedRoute';
 import './App.css';
 
-function App() {
+const App = () => {
   return (
     <AuthProvider>
       <Routes>
@@ -15,16 +15,16 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <Layout />
+              <MainLayout>
+                <HomePage />
+              </MainLayout>
             </ProtectedRoute>
           }
-        >
-          <Route index element={<HomePage />} />
-        </Route>
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </AuthProvider>
   );
-}
+};
 
 export default App;

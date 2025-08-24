@@ -1,28 +1,28 @@
 import { useAuth } from '../context/authContext/useAuth';
 
-export default function HomePage() {
+const HomePage = () => {
   const { user } = useAuth();
 
   return (
     <div className="space-y-12">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-primary-600 via-primary-700 to-secondary-600 rounded-2xl overflow-hidden">
+      <section className="relative py-20 bg-gradient-to-r from-primary-600 via-primary-700 to-red-800 rounded-2xl overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative z-10 text-center text-white px-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
             Chào mừng đến với <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
-              Quản Lý Ăn
+              Hệ Thống Quản Lý Án
             </span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-slide-up">
-            Hệ thống quản lý nhà hàng hiện đại, giúp bạn quản lý thực đơn, đơn hàng và khách hàng một cách hiệu quả nhất
+            Giải pháp số hóa toàn diện cho các văn phòng luật, công ty luật và cơ quan tư pháp
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
-            <button className="px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl">
+            <button className="px-8 py-4 bg-white text-red-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl">
               Khám Phá Ngay
             </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-primary-600 transition-all duration-200">
+            <button className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-red-600 transition-all duration-200">
               Xem Demo
             </button>
           </div>
@@ -39,21 +39,21 @@ export default function HomePage() {
             Tính Năng Nổi Bật
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Những tính năng mạnh mẽ giúp bạn quản lý nhà hàng một cách chuyên nghiệp và hiệu quả
+            Những tính năng mạnh mẽ giúp bạn quản lý hồ sơ án một cách chuyên nghiệp và hiệu quả
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Feature 1 */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group hover:-translate-y-2">
-            <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Quản Lý Thực Đơn</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Quản Lý Hồ Sơ Án</h3>
             <p className="text-gray-600 leading-relaxed">
-              Tạo và quản lý thực đơn một cách dễ dàng với giao diện trực quan, hỗ trợ hình ảnh và mô tả chi tiết
+              Tạo, lưu trữ và quản lý hồ sơ án một cách có hệ thống với khả năng tìm kiếm nhanh chóng
             </p>
           </div>
 
@@ -61,12 +61,12 @@ export default function HomePage() {
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group hover:-translate-y-2">
             <div className="w-16 h-16 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Theo Dõi Đơn Hàng</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Theo Dõi Tiến Độ</h3>
             <p className="text-gray-600 leading-relaxed">
-              Theo dõi đơn hàng real-time từ lúc nhận đến khi hoàn thành, tối ưu hóa quy trình phục vụ
+              Theo dõi real-time tiến độ xử lý án, deadline và các milestone quan trọng
             </p>
           </div>
 
@@ -77,22 +77,22 @@ export default function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Báo Cáo Chi Tiết</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Báo Cáo Thống Kê</h3>
             <p className="text-gray-600 leading-relaxed">
-              Phân tích doanh thu, theo dõi xu hướng và tạo báo cáo chi tiết để đưa ra quyết định kinh doanh tốt hơn
+              Tạo báo cáo chi tiết về hoạt động xử lý án, thống kê hiệu suất làm việc
             </p>
           </div>
 
           {/* Feature 4 */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group hover:-translate-y-2">
-            <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Quản Lý Khách Hàng</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Quản Lý Đội Ngũ</h3>
             <p className="text-gray-600 leading-relaxed">
-              Lưu trữ thông tin khách hàng, theo dõi lịch sử đơn hàng và xây dựng chương trình khuyến mãi phù hợp
+              Phân công nhiệm vụ, quản lý luật sư và nhân viên tham gia xử lý án
             </p>
           </div>
 
@@ -105,7 +105,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">Responsive Design</h3>
             <p className="text-gray-600 leading-relaxed">
-              Giao diện thân thiện trên mọi thiết bị: máy tính, tablet, điện thoại, đảm bảo trải nghiệm tối ưu
+              Giao diện thân thiện trên mọi thiết bị: máy tính, tablet, điện thoại
             </p>
           </div>
 
@@ -118,7 +118,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">Bảo Mật Cao</h3>
             <p className="text-gray-600 leading-relaxed">
-              Hệ thống bảo mật đa lớp với JWT authentication, mã hóa dữ liệu và kiểm soát truy cập nghiêm ngặt
+              Bảo mật đa lớp với JWT authentication, đảm bảo tính bảo mật thông tin án
             </p>
           </div>
         </div>
@@ -128,21 +128,21 @@ export default function HomePage() {
       <section className="py-16 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Được Tin Tưởng Bởi Nhiều Nhà Hàng
+            Được Tin Tưởng Bởi Các Tổ Chức Pháp Lý
           </h2>
           <p className="text-lg text-gray-600">
-            Hệ thống đã được sử dụng bởi hàng trăm nhà hàng trên toàn quốc
+            Hệ thống đã được sử dụng bởi hàng trăm văn phòng luật trên toàn quốc
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div className="space-y-2">
-            <div className="text-4xl md:text-5xl font-bold text-primary-600">500+</div>
-            <div className="text-gray-600 font-medium">Nhà Hàng</div>
+            <div className="text-4xl md:text-5xl font-bold text-primary-600">200+</div>
+            <div className="text-gray-600 font-medium">Văn Phòng Luật</div>
           </div>
           <div className="space-y-2">
-            <div className="text-4xl md:text-5xl font-bold text-secondary-600">10K+</div>
-            <div className="text-gray-600 font-medium">Đơn Hàng/Ngày</div>
+            <div className="text-4xl md:text-5xl font-bold text-secondary-600">5K+</div>
+            <div className="text-gray-600 font-medium">Hồ Sơ Án/Tháng</div>
           </div>
           <div className="space-y-2">
             <div className="text-4xl md:text-5xl font-bold text-accent-600">99%</div>
@@ -162,7 +162,7 @@ export default function HomePage() {
             Sẵn Sàng Bắt Đầu?
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            Hãy bắt đầu hành trình số hóa nhà hàng của bạn ngay hôm nay. Dùng thử miễn phí 30 ngày.
+            Hãy bắt đầu hành trình số hóa quản lý án của bạn ngay hôm nay. Dùng thử miễn phí 30 ngày.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-lg hover:shadow-xl">
@@ -179,7 +179,7 @@ export default function HomePage() {
       {user && (
         <section className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-xl">{user.username?.[0]?.toUpperCase()}</span>
             </div>
             <div>
@@ -213,4 +213,6 @@ export default function HomePage() {
       )}
     </div>
   );
-}
+};
+
+export default HomePage;
