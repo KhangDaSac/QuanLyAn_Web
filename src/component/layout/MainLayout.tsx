@@ -131,7 +131,7 @@ const MainLayout = ({
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col lg:ml-0">
+            <div className="flex-1 flex flex-col lg:ml-64">
                 {/* Top Header */}
                 {showNavbar && (
                     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
