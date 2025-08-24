@@ -84,13 +84,8 @@ const MainLayout = ({
             {/* Sidebar */}
             <div
                 className={`fixed top-0 left-0 bottom-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0`}>
-                <div className="flex items-center justify-center h-16 bg-gradient-to-r from-primary-600 to-primary-700">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                            <span className="text-primary-600 font-bold text-lg">Q</span>
-                        </div>
-                        <span className="text-white text-xl font-bold">Quản Lý Án</span>
-                    </div>
+                <div className="flex items-center justify-center h-10 bg-gradient-to-r from-primary-600 to-primary-700">
+
                 </div>
 
                 <nav className="mt-8 px-4 space-y-2">
@@ -99,7 +94,7 @@ const MainLayout = ({
                             key={index}
                             href={item.href}
                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${item.active
-                                ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-500'
+                                ? 'bg-primary-50 text-primary-600 border-2 border-primary-600  hover:text-primary-400'
                                 : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
                                 }`}
                         >
@@ -110,17 +105,17 @@ const MainLayout = ({
                 </nav>
 
                 <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-gradient-to-r from-primary-50 to-red-50 rounded-lg p-4">
+                    <div className="bg-gradient-to-r from-red-200 to-red-100 rounded-lg p-4">
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                            {/* <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                                 <span className="text-primary-600 font-semibold text-sm">LW</span>
-                            </div>
+                            </div> */}
                             <div>
-                                <p className="text-sm font-medium text-gray-900">Luật Sư</p>
-                                <p className="text-xs text-gray-500">lawyer@lawfirm.vn</p>
+                                <p className="text-sm font-medium text-gray-900">Thẩm phán</p>
+                                <p className="text-xs text-gray-800">Nguyễn Văn A</p>
                             </div>
                         </div>
-                        <button className="mt-3 w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <button className="mt-3 w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-600 transition-colors duration-200">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
@@ -145,7 +140,7 @@ const MainLayout = ({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                                     </svg>
                                 </button>
-                                <h1 className="text-xl font-semibold text-gray-900">Hệ Thống Quản Lý Án</h1>
+                                <h1 className="text-2xl font-bold text-red-700">Quản Lý Án</h1>
                             </div>
 
                             <div className="flex items-center space-x-4">

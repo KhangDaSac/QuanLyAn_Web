@@ -5,32 +5,42 @@ const HomePage = () => {
 
   return (
     <div className="space-y-12">
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-primary-600 via-primary-700 to-red-800 rounded-2xl overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 text-center text-white px-6">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-            Chào mừng đến với <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
-              Hệ Thống Quản Lý Án
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-slide-up">
-            Giải pháp số hóa toàn diện cho các văn phòng luật, công ty luật và cơ quan tư pháp
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
-            <button className="px-8 py-4 bg-white text-red-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl">
-              Khám Phá Ngay
-            </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-red-600 transition-all duration-200">
-              Xem Demo
-            </button>
+      
+      {user && (
+        <section className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-xl">{user.username?.[0]?.toUpperCase()}</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">Chào mừng trở lại, {user.username}!</h3>
+              <p className="text-gray-600">Bạn đã đăng nhập thành công vào hệ thống</p>
+            </div>
           </div>
-        </div>
-        {/* Decorative elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-      </section>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-primary-50 rounded-xl p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-semibold text-gray-900">Thông tin tài khoản</span>
+              </div>
+              <p className="text-gray-600">Email: {user.email}</p>
+            </div>
+            
+            <div className="bg-secondary-50 rounded-xl p-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <svg className="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="font-semibold text-gray-900">Phiên đăng nhập</span>
+              </div>
+              <p className="text-gray-600">Bảo mật với JWT Authentication</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
       <section className="py-16">
@@ -124,93 +134,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Được Tin Tưởng Bởi Các Tổ Chức Pháp Lý
-          </h2>
-          <p className="text-lg text-gray-600">
-            Hệ thống đã được sử dụng bởi hàng trăm văn phòng luật trên toàn quốc
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div className="space-y-2">
-            <div className="text-4xl md:text-5xl font-bold text-primary-600">200+</div>
-            <div className="text-gray-600 font-medium">Văn Phòng Luật</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl md:text-5xl font-bold text-secondary-600">5K+</div>
-            <div className="text-gray-600 font-medium">Hồ Sơ Án/Tháng</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl md:text-5xl font-bold text-accent-600">99%</div>
-            <div className="text-gray-600 font-medium">Uptime</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl md:text-5xl font-bold text-orange-500">24/7</div>
-            <div className="text-gray-600 font-medium">Hỗ Trợ</div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="text-center py-16">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-            Sẵn Sàng Bắt Đầu?
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Hãy bắt đầu hành trình số hóa quản lý án của bạn ngay hôm nay. Dùng thử miễn phí 30 ngày.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-              Dùng Thử Miễn Phí
-            </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-primary-500 text-primary-600 font-semibold rounded-xl hover:bg-primary-50 transition-all duration-200">
-              Liên Hệ Tư Vấn
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* User Info Section - Only show if user is logged in */}
-      {user && (
-        <section className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">{user.username?.[0]?.toUpperCase()}</span>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900">Chào mừng trở lại, {user.username}!</h3>
-              <p className="text-gray-600">Bạn đã đăng nhập thành công vào hệ thống</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-primary-50 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span className="font-semibold text-gray-900">Thông tin tài khoản</span>
-              </div>
-              <p className="text-gray-600">Email: {user.email}</p>
-            </div>
-            
-            <div className="bg-secondary-50 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <svg className="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span className="font-semibold text-gray-900">Phiên đăng nhập</span>
-              </div>
-              <p className="text-gray-600">Bảo mật với JWT Authentication</p>
-            </div>
-          </div>
-        </section>
-      )}
+      
     </div>
   );
 };
