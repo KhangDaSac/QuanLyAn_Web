@@ -107,14 +107,13 @@ const HomePage = () => {
       )}
 
       {/* Features Section */}
-      <section className="py-16">
-
+      <section className="">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Tính Năng Nổi Bật
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Những tính năng mạnh mẽ giúp bạn quản lý hồ sơ án một cách chuyên nghiệp và hiệu quả
+            Những tính năng mạnh mẽ giúp bạn quản lý hồ sơ án một cách chuyên nghiệp
           </p>
         </div>
 
@@ -138,7 +137,7 @@ const HomePage = () => {
                 <div className="flex justify-end mt-6">
                   <a
                     href={`${feature.href}`}
-                    className="text-blue-600 font-medium hover:text-blue-800 transition-colors duration-300"
+                    className="text-red-600 font-medium hover:text-red-800 transition-colors duration-300"
                   >
                     Khám phá ngay →
                   </a>
