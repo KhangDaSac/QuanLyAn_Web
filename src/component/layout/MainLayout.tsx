@@ -94,12 +94,21 @@ const MainLayout = ({
                             key={index}
                             href={item.href}
                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${item.active
-                                ? 'bg-primary-50 text-primary-600 border-2 border-primary-600  hover:text-primary-400'
-                                : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
+                                    ? 'border-2 border-red-600'
+                                    : 'text-gray-700 hover:bg-blue-100'
                                 }`}
                         >
-                            {item.icon}
-                            <span className="font-medium">{item.name}</span>
+                            <span className={`w-5 h-5 ${item.active ? 'text-red-600' : 'text-gray-700'}`}>
+                                {React.cloneElement(item.icon, {
+                                    className: `w-5 h-5 ${item.active ? 'text-red-600' : 'text-gray-700'}`
+                                })}
+                            </span>
+                            <span
+                                className={`font-medium ${item.active ? 'text-red-600' : 'text-gray-700'
+                                    }`}
+                            >
+                                {item.name}
+                            </span>
                         </a>
                     ))}
                 </nav>
@@ -157,20 +166,12 @@ const MainLayout = ({
                                 </div>
 
                                 {/* Notifications */}
-                                <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-4.5-4.5A5.972 5.972 0 0016 10V8a6 6 0 10-12 0v2a5.972 5.972 0 00.5 2.5L0 17h5m10 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                <button className="relative p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+                                    <svg className="w-8 h-8" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-5.0 -10.0 110.0 135.0">
+                                        <path d="m50 84.176h-9.168c2.9141 8.8125 15.422 8.8125 18.336 0zm-8.9023-70.832c1.2461-11.941 11.887-12.461 15.84-6.2344 1.0742 1.6953 1.7148 3.8555 1.9648 6.2344 13.863 3.9844 23.75 16.859 23.75 31.617v21.805c0 1.6289 6.3477 3.668 6.3477 9.9766 0 4.4727-3.3516 7.4375-7.9023 7.4375h-15.738c-2.375 12.121-17.465 17.004-26.414 8.0547-2.1602-2.1602-3.6953-4.9453-4.3047-8.0547h-15.738c-4.543 0-7.8906-2.9375-7.8906-7.4375l-0.011719-0.003907c0-6.2969 6.3477-8.3477 6.3477-9.9766v-21.801c0-14.758 9.8867-27.633 23.75-31.617zm11.543-1.1445c-1.0195-4.0234-4.2656-4.0234-5.2852 0 1.7656-0.14062 3.5234-0.14062 5.2852 0zm-33.738 65.977h62.199c1.7188 0 2.25-0.8125 1.7383-2.4375-0.5625-1.793-6.1875-3.9102-6.1875-8.9766v-21.801c0-23.656-28.602-35.98-45.473-18.984-4.832 4.8672-7.832 11.586-7.832 18.984v21.805c0 5.6406-6.3477 6.8008-6.3477 9.9766h-0.011719c0 1.1719 0.79688 1.4336 1.9141 1.4336z" fill-rule="evenodd" />
                                     </svg>
                                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                                 </button>
-
-                                {/* Profile */}
-                                <div className="flex items-center space-x-3">
-                                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                                        <span className="text-primary-600 font-semibold text-sm">LW</span>
-                                    </div>
-                                    <span className="hidden sm:block text-sm font-medium text-gray-900">Luật Sư</span>
-                                </div>
                             </div>
                         </div>
                     </header>
