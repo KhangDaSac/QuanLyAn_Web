@@ -1,45 +1,4 @@
-interface LegalRelationshipGroup {
-  legalRelationshipGroupId: string;
-  legalRelationshipGroupName: string;
-  description: string;
-}
-
-interface TypeOfLegalCase {
-  typeOfLegalCaseId: string;
-  typeOfLegalCaseName: string;
-  codeName: string;
-}
-
-interface LegalRelationship {
-  legalRelationshipId: string;
-  legalRelationshipName: string;
-  typeOfLegalCase: TypeOfLegalCase;
-  legalRelationshipGroup: LegalRelationshipGroup;
-}
-
-interface JudgeResponse {
-  judgeId: string;
-  judgeName: string;
-  email: string;
-  phone: string;
-}
-
-interface LegalCase {
-  legalCaseId: string;
-  acceptanceNumber: string;
-  acceptanceDate: string;
-  expiredDate: string;
-  plaintiff: string;
-  plaintiffAddress: string;
-  defendant: string;
-  defendantAddress: string;
-  legalRelationship: LegalRelationship;
-  storageDate: string;
-  assignment: string | null;
-  assignmentDate: string | null;
-  statusOfLegalCase: string;
-  judge: JudgeResponse | null;
-}
+import { type LegalCase } from "../../types/LegalCase";
 
 interface LegalCaseCardProps {
   legalCase: LegalCase;

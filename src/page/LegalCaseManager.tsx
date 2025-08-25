@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
+import { LegalCaseManagerService } from '../services/LegalCaseManagerService';
 
 interface LegalRelationshipGroup {
   legalRelationshipGroupId: string;
@@ -80,68 +81,6 @@ const LegalCaseManager = () => {
     storageDate: ''
   });
 
-  // Mock data cho demo
-  const mockData: LegalCase[] = [
-    {
-      legalCaseId: "2025DS0001",
-      acceptanceNumber: "59",
-      acceptanceDate: "2025-06-05",
-      expiredDate: "2025-07-30",
-      plaintiff: "Lê Văn C",
-      plaintiffAddress: "Xã Mỹ Thọ, tỉnh Đồng Tháp",
-      defendant: "Phạm Văn D",
-      defendantAddress: "Xã Trường Xuân, tỉnh Đồng Tháp",
-      legalRelationship: {
-        legalRelationshipId: "DS048",
-        legalRelationshipName: "Tranh chấp đất đai - Tranh chấp hợp đồng chuyển đổi qsd đất",
-        typeOfLegalCase: {
-          typeOfLegalCaseId: "L02",
-          typeOfLegalCaseName: "Dân sự",
-          codeName: "DS"
-        },
-        legalRelationshipGroup: {
-          legalRelationshipGroupId: "N03",
-          legalRelationshipGroupName: "Nhóm 03 - Đất",
-          description: "Các quan hệ pháp luật thuộc dân sự liên quan tới đất đai"
-        }
-      },
-      storageDate: "2025-08-20 12:13:08",
-      assignment: null,
-      assignmentDate: null,
-      statusOfLegalCase: "WAITING_FOR_ASSIGNMENT",
-      judge: null
-    },
-    {
-      legalCaseId: "2025DS0002",
-      acceptanceNumber: "62",
-      acceptanceDate: "2025-06-20",
-      expiredDate: "2025-12-20",
-      plaintiff: "Phan Thị I",
-      plaintiffAddress: "Võ Văn K",
-      defendant: "Đồng Tháp",
-      defendantAddress: "TP. Hồ Chí Minh",
-      legalRelationship: {
-        legalRelationshipId: "DS037",
-        legalRelationshipName: "Tranh chấp về thừa kế tài sản",
-        typeOfLegalCase: {
-          typeOfLegalCaseId: "L02",
-          typeOfLegalCaseName: "Dân sự",
-          codeName: "DS"
-        },
-        legalRelationshipGroup: {
-          legalRelationshipGroupId: "N04",
-          legalRelationshipGroupName: "Nhóm 04 - Còn lại",
-          description: "Các quan hệ pháp luật còn lại"
-        }
-      },
-      storageDate: "2025-08-20 12:14:01",
-      assignment: null,
-      assignmentDate: null,
-      statusOfLegalCase: "WAITING_FOR_ASSIGNMENT",
-      judge: null
-    }
-  ];
-
   useEffect(() => {
     fetchLegalCases();
   }, []);
@@ -149,18 +88,8 @@ const LegalCaseManager = () => {
   const fetchLegalCases = async () => {
     setLoading(true);
     try {
-      // Giả lập API call
-      setTimeout(() => {
-        setLegalCases(mockData);
-        setLoading(false);
-      }, 1000);
-      
-      // Uncomment khi có API thật
-      // const response = await fetch('/api/legal-case/all');
-      // const result: ApiResponse<LegalCase[]> = await response.json();
-      // if (result.success) {
-      //   setLegalCases(result.data);
-      // }
+      setLegalCases((await LegalCaseManagerService.top_50()).data);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching legal cases:', error);
       setLoading(false);
@@ -171,7 +100,7 @@ const LegalCaseManager = () => {
     setLoading(true);
     try {
       // Lọc dữ liệu mock theo filter
-      const filteredData = mockData.filter(legalCase => {
+      const filteredData = legalCases.filter(legalCase => {
         return (
           (!searchFilters.acceptanceNumber || legalCase.acceptanceNumber.includes(searchFilters.acceptanceNumber)) &&
           (!searchFilters.plaintiff || legalCase.plaintiff.toLowerCase().includes(searchFilters.plaintiff.toLowerCase())) &&
