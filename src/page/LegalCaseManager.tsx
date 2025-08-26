@@ -114,16 +114,6 @@ const LegalCaseManager = () => {
         setLoading(false);
       }, 500);
       
-      // Uncomment khi có API thật
-      // const response = await fetch('/api/legal-case/search', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(searchFilters)
-      // });
-      // const result: ApiResponse<LegalCase[]> = await response.json();
-      // if (result.success) {
-      //   setLegalCases(result.data);
-      // }
     } catch (error) {
       console.error('Error searching legal cases:', error);
       setLoading(false);
@@ -151,7 +141,6 @@ const LegalCaseManager = () => {
 
   const handleEdit = (legalCase: LegalCase) => {
     console.log('Edit legal case:', legalCase);
-    // Implement edit functionality
   };
 
   const handleDelete = (legalCaseId: string) => {
@@ -216,7 +205,7 @@ const LegalCaseManager = () => {
                 value={searchFilters.acceptanceNumber}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, acceptanceNumber: e.target.value }))}
                 placeholder="Nhập số thụ lý"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
@@ -227,7 +216,7 @@ const LegalCaseManager = () => {
                 type="date"
                 value={searchFilters.startAcceptanceDate}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, startAcceptanceDate: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
@@ -238,19 +227,19 @@ const LegalCaseManager = () => {
                 type="date"
                 value={searchFilters.endAcceptanceDate}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, endAcceptanceDate: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
             {/* Nguyên đơn */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nguyên đơn</label>
+              <label className="block text-sm outline-none font-medium text-gray-700 mb-2">Nguyên đơn/bị cáo</label>
               <input
                 type="text"
                 value={searchFilters.plaintiff}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, plaintiff: e.target.value }))}
-                placeholder="Tên nguyên đơn"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                placeholder="Tên nguyên đơn/bị cáo"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
@@ -262,7 +251,7 @@ const LegalCaseManager = () => {
                 value={searchFilters.plaintiffAddress}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, plaintiffAddress: e.target.value }))}
                 placeholder="Địa chỉ nguyên đơn"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
@@ -274,7 +263,7 @@ const LegalCaseManager = () => {
                 value={searchFilters.defendant}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, defendant: e.target.value }))}
                 placeholder="Tên bị đơn"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
@@ -286,7 +275,7 @@ const LegalCaseManager = () => {
                 value={searchFilters.defendantAddress}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, defendantAddress: e.target.value }))}
                 placeholder="Địa chỉ bị đơn"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
@@ -296,7 +285,7 @@ const LegalCaseManager = () => {
               <select
                 value={searchFilters.statusOfLegalCase}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, statusOfLegalCase: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="WAITING_FOR_ASSIGNMENT">Chờ phân công</option>
@@ -315,7 +304,7 @@ const LegalCaseManager = () => {
                 value={searchFilters.judgeName}
                 onChange={(e) => setSearchFilters(prev => ({ ...prev, judgeName: e.target.value }))}
                 placeholder="Tên thẩm phán"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
           </div>
@@ -384,7 +373,7 @@ const LegalCaseManager = () => {
               </svg>
             </div>
             <div className="ml-3 md:ml-4">
-              <p className="text-xs md:text-sm text-gray-600">Đã phân công</p>
+              <p className="text-xs md:text-sm text-gray-600">Đang giải quyết</p>
               <p className="text-xl md:text-2xl font-bold text-gray-900">
                 {legalCases.filter(lc => lc.judge !== null).length}
               </p>
