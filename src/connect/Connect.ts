@@ -1,5 +1,4 @@
 import { type ApiResponse } from "../types/ApiResponse";
-
 const server_url = import.meta.env.VITE_SERVER_URL || "https://localhost:8081";
 
 export class Connect {

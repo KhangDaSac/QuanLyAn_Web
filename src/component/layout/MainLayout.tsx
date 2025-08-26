@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/authContext/useAuth';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -13,6 +14,12 @@ const MainLayout = ({
     className = '',
 }: MainLayoutProps) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { logout } = useAuth();
+
+    const handleLogout = async (e: React.FormEvent) => {
+        e.preventDefault();
+        logout();
+    };
 
     const menuItems = [
         {
@@ -144,7 +151,10 @@ const MainLayout = ({
                 </nav>
 
                 <div className="absolute bottom-4 left-4 right-4">
-                    <button className="border-0 mt-3 w-full flex items-center justify-center space-x-2 px-3 py-3 text-sm text-white bg-red-600 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                    <button
+                        className="border-0 mt-3 w-full flex items-center justify-center space-x-2 px-3 py-3 text-sm text-white bg-red-600 rounded-lg hover:bg-red-600 transition-colors duration-200"
+                        onClick={handleLogout}
+                    >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
