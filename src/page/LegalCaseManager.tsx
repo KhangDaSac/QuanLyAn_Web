@@ -88,7 +88,7 @@ const LegalCaseManager = () => {
   const fetchLegalCases = async () => {
     setLoading(true);
     try {
-      setLegalCases((await LegalCaseManagerService.top_50()).data);
+      setLegalCases((await LegalCaseManagerService.top50()).data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching legal cases:', error);

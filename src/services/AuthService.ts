@@ -1,4 +1,5 @@
 import type { LoginResponse } from '../context/authContext/AuthContext.types';
+import { Connect } from '../connect/Connect';
 const server_url = import.meta.env.SERVER_URL || 'https://localhost:8081';
 
 interface JWTPayload {
@@ -14,23 +15,12 @@ interface JWTPayload {
 export class AuthService {
   static async login(identifier: string, password: string): Promise<LoginResponse> {
     try {
-      const response = await fetch(`${server_url}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          identifier,
-          password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
+      return Connect.request(
+        '/auth/login',
+        'POST',
+        { identifier, password },
+        null
+      );
     } catch (error) {
       console.error('Login error:', error);
       throw error;
