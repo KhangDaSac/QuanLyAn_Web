@@ -8,7 +8,12 @@ interface LegalCaseCardProps {
 }  
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('vi-VN');
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 };
 
 const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardProps) => {
