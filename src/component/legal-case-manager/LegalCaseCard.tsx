@@ -5,43 +5,7 @@ interface LegalCaseCardProps {
   onEdit?: (legalCase: LegalCaseResponse) => void;
   onDelete?: (legalCaseId: string) => void;
   onAssign?: (legalCase: LegalCaseResponse) => void;
-}
-
-const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    WAITING_FOR_ASSIGNMENT: {
-      label: 'Chờ phân công',
-      className: 'bg-yellow-100 text-yellow-800 border-yellow-200'
-    },
-    ASSIGNED: {
-      label: 'Đã phân công',
-      className: 'bg-blue-100 text-blue-800 border-blue-200'
-    },
-    IN_PROGRESS: {
-      label: 'Đang xử lý',
-      className: 'bg-purple-100 text-purple-800 border-purple-200'
-    },
-    COMPLETED: {
-      label: 'Hoàn thành',
-      className: 'bg-green-100 text-green-800 border-green-200'
-    },
-    CANCELLED: {
-      label: 'Đã hủy',
-      className: 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  };
-
-  const config = statusConfig[status as keyof typeof statusConfig] || {
-    label: status,
-    className: 'bg-gray-100 text-gray-800 border-gray-200'
-  };
-
-  return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.className}`}>
-      {config.label}
-    </span>
-  );
-};
+}  
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('vi-VN');

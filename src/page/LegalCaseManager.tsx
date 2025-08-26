@@ -1,84 +1,28 @@
 import { useState, useEffect } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import { LegalCaseManagerService } from '../services/LegalCaseManagerService';
-
-interface LegalRelationshipGroup {
-  legalRelationshipGroupId: string;
-  legalRelationshipGroupName: string;
-  description: string;
-}
-
-interface TypeOfLegalCase {
-  typeOfLegalCaseId: string;
-  typeOfLegalCaseName: string;
-  codeName: string;
-}
-
-interface LegalRelationship {
-  legalRelationshipId: string;
-  legalRelationshipName: string;
-  typeOfLegalCase: TypeOfLegalCase;
-  legalRelationshipGroup: LegalRelationshipGroup;
-}
-
-interface JudgeResponse {
-  judgeId: string;
-  judgeName: string;
-  email: string;
-  phone: string;
-}
-
-interface LegalCase {
-  legalCaseId: string;
-  acceptanceNumber: string;
-  acceptanceDate: string;
-  expiredDate: string;
-  plaintiff: string;
-  plaintiffAddress: string;
-  defendant: string;
-  defendantAddress: string;
-  legalRelationship: LegalRelationship;
-  storageDate: string;
-  assignment: string | null;
-  assignmentDate: string | null;
-  statusOfLegalCase: string;
-  judge: JudgeResponse | null;
-}
-
-interface SearchFilters {
-  acceptanceNumber: string;
-  startAcceptanceDate: string;
-  endAcceptanceDate: string;
-  plaintiff: string;
-  plaintiffAddress: string;
-  defendant: string;
-  defendantAddress: string;
-  typeOfLegalCaseId: string;
-  legalRelationshipId: string;
-  legalRelationshipGroupId: string;
-  statusOfLegalCase: string;
-  judgeName: string;
-  storageDate: string;
-}
+import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
+import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
 
 const LegalCaseManager = () => {
-  const [legalCases, setLegalCases] = useState<LegalCase[]>([]);
+  const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
-    acceptanceNumber: '',
-    startAcceptanceDate: '',
-    endAcceptanceDate: '',
-    plaintiff: '',
-    plaintiffAddress: '',
-    defendant: '',
-    defendantAddress: '',
-    typeOfLegalCaseId: '',
-    legalRelationshipId: '',
-    legalRelationshipGroupId: '',
-    statusOfLegalCase: '',
-    judgeName: '',
-    storageDate: ''
+  const [legalCaseSearch, setLegalCaseSearch] = useState<LegalCaseSearchRequest>({
+    acceptanceNumber: null,
+    startAcceptanceDate: null,
+    endAcceptanceDate: null,
+    plaintiff: null,
+    plaintiffAddress: null,
+    defendant: null,
+    defendantAddress: null,
+    typeOfLegalCaseId: null,
+    legalRelationshipId: null,
+    legalRelationshipGroupId: null,
+    statusOfLegalCase: null,
+    judgeName: null,
+    batchId: null,
+    storageDate: null
   });
 
   useEffect(() => {
@@ -99,47 +43,20 @@ const LegalCaseManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      // Lọc dữ liệu mock theo filter
-      const filteredData = legalCases.filter(legalCase => {
-        return (
-          (!searchFilters.acceptanceNumber || legalCase.acceptanceNumber.includes(searchFilters.acceptanceNumber)) &&
-          (!searchFilters.plaintiff || legalCase.plaintiff.toLowerCase().includes(searchFilters.plaintiff.toLowerCase())) &&
-          (!searchFilters.defendant || legalCase.defendant.toLowerCase().includes(searchFilters.defendant.toLowerCase())) &&
-          (!searchFilters.statusOfLegalCase || legalCase.statusOfLegalCase === searchFilters.statusOfLegalCase)
-        );
-      });
-
-      setTimeout(() => {
-        setLegalCases(filteredData);
-        setLoading(false);
-      }, 500);
-      
+      setLegalCases((await LegalCaseManagerService.search(legalCaseSearch)).data);
+      console.log((await LegalCaseManagerService.search(legalCaseSearch)).data)
     } catch (error) {
       console.error('Error searching legal cases:', error);
+    } finally {
       setLoading(false);
     }
   };
 
   const handleClearFilters = () => {
-    setSearchFilters({
-      acceptanceNumber: '',
-      startAcceptanceDate: '',
-      endAcceptanceDate: '',
-      plaintiff: '',
-      plaintiffAddress: '',
-      defendant: '',
-      defendantAddress: '',
-      typeOfLegalCaseId: '',
-      legalRelationshipId: '',
-      legalRelationshipGroupId: '',
-      statusOfLegalCase: '',
-      judgeName: '',
-      storageDate: ''
-    });
     fetchLegalCases();
   };
 
-  const handleEdit = (legalCase: LegalCase) => {
+  const handleEdit = (legalCase: LegalCaseResponse) => {
     console.log('Edit legal case:', legalCase);
   };
 
@@ -151,7 +68,7 @@ const LegalCaseManager = () => {
     }
   };
 
-  const handleAssign = (legalCase: LegalCase) => {
+  const handleAssign = (legalCase: LegalCaseResponse) => {
     console.log('Assign legal case:', legalCase);
     // Implement assign functionality
   };
@@ -167,11 +84,10 @@ const LegalCaseManager = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-              showFilters 
-                ? 'bg-red-600 text-white hover:bg-red-700' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${showFilters
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             <span className="flex items-center justify-center space-x-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,8 +118,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Số thụ lý</label>
               <input
                 type="text"
-                value={searchFilters.acceptanceNumber}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, acceptanceNumber: e.target.value }))}
+                value={legalCaseSearch?.acceptanceNumber ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, acceptanceNumber: e.target.value }))}
                 placeholder="Nhập số thụ lý"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
@@ -214,8 +130,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Ngày thụ lý từ</label>
               <input
                 type="date"
-                value={searchFilters.startAcceptanceDate}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, startAcceptanceDate: e.target.value }))}
+                value={legalCaseSearch?.startAcceptanceDate ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, startAcceptanceDate: e.target.value }))}
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
@@ -225,8 +141,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Ngày thụ lý đến</label>
               <input
                 type="date"
-                value={searchFilters.endAcceptanceDate}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, endAcceptanceDate: e.target.value }))}
+                value={legalCaseSearch?.endAcceptanceDate ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, endAcceptanceDate: e.target.value }))}
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
@@ -236,8 +152,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm outline-none font-medium text-gray-700 mb-2">Nguyên đơn/bị cáo</label>
               <input
                 type="text"
-                value={searchFilters.plaintiff}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, plaintiff: e.target.value }))}
+                value={legalCaseSearch?.plaintiff ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, plaintiff: e.target.value }))}
                 placeholder="Tên nguyên đơn/bị cáo"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
@@ -248,8 +164,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ nguyên đơn</label>
               <input
                 type="text"
-                value={searchFilters.plaintiffAddress}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, plaintiffAddress: e.target.value }))}
+                value={legalCaseSearch?.plaintiffAddress ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, plaintiffAddress: e.target.value }))}
                 placeholder="Địa chỉ nguyên đơn"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
@@ -260,8 +176,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Bị đơn</label>
               <input
                 type="text"
-                value={searchFilters.defendant}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, defendant: e.target.value }))}
+                value={legalCaseSearch?.defendant ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, defendant: e.target.value }))}
                 placeholder="Tên bị đơn"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
@@ -272,8 +188,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ bị đơn</label>
               <input
                 type="text"
-                value={searchFilters.defendantAddress}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, defendantAddress: e.target.value }))}
+                value={legalCaseSearch?.defendantAddress ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, defendantAddress: e.target.value }))}
                 placeholder="Địa chỉ bị đơn"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
@@ -283,8 +199,8 @@ const LegalCaseManager = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
               <select
-                value={searchFilters.statusOfLegalCase}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, statusOfLegalCase: e.target.value }))}
+                value={legalCaseSearch?.statusOfLegalCase ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, statusOfLegalCase: e.target.value }))}
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               >
                 <option value="">Tất cả trạng thái</option>
@@ -301,8 +217,8 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Tên thẩm phán</label>
               <input
                 type="text"
-                value={searchFilters.judgeName}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, judgeName: e.target.value }))}
+                value={legalCaseSearch?.judgeName ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, judgeName: e.target.value }))}
                 placeholder="Tên thẩm phán"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />

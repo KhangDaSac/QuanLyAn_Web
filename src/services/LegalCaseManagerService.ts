@@ -1,9 +1,8 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
-import { type LegalCaseSearch } from "../types/request/LegalCaseSearch";
+import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import { Connect } from "../connect/Connect";
 
-const server_url = import.meta.env.SERVER_URL || 'https://localhost:8081';
 export class LegalCaseManagerService {
   static async top50(): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
@@ -20,23 +19,16 @@ export class LegalCaseManagerService {
     }
   }
 
-  static async search(legalCaseSearch: LegalCaseSearch): Promise<ApiResponse<LegalCaseResponse[]>> {
+  static async search(legalCaseSearch: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${server_url}/legal-case/search`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(legalCaseSearch),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
+      console.log(legalCaseSearch)
+      return Connect.request(
+        '/legal-case/search',
+        'POST',
+        legalCaseSearch,
+        token
+      );
     } catch (error) {
       console.error('Error:', error);
       throw error;
