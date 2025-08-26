@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import { LegalCaseManagerService } from '../services/LegalCaseManagerService';
+import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
+import { LegalRelationshipService } from '../services/LegalRelationshipService';
 
 const LegalCaseManager = () => {
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
@@ -26,8 +28,7 @@ const LegalCaseManager = () => {
     storageDate: null
   });
 
-
-  const [searchFilters, setSearchFilters] = useState({
+  const [statusOfLegalCaseFilters, setStatusOfLegalCaseFilters] = useState({
     statusOfLegalCase: "",
   });
 
@@ -41,17 +42,63 @@ const LegalCaseManager = () => {
     { value: "SOLVED", label: "Đã được giải quyết" },
   ];
 
+  const [typeOfLegalCaseFilters, setTypeOfLegalCaseFilters] = useState({
+    typeOfLegalCaseId: "",
+  });
+
+  const [typeOfLegalCases, setTypeOfLegalCases] = useState<Option[]>([]);
+
+  const [legalRelationshipFilters, setLegalRelationshipFilters] = useState({
+    legalRelationshipId: "",
+  });
+
+  const [legalRelationships, setLegalRelationships] = useState<Option[]>([]);
+
   useEffect(() => {
     fetchLegalCases();
+    fetchTypeOfLegalCases();
+    fetchLegalRelationships();
   }, []);
 
   const fetchLegalCases = async () => {
     setLoading(true);
     try {
       setLegalCases((await LegalCaseManagerService.top50()).data);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching legal cases:', error);
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  const fetchTypeOfLegalCases = async () => {
+    setLoading(true);
+    try {
+      setTypeOfLegalCases((await TypeOfLegalCaseService.getAll()).data.map(
+        (item): Option => ({
+          value: item.typeOfLegalCaseId,
+          label: item.typeOfLegalCaseName
+        })
+      ));
+    } catch (error) {
+      console.error('Error fetching legal cases:', error);
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  const fetchLegalRelationships = async () => {
+    setLoading(true);
+    try {
+      setLegalRelationships((await LegalRelationshipService.getAll()).data.map(
+        (item): Option => ({
+          value: item.legalRelationshipId,
+          label: item.legalRelationshipName
+        })
+      ));
+    } catch (error) {
+      console.error('Error fetching legal cases:', error);
+    }finally{
       setLoading(false);
     }
   };
@@ -211,20 +258,58 @@ const LegalCaseManager = () => {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Loại vụ án</label>
+              <ComboboxSearch
+                options={typeOfLegalCases}
+                value={typeOfLegalCaseFilters.typeOfLegalCaseId}
+                onChange={(val) => {
+                  setTypeOfLegalCaseFilters((prev) => ({
+                    ...prev,
+                    typeOfLegalCaseId: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    typeOfLegalCaseId: val ?? null
+                  })
+                }}
+                placeholder="Chọn trạng quan hệ pháp luật"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Quan hệ pháp luật</label>
+              <ComboboxSearch
+                options={legalRelationships}
+                value={legalRelationshipFilters.legalRelationshipId}
+                onChange={(val) => {
+                  setLegalRelationshipFilters((prev) => ({
+                    ...prev,
+                    legalRelationshipId: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    legalRelationshipId: val ?? null
+                  })
+                }}
+                placeholder="Chọn trạng quan hệ pháp luật"
+              />
+            </div>
+
             {/* Trạng thái */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ bị đơn</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái án</label>
               <ComboboxSearch
                 options={statusOfLegalCases}
-                value={searchFilters.statusOfLegalCase}
+                value={statusOfLegalCaseFilters.statusOfLegalCase}
                 onChange={(val) => {
-                  setSearchFilters((prev) => ({
+                  setStatusOfLegalCaseFilters((prev) => ({
                     ...prev,
                     statusOfLegalCase: val,
                   }))
                   setLegalCaseSearch({
                     ...legalCaseSearch,
-                    statusOfLegalCase: val
+                    statusOfLegalCase: val ?? null
                   })
                 }}
                 placeholder="Chọn trạng thái"
