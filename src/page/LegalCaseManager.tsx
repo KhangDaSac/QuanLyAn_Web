@@ -3,6 +3,7 @@ import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import { LegalCaseManagerService } from '../services/LegalCaseManagerService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
+import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 
 const LegalCaseManager = () => {
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
@@ -24,6 +25,21 @@ const LegalCaseManager = () => {
     batchId: null,
     storageDate: null
   });
+
+
+  const [searchFilters, setSearchFilters] = useState({
+    statusOfLegalCase: "",
+  });
+
+  const statusOfLegalCases: Option[] = [
+    { value: "", label: "Tất cả trạng thái" },
+    { value: "TEMPORARY_SUSPENSION", label: "Tạm đình chỉ" },
+    { value: "OVERDUE", label: "Án hủy" },
+    { value: "EDIT_LEGAL_CASE", label: "Án sửa" },
+    { value: "WAITING_FOR_ASSIGNMENT", label: "Chờ được phân công" },
+    { value: "IN_PROCESS", label: "Đang giải quyết" },
+    { value: "SOLVED", label: "Đã được giải quyết" },
+  ];
 
   useEffect(() => {
     fetchLegalCases();
@@ -197,19 +213,22 @@ const LegalCaseManager = () => {
 
             {/* Trạng thái */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
-              <select
-                value={legalCaseSearch?.statusOfLegalCase ?? ''}
-                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, statusOfLegalCase: e.target.value }))}
-                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="WAITING_FOR_ASSIGNMENT">Chờ phân công</option>
-                <option value="ASSIGNED">Đã phân công</option>
-                <option value="IN_PROGRESS">Đang xử lý</option>
-                <option value="COMPLETED">Hoàn thành</option>
-                <option value="CANCELLED">Đã hủy</option>
-              </select>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ bị đơn</label>
+              <ComboboxSearch
+                options={statusOfLegalCases}
+                value={searchFilters.statusOfLegalCase}
+                onChange={(val) => {
+                  setSearchFilters((prev) => ({
+                    ...prev,
+                    statusOfLegalCase: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    statusOfLegalCase: val
+                  })
+                }}
+                placeholder="Chọn trạng thái"
+              />
             </div>
 
             {/* Tên thẩm phán */}
@@ -347,5 +366,4 @@ const LegalCaseManager = () => {
     </div>
   );
 };
-
 export default LegalCaseManager;
