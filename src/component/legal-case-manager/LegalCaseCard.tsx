@@ -1,10 +1,10 @@
-import { type LegalCase } from "../../types/LegalCase";
+import { type LegalCaseResponse } from "../../types/response/legal-case/LegalCaseResponse";
 
 interface LegalCaseCardProps {
-  legalCase: LegalCase;
-  onEdit?: (legalCase: LegalCase) => void;
+  legalCase: LegalCaseResponse;
+  onEdit?: (legalCase: LegalCaseResponse) => void;
   onDelete?: (legalCaseId: string) => void;
-  onAssign?: (legalCase: LegalCase) => void;
+  onAssign?: (legalCase: LegalCaseResponse) => void;
 }
 
 const getStatusBadge = (status: string) => {

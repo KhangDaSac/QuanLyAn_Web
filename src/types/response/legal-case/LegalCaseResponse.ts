@@ -1,7 +1,7 @@
-import { type LegalRelationship } from "./LegalRelationship";
-import { type Judge } from "./Judge";
+import { type LegalRelationshipResponse } from "./LegalRelationshipResponse";
+import { type JudgeResponse } from "../judge/JudgeResponse"; 
 
-interface LegalCase {
+export interface LegalCaseResponse {
   legalCaseId: string;
   acceptanceNumber: string;
   acceptanceDate: string;
@@ -10,12 +10,10 @@ interface LegalCase {
   plaintiffAddress: string;
   defendant: string;
   defendantAddress: string;
-  legalRelationship: LegalRelationship;
+  legalRelationship: LegalRelationshipResponse;
   storageDate: string;
   assignment: string | null;
   assignmentDate: string | null;
   statusOfLegalCase: string;
-  judge: Judge | null;
+  judge: JudgeResponse | null;
 }
-
-export {type LegalCase}

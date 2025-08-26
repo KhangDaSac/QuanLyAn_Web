@@ -1,11 +1,11 @@
 import { type ApiResponse } from "../types/ApiResponse";
-import { type LegalCase } from "../types/LegalCase";
+import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import { type LegalCaseSearch } from "../types/request/LegalCaseSearch";
 import { Connect } from "../connect/Connect";
 
 const server_url = import.meta.env.SERVER_URL || 'https://localhost:8081';
 export class LegalCaseManagerService {
-  static async top50(): Promise<ApiResponse<LegalCase[]>> {
+  static async top50(): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(
@@ -20,7 +20,7 @@ export class LegalCaseManagerService {
     }
   }
 
-  static async search(legalCaseSearch: LegalCaseSearch): Promise<ApiResponse<LegalCase[]>> {
+  static async search(legalCaseSearch: LegalCaseSearch): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${server_url}/legal-case/search`, {
