@@ -60,11 +60,18 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white cursor-pointer focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm flex justify-between items-center"
       >
-        <span className={`${!displayText ? "text-gray-400" : ""}`}>
+        <span
+          className={`flex-1 ${!displayText ? "text-gray-400" : ""}`}
+          style={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
           {displayText || placeholder}
         </span>
         <svg
-          className={`w-4 h-4 ml-2 transform transition-transform ${
+          className={`w-4 h-4 ml-2 flex-shrink-0 transform transition-transform ${
             isOpen ? "rotate-180" : "rotate-0"
           }`}
           fill="none"
@@ -99,6 +106,10 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
                   className={`px-3 py-2 text-sm cursor-pointer hover:bg-red-100 ${
                     option.value === value ? "bg-red-50 font-medium" : ""
                   }`}
+                  style={{
+                    whiteSpace: "normal", // Cho phép xuống dòng
+                    wordBreak: "break-word", // Ngắt từ nếu quá dài
+                  }}
                 >
                   {option.label}
                 </li>
