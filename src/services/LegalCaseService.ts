@@ -3,6 +3,7 @@ import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseRe
 import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import { Connect } from "../connect/Connect";
+import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
 
 export class LegalCaseService {
   static async top50(): Promise<ApiResponse<LegalCaseResponse[]>> {
@@ -78,6 +79,22 @@ export class LegalCaseService {
       );
     } catch (error) {
       console.error('Error deleting legal case:', error);
+      throw error;
+    }
+  }
+
+  static async importFromExcel(legalCases: LegalCasesRequest): Promise<ApiResponse<any>> {
+    try {
+      const token = localStorage.getItem('token');
+
+      return Connect.request(
+        `/legal-case/import-excel`,
+        'POST',
+        legalCases,
+        token
+      );
+    } catch (error) {
+      console.error('Error importing legal cases from Excel:', error);
       throw error;
     }
   }

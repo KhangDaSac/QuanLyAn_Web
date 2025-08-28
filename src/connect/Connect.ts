@@ -10,7 +10,7 @@ export class Connect {
     ): Promise<ApiResponse<T>> {
         try {
             const accessToken = token ?? localStorage.getItem("token");
-
+            console.log(body)
             const response = await fetch(`${server_url}${endpoint}`, {
                 method,
                 headers: {

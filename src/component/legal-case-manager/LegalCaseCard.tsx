@@ -124,7 +124,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
             <div className="bg-gray-50 rounded-lg p-3">
               <p className="text-sm text-gray-500 mb-1">Ngày hết hạn</p>
               <p className="text-md font-semibold text-red-600">
-                {formatDate(legalCase.expiredDate)}
+                {legalCase.expiredDate != null ? formatDate(legalCase.expiredDate) : "Chưa có"}
               </p>
             </div>
           </div>
