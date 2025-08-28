@@ -208,18 +208,16 @@ const LegalCaseManager = () => {
       
       if (editingCase) {
         // Cập nhật án
-        const response = await LegalCaseService.update(editingCase.legalCaseId, data as LegalCaseRequest);
-        setLegalCases(prev => 
-          prev.map(lc => lc.legalCaseId === editingCase.legalCaseId ? response.data : lc)
-        );
+        await LegalCaseService.update(editingCase.legalCaseId, data as LegalCaseRequest);
         alert('Cập nhật án thành công!');
       } else {
         // Thêm án mới
-        const response = await LegalCaseService.create(data as LegalCaseRequest);
-        setLegalCases(prev => [response.data, ...prev]);
+        await LegalCaseService.create(data as LegalCaseRequest);
         alert('Thêm án mới thành công!');
       }
       
+      // Load lại danh sách án sau khi thêm/sửa thành công
+      await fetchLegalCases();
       handleCloseForm();
     } catch (error) {
       console.error('Error saving legal case:', error);

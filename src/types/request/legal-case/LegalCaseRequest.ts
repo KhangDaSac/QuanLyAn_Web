@@ -1,4 +1,4 @@
-export interface CreateLegalCaseRequest {
+export interface LegalCaseRequest {
   acceptanceNumber: string;
   acceptanceDate: string;
   plaintiff: string;
