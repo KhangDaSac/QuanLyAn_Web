@@ -29,10 +29,6 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
       newErrors.batchName = 'Tên batch phải có ít nhất 3 ký tự';
     }
 
-    if (!batchData.note.trim()) {
-      newErrors.note = 'Ghi chú là bắt buộc';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -67,8 +63,8 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Thông tin Batch Import</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-xl font-bold text-gray-900">Thông tin đợt nhập án</h2>
+              <p className="text-md text-gray-600 mt-1">
                 File: <span className="font-medium">{file?.name}</span>
               </p>
             </div>
@@ -88,7 +84,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
             {/* Batch Name */}
             <div>
               <label htmlFor="batchName" className="block text-sm font-medium text-gray-700 mb-1">
-                Tên Batch <span className="text-red-500">*</span>
+                Tên đợt nhập án <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -101,7 +97,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
                     ? 'border-red-300 focus:ring-red-500' 
                     : 'border-gray-300 focus:ring-blue-500'
                 }`}
-                placeholder="Ví dụ: Đợt nhập 2025"
+                placeholder="Tên đợt nhập"
               />
               {errors.batchName && (
                 <p className="text-red-500 text-xs mt-1">{errors.batchName}</p>
@@ -111,7 +107,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
             {/* Note */}
             <div>
               <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
-                Ghi chú <span className="text-red-500">*</span>
+                Ghi chú
               </label>
               <textarea
                 id="note"
@@ -124,7 +120,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
                     ? 'border-red-300 focus:ring-red-500' 
                     : 'border-gray-300 focus:ring-blue-500'
                 }`}
-                placeholder="Ví dụ: Anh Chinh nhập"
+                placeholder="Ghi chú"
               />
               {errors.note && (
                 <p className="text-red-500 text-xs mt-1">{errors.note}</p>
@@ -133,11 +129,10 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
 
             {/* File Info */}
             <div className="bg-gray-50 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Thông tin file:</h4>
-              <div className="text-xs text-gray-600 space-y-1">
+              <h4 className="text-md font-medium text-gray-700 mb-2">Thông tin file:</h4>
+              <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Tên file:</strong> {file?.name}</p>
                 <p><strong>Kích thước:</strong> {file ? Math.round(file.size / 1024) : 0} KB</p>
-                <p><strong>Loại:</strong> {file?.type || 'Unknown'}</p>
               </div>
             </div>
 
@@ -154,7 +149,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
               <button
                 type="submit"
                 disabled={loading || !file}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
                 {loading ? (
                   <>
@@ -165,7 +160,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
                     Đang import...
                   </>
                 ) : (
-                  'Xác nhận Import'
+                  'Xác nhận'
                 )}
               </button>
             </div>
