@@ -87,10 +87,6 @@ const LegalCaseForm = ({
             newErrors.plaintiff = 'Nguyên đơn là bắt buộc';
         }
 
-        if (!formData.plaintiffAddress.trim()) {
-            newErrors.plaintiffAddress = 'Địa chỉ nguyên đơn là bắt buộc';
-        }
-
         if (!formData.legalRelationshipId) {
             newErrors.legalRelationshipId = 'Quan hệ pháp luật là bắt buộc';
         }
@@ -219,7 +215,7 @@ const LegalCaseForm = ({
                             {/* Địa chỉ nguyên đơn */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Địa chỉ nguyên đơn <span className="text-red-500">*</span>
+                                    Địa chỉ nguyên đơn 
                                 </label>
                                 <input
                                     type="text"

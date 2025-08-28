@@ -185,6 +185,16 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
           <span className="text-md">Sửa</span>
         </button>
 
+        <button
+          onClick={() => onDelete?.(legalCase.legalCaseId)}
+          className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <span>Xóa</span>
+        </button>
+
         {!legalCase.judge && (
           <button
             onClick={() => onAssign?.(legalCase)}
@@ -199,12 +209,12 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
 
         <button
           onClick={() => onDelete?.(legalCase.legalCaseId)}
-          className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+          className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
-          <span>Xóa</span>
+          <span>Thêm QĐ/TB</span>
         </button>
       </div>
     </div>
