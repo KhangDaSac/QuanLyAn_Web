@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import LegalCaseForm from '../component/legal-case-manager/LegalCaseForm';
 import ConfirmModal from '../component/basic-component/ConfirmModal';
+import BatchForm from '../component/basic-component/BatchForm';
 import { ToastContainer, useToast } from '../component/basic-component/Toast';
 import { LegalCaseService } from '../services/LegalCaseService';
 import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
 import type { LegalCaseRequest } from '../types/request/legal-case/LegalCaseRequest';
+import type { BatchRequest } from '../types/request/batch/BatchRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { LegalRelationshipService } from '../services/LegalRelationshipService';
 import { LegalRelationshipGroupService } from '../services/LegalRelationshipGroupService';
@@ -79,6 +81,8 @@ const LegalCaseManager = () => {
   // Import Excel
   const [importLoading, setImportLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showBatchForm, setShowBatchForm] = useState(false);
 
   // Toast và Confirm Modal
   const toast = useToast();
@@ -307,25 +311,19 @@ const LegalCaseManager = () => {
     const fileExtension = file.name.toLowerCase().split('.').pop();
     const isExcelFile = ['xlsx', 'xls'].includes(fileExtension || '');
 
-
     if (!allowedTypes.includes(file.type) && !isExcelFile) {
       toast.error('File không hợp lệ', 'Vui lòng chọn file Excel (.xlsx, .xls) hoặc JSON (.json)');
       return;
     }
 
-    // Hiển thị confirm modal
-    setConfirmModal({
-      isOpen: true,
-      title: 'Xác nhận import file',
-      message: `Bạn có chắc chắn muốn import file "${file.name}"? Dữ liệu sẽ được thêm vào hệ thống.`,
-      type: 'info',
-      onConfirm: () => confirmImportFile(file),
-    });
+    // Lưu file và hiển thị BatchForm
+    setSelectedFile(file);
+    setShowBatchForm(true);
   };
 
-  const confirmImportFile = async (file: File) => {
+  const handleBatchSubmit = async (batchData: BatchRequest, file: File) => {
     try {
-      setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      setShowBatchForm(false);
       setImportLoading(true);
 
       // Đọc file Excel
@@ -370,6 +368,7 @@ const LegalCaseManager = () => {
             } as LegalCaseRequest;
           })
           .filter(Boolean) as LegalCaseRequest[], // Lọc bỏ các dòng null
+        batch: batchData
       };
 
       // Gửi dữ liệu lên API
@@ -378,7 +377,7 @@ const LegalCaseManager = () => {
       if (response.success) {
         toast.success(
           "Import thành công",
-          `Đã import thành công ${response.data?.importedCount || 0} án!`
+          `Đã import thành công ${response.data?.importedCount || 0} án từ batch "${batchData.batchName}"!`
         );
         await fetchLegalCases(); // Reload dữ liệu
       } else {
@@ -392,10 +391,20 @@ const LegalCaseManager = () => {
       );
     } finally {
       setImportLoading(false);
+      setSelectedFile(null);
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  };
+
+  const handleCloseBatchForm = () => {
+    setShowBatchForm(false);
+    setSelectedFile(null);
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -793,6 +802,15 @@ const LegalCaseManager = () => {
         type={confirmModal.type}
         confirmText="Xác nhận"
         cancelText="Hủy"
+      />
+
+      {/* Batch Form */}
+      <BatchForm
+        isOpen={showBatchForm}
+        onClose={handleCloseBatchForm}
+        onSubmit={handleBatchSubmit}
+        file={selectedFile}
+        loading={importLoading}
       />
 
       {/* Hidden File Input for File Import */}

@@ -30,7 +30,7 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
     const jsonTemplate = {
       legalCases: [
         {
-          acceptanceNumber: "2856",
+          acceptanceNumber: "28654",
           acceptanceDate: "2025-08-22",
           plaintiff: "Nguyễn Văn C",
           plaintiffAddress: "Hà Nội",
@@ -39,7 +39,7 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
           legalRelationshipId: "HC004"
         },
         {
-          acceptanceNumber: "2857",
+          acceptanceNumber: "28655",
           acceptanceDate: "2025-08-23",
           plaintiff: "Trần Thị E",
           plaintiffAddress: "Đà Nẵng",
@@ -47,7 +47,11 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
           defendantAddress: "",
           legalRelationshipId: "DS001"
         }
-      ]
+      ],
+      batch: {
+        batchName: "Đợt nhập 2025",
+        note: "Anh Chinh nhập"
+      }
     };
 
     const jsonContent = JSON.stringify(jsonTemplate, null, 2);
@@ -90,7 +94,7 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
                   <pre>{`{
   "legalCases": [
     {
-      "acceptanceNumber": "2856",
+      "acceptanceNumber": "28654",
       "acceptanceDate": "2025-08-22",
       "plaintiff": "Nguyễn Văn C",
       "plaintiffAddress": "Hà Nội",
@@ -99,7 +103,7 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
       "legalRelationshipId": "HC004"
     },
     {
-      "acceptanceNumber": "2857",
+      "acceptanceNumber": "28655",
       "acceptanceDate": "2025-08-23",
       "plaintiff": "Trần Thị E",
       "plaintiffAddress": "Đà Nẵng",
@@ -107,7 +111,11 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
       "defendantAddress": "",
       "legalRelationshipId": "DS001"
     }
-  ]
+  ],
+  "batch": {
+    "batchName": "Đợt nhập 2025",
+    "note": "Anh Chinh nhập"
+  }
 }`}</pre>
                 </div>
                 <div className="mt-3 text-sm text-gray-600">
@@ -115,6 +123,7 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
                   <ul className="list-disc ml-4 space-y-1">
                     <li>Trường <code>defendant</code> và <code>defendantAddress</code> có thể để trống</li>
                     <li>Ngày phải có định dạng YYYY-MM-DD</li>
+                    <li>Thông tin <code>batch</code> sẽ được nhập qua form khi import file Excel</li>
                     <li>File lưu với extension .json</li>
                   </ul>
                 </div>
@@ -219,6 +228,10 @@ const ExcelFormatGuide = ({ isOpen, onClose }: ExcelFormatGuideProps) => {
                   <li className="flex items-start space-x-2">
                     <span className="text-yellow-600 mt-1">•</span>
                     <span>Các cột bắt buộc không được để trống</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <span className="text-yellow-600 mt-1">•</span>
+                    <span>File Excel sẽ yêu cầu nhập thông tin Batch (tên batch và ghi chú) trước khi import</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="text-yellow-600 mt-1">•</span>
