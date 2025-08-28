@@ -376,23 +376,22 @@ const LegalCaseManager = () => {
 
       if (response.success) {
         toast.success(
-          "Import thành công",
-          `Đã import thành công ${response.data?.importedCount || 0} án từ batch "${batchData.batchName}"!`
+          "Nhập án thành công",
+          `Đã nhập án thành công!`
         );
         await fetchLegalCases(); // Reload dữ liệu
       } else {
-        toast.error("Import thất bại", response.message || "Có lỗi xảy ra khi import file");
+        toast.error("Nhập án thất bại", response.error);
       }
     } catch (error) {
       console.error("Error importing file:", error);
       toast.error(
-        "Import thất bại",
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi import file"
+        "Nhập án thất bại",
+        "Có lỗi xảy ra khi nhập án"
       );
     } finally {
       setImportLoading(false);
       setSelectedFile(null);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
