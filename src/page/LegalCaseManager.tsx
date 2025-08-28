@@ -64,6 +64,7 @@ const LegalCaseManager = () => {
   const [legalRelationshipGroupFilters, setLegalRelationshipGroupFilters] = useState({
     legalRelationshipGroupId: "",
   });
+
   const [legalRelationshipGroups, setLegalRelationshipGroups] = useState<Option[]>([
     { value: "", label: "Tất cả nhóm quan hệ pháp luật" }
   ]);
@@ -86,7 +87,7 @@ const LegalCaseManager = () => {
     title: '',
     message: '',
     type: 'warning',
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   useEffect(() => {
@@ -244,7 +245,7 @@ const LegalCaseManager = () => {
   const handleFormSubmit = async (data: LegalCaseRequest) => {
     try {
       setFormLoading(true);
-      
+
       if (editingCase) {
         // Cập nhật án
         await LegalCaseService.update(editingCase.legalCaseId, data as LegalCaseRequest);
@@ -254,7 +255,7 @@ const LegalCaseManager = () => {
         await LegalCaseService.create(data as LegalCaseRequest);
         toast.success('Thêm mới thành công', 'Án mới đã được thêm vào hệ thống!');
       }
-      
+
       // Load lại danh sách án sau khi thêm/sửa thành công
       await fetchLegalCases();
       handleCloseForm();
@@ -315,94 +316,105 @@ const LegalCaseManager = () => {
       {showFilters && (
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Số thụ lý */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Số thụ lý</label>
               <input
                 type="text"
-                value={legalCaseSearch.acceptanceNumber || ''}
-                onChange={(e) => setLegalCaseSearch({...legalCaseSearch, acceptanceNumber: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                value={legalCaseSearch?.acceptanceNumber ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, acceptanceNumber: e.target.value }))}
                 placeholder="Nhập số thụ lý"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
-            
+
+            {/* Ngày thụ lý từ */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Ngày thụ lý từ</label>
               <input
                 type="date"
-                value={legalCaseSearch.startAcceptanceDate || ''}
-                onChange={(e) => setLegalCaseSearch({...legalCaseSearch, startAcceptanceDate: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                value={legalCaseSearch?.startAcceptanceDate ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, startAcceptanceDate: e.target.value }))}
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
+            {/* Ngày thụ lý đến */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Ngày thụ lý đến</label>
               <input
                 type="date"
-                value={legalCaseSearch.endAcceptanceDate || ''}
-                onChange={(e) => setLegalCaseSearch({...legalCaseSearch, endAcceptanceDate: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                value={legalCaseSearch?.endAcceptanceDate ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, endAcceptanceDate: e.target.value }))}
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
+            {/* Nguyên đơn */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nguyên đơn</label>
+              <label className="block text-sm outline-none font-medium text-gray-700 mb-2">Nguyên đơn/bị cáo</label>
               <input
                 type="text"
-                value={legalCaseSearch.plaintiff || ''}
-                onChange={(e) => setLegalCaseSearch({...legalCaseSearch, plaintiff: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
-                placeholder="Tên nguyên đơn"
+                value={legalCaseSearch?.plaintiff ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, plaintiff: e.target.value }))}
+                placeholder="Tên nguyên đơn/bị cáo"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
+            {/* Địa chỉ nguyên đơn */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ nguyên đơn</label>
+              <input
+                type="text"
+                value={legalCaseSearch?.plaintiffAddress ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, plaintiffAddress: e.target.value }))}
+                placeholder="Địa chỉ nguyên đơn"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+            </div>
+
+            {/* Bị đơn */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Bị đơn</label>
               <input
                 type="text"
-                value={legalCaseSearch.defendant || ''}
-                onChange={(e) => setLegalCaseSearch({...legalCaseSearch, defendant: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                value={legalCaseSearch?.defendant ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, defendant: e.target.value }))}
                 placeholder="Tên bị đơn"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
+            {/* Địa chỉ bị đơn */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Thẩm phán</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ bị đơn</label>
               <input
                 type="text"
-                value={legalCaseSearch.judgeName || ''}
-                onChange={(e) => setLegalCaseSearch({...legalCaseSearch, judgeName: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
-                placeholder="Tên thẩm phán"
+                value={legalCaseSearch?.defendantAddress ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, defendantAddress: e.target.value }))}
+                placeholder="Địa chỉ bị đơn"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
-              <ComboboxSearch
-                options={statusOfLegalCases}
-                value={statusOfLegalCaseFilters.statusOfLegalCase}
-                onChange={(value) => {
-                  setStatusOfLegalCaseFilters({statusOfLegalCase: value});
-                  setLegalCaseSearch({...legalCaseSearch, statusOfLegalCase: value});
-                }}
-                placeholder="Chọn trạng thái"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Loại án</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Loại vụ án</label>
               <ComboboxSearch
                 options={typeOfLegalCases}
                 value={typeOfLegalCaseFilters.typeOfLegalCaseId}
-                onChange={(value) => {
-                  setTypeOfLegalCaseFilters({typeOfLegalCaseId: value});
-                  setLegalCaseSearch({...legalCaseSearch, typeOfLegalCaseId: value});
+                onChange={(val) => {
+                  setTypeOfLegalCaseFilters((prev) => ({
+                    ...prev,
+                    typeOfLegalCaseId: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    typeOfLegalCaseId: val != '' ? val : null
+                  })
                 }}
-                placeholder="Chọn loại án"
+                placeholder="Chọn trạng quan hệ pháp luật"
               />
             </div>
 
@@ -411,26 +423,110 @@ const LegalCaseManager = () => {
               <ComboboxSearch
                 options={legalRelationships}
                 value={legalRelationshipFilters.legalRelationshipId}
-                onChange={(value) => {
-                  setLegalRelationshipFilters({legalRelationshipId: value});
-                  setLegalCaseSearch({...legalCaseSearch, legalRelationshipId: value});
+                onChange={(val) => {
+                  setLegalRelationshipFilters((prev) => ({
+                    ...prev,
+                    legalRelationshipId: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    legalRelationshipId: val != '' ? val : null
+                  })
                 }}
-                placeholder="Chọn quan hệ pháp luật"
+                placeholder="Chọn trạng quan hệ pháp luật"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nhóm quan hệ pháp luật</label>
+              <ComboboxSearch
+                options={legalRelationshipGroups}
+                value={legalRelationshipGroupFilters.legalRelationshipGroupId}
+                onChange={(val) => {
+                  setLegalRelationshipGroupFilters((prev) => ({
+                    ...prev,
+                    legalRelationshipGroupId: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    legalRelationshipGroupId: val != '' ? val : null
+                  })
+                }}
+                placeholder="Chọn trạng quan hệ pháp luật"
+              />
+            </div>
+
+            {/* Trạng thái */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái án</label>
+              <ComboboxSearch
+                options={statusOfLegalCases}
+                value={statusOfLegalCaseFilters.statusOfLegalCase}
+                onChange={(val) => {
+                  setStatusOfLegalCaseFilters((prev) => ({
+                    ...prev,
+                    statusOfLegalCase: val,
+                  }))
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    statusOfLegalCase: val != '' ? val : null
+                  })
+                }}
+                placeholder="Chọn trạng thái"
+              />
+            </div>
+
+            {/* Tên thẩm phán */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tên thẩm phán</label>
+              <input
+                type="text"
+                value={legalCaseSearch?.judgeName ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, judgeName: e.target.value }))}
+                placeholder="Tên thẩm phán"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mã đợt nhập</label>
+              <input
+                type="text"
+                value={legalCaseSearch?.batchId ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, batchId: e.target.value }))}
+                placeholder="Mã đợt nhập án"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ngày nhập án</label>
+              <input
+                type="date"
+                value={legalCaseSearch?.storageDate ?? ''}
+                onChange={(e) => setLegalCaseSearch(prev => ({ ...prev, storageDate: e.target.value }))}
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3 mt-6 pt-4 border-t border-gray-200">
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              className="px-4 md:px-6 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
             >
-              {loading ? 'Đang tìm...' : 'Tìm kiếm'}
+              <span className="flex items-center justify-center space-x-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Tìm kiếm</span>
+              </span>
             </button>
             <button
               onClick={handleClearFilters}
-              className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              className="px-4 md:px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200"
             >
               Xóa bộ lọc
             </button>
