@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
-import type { CreateLegalCaseRequest } from '../../types/request/legal-case/CreateLegalCaseRequest';
-import type { UpdateLegalCaseRequest } from '../../types/request/legal-case/UpdateLegalCaseRequest';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
-
+import type { LegalCaseRequest } from '../../types/request/legal-case/LegalCaseRequest';
 interface LegalCaseFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: CreateLegalCaseRequest | UpdateLegalCaseRequest) => void;
+    onSubmit: (data: LegalCaseRequest) => void;
     legalCase?: LegalCaseResponse | null;
     legalRelationships: Option[];
     isLoading?: boolean;
@@ -21,7 +19,7 @@ const LegalCaseForm = ({
     legalRelationships,
     isLoading = false
 }: LegalCaseFormProps) => {
-    const [formData, setFormData] = useState<CreateLegalCaseRequest | UpdateLegalCaseRequest>({
+    const [formData, setFormData] = useState<LegalCaseRequest>({
         acceptanceNumber: '',
         acceptanceDate: '',
         plaintiff: '',
@@ -32,6 +30,20 @@ const LegalCaseForm = ({
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Ngăn cuộn trang khi modal mở
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+
+        // Cleanup khi component unmount
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     useEffect(() => {
         if (legalCase) {
@@ -106,8 +118,19 @@ const LegalCaseForm = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh]">
+        <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+            onClick={(e) => {
+                // Chỉ đóng modal khi click vào backdrop, không phải vào modal content
+                if (e.target === e.currentTarget) {
+                    onClose();
+                }
+            }}
+        >
+            <div 
+                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()} // Ngăn event bubbling
+            >
                 <div className="overflow-y-auto max-h-[90vh] p-5">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">

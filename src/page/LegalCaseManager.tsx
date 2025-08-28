@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import LegalCaseForm from '../component/legal-case-manager/LegalCaseForm';
-import { LegalCaseManagerService } from '../services/LegalCaseManagerService';
+import { LegalCaseService } from '../services/LegalCaseService';
 import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
-import type { CreateLegalCaseRequest } from '../types/request/legal-case/CreateLegalCaseRequest';
-import type { UpdateLegalCaseRequest } from '../types/request/legal-case/UpdateLegalCaseRequest';
+import type { LegalCaseRequest } from '../types/request/legal-case/LegalCaseRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { LegalRelationshipService } from '../services/LegalRelationshipService';
 import { LegalRelationshipGroupService } from '../services/LegalRelationshipGroupService';
@@ -85,7 +84,7 @@ const LegalCaseManager = () => {
   const fetchLegalCases = async () => {
     setLoading(true);
     try {
-      setLegalCases((await LegalCaseManagerService.top50()).data);
+      setLegalCases((await LegalCaseService.top50()).data);
     } catch (error) {
       console.error('Error fetching legal cases:', error);
     } finally {
@@ -153,8 +152,8 @@ const LegalCaseManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      setLegalCases((await LegalCaseManagerService.search(legalCaseSearch)).data);
-      console.log((await LegalCaseManagerService.search(legalCaseSearch)).data)
+      setLegalCases((await LegalCaseService.search(legalCaseSearch)).data);
+      console.log((await LegalCaseService.search(legalCaseSearch)).data)
     } catch (error) {
       console.error('Error searching legal cases:', error);
     } finally {
@@ -191,7 +190,7 @@ const LegalCaseManager = () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa án này?')) {
       try {
         setLoading(true);
-        await LegalCaseManagerService.delete(legalCaseId);
+        await LegalCaseService.delete(legalCaseId);
         setLegalCases(prev => prev.filter(lc => lc.legalCaseId !== legalCaseId));
         alert('Xóa án thành công!');
       } catch (error) {
@@ -203,20 +202,20 @@ const LegalCaseManager = () => {
     }
   };
 
-  const handleFormSubmit = async (data: CreateLegalCaseRequest | UpdateLegalCaseRequest) => {
+  const handleFormSubmit = async (data: LegalCaseRequest) => {
     try {
       setFormLoading(true);
       
       if (editingCase) {
         // Cập nhật án
-        const response = await LegalCaseManagerService.update(editingCase.legalCaseId, data as UpdateLegalCaseRequest);
+        const response = await LegalCaseService.update(editingCase.legalCaseId, data as LegalCaseRequest);
         setLegalCases(prev => 
           prev.map(lc => lc.legalCaseId === editingCase.legalCaseId ? response.data : lc)
         );
         alert('Cập nhật án thành công!');
       } else {
         // Thêm án mới
-        const response = await LegalCaseManagerService.create(data as CreateLegalCaseRequest);
+        const response = await LegalCaseService.create(data as LegalCaseRequest);
         setLegalCases(prev => [response.data, ...prev]);
         alert('Thêm án mới thành công!');
       }

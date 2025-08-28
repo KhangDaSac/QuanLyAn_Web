@@ -1,11 +1,10 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
-import { type CreateLegalCaseRequest } from "../types/request/legal-case/CreateLegalCaseRequest";
-import { type UpdateLegalCaseRequest } from "../types/request/legal-case/UpdateLegalCaseRequest";
+import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import { Connect } from "../connect/Connect";
 
-export class LegalCaseManagerService {
+export class LegalCaseService {
   static async top50(): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
       const token = localStorage.getItem('token');
@@ -37,7 +36,7 @@ export class LegalCaseManagerService {
     }
   }
 
-  static async create(createRequest: CreateLegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
+  static async create(createRequest: LegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(
@@ -52,7 +51,7 @@ export class LegalCaseManagerService {
     }
   }
 
-  static async update(legalCaseId: string, updateRequest: UpdateLegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
+  static async update(legalCaseId: string, updateRequest: LegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(
