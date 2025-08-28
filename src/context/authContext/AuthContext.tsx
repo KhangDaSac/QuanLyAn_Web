@@ -45,7 +45,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(true);
 
     try {
-      const response = await AuthService.login(identifier, password);
+      const response = await AuthService.login({identifier, password});
+      console.log({identifier, password})
 
       if (response.success && response.data.authenticated && response.data.token) {
         const jwtToken = response.data.token;

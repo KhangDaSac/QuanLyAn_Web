@@ -3,6 +3,7 @@ import { AuthProvider } from './context/authContext/AuthContext';
 import MainLayout from './component/layout/MainLayout';
 import LoginPage from './page/LoginPage';
 import HomePage from './page/HomePage';
+import LegalCaseManager from './page/LegalCaseManager';
 import ProtectedRoute from './component/auth/ProtectedRoute';
 import './App.css';
 
@@ -17,6 +18,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <HomePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/legal-cases"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <LegalCaseManager />
               </MainLayout>
             </ProtectedRoute>
           }

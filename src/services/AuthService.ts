@@ -1,5 +1,7 @@
-import type { LoginResponse } from '../context/authContext/AuthContext.types';
-const server_url = import.meta.env.SERVER_URL || 'https://localhost:8081';
+import type { ApiResponse } from '../types/ApiResponse';
+import type { LoginRequest } from '../types/request/auth/LoginRequest';
+import { Connect } from '../connect/Connect';
+import type { AuthenticationResponse } from '../types/response/auth/AuthenticationResponse';
 
 interface JWTPayload {
   sub?: string;
@@ -12,45 +14,32 @@ interface JWTPayload {
 }
 
 export class AuthService {
-  static async login(identifier: string, password: string): Promise<LoginResponse> {
+  static async login(loginRequest: LoginRequest): Promise<ApiResponse<AuthenticationResponse>> {
     try {
-      const response = await fetch(`${server_url}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          identifier,
-          password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
+      return Connect.request(
+        '/auth/login',
+        'POST',
+        loginRequest,
+        null
+      );
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
   }
 
-  static async logout(): Promise<void> {
+  static async logout(): Promise<ApiResponse<void>> {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await fetch(`${server_url}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
+      const token = localStorage.getItem("token");
+      return Connect.request(
+        '/auth/logout',
+        'POST',
+        { token },
+        null
+      );
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Login error:', error);
+      throw error;
     }
   }
 
