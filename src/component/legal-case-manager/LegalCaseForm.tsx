@@ -107,8 +107,8 @@ const LegalCaseForm = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="m-5">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh]">
+                <div className="overflow-y-auto max-h-[90vh] p-5">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">
