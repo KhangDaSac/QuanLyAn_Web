@@ -39,8 +39,9 @@ export class LegalCaseService {
   static async create(createRequest: LegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
     try {
       const token = localStorage.getItem('token');
+      console.log(createRequest)
       return Connect.request(
-        '/legal-case',
+        '/legal-case/',
         'POST',
         createRequest,
         token
