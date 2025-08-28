@@ -108,15 +108,26 @@ const ConfirmModal = ({
 
     return (
         <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9998]"
             onClick={(e) => {
                 if (e.target === e.currentTarget && !isLoading) {
                     onClose();
                 }
             }}
+            style={{ 
+                margin: 0, 
+                padding: '1rem',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100vw',
+                height: '100vh'
+            }}
         >
             <div 
-                className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-200 scale-100"
+                className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-200 scale-100 relative z-[9999] mx-auto"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">

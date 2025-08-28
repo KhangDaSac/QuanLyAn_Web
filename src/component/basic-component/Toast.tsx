@@ -120,7 +120,7 @@ interface ToastContainerProps {
 
 export const ToastContainer = ({ toasts, onRemove }: ToastContainerProps) => {
     return (
-        <div className="fixed bottom-4 right-4 z-50 space-y-3 max-w-sm w-full">
+        <div className="fixed bottom-4 right-4 z-[10002] space-y-3 max-w-sm w-full">
             {toasts.map((toast) => (
                 <Toast key={toast.id} toast={toast} onRemove={onRemove} />
             ))}
