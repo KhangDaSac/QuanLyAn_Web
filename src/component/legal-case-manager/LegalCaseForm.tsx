@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
 import type { CreateLegalCaseRequest } from '../../types/request/legal-case/CreateLegalCaseRequest';
 import type { UpdateLegalCaseRequest } from '../../types/request/legal-case/UpdateLegalCaseRequest';
-import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
+import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 
 interface LegalCaseFormProps {
     isOpen: boolean;
@@ -236,7 +236,7 @@ const LegalCaseForm = ({
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Quan hệ pháp luật <span className="text-red-500">*</span>
                             </label>
-                            <ComboboxSearch
+                            <ComboboxSearchForm
                                 options={legalRelationships}
                                 value={formData.legalRelationshipId}
                                 onChange={(value) => handleInputChange('legalRelationshipId', value)}
