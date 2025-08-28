@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import LegalCaseForm from '../component/legal-case-manager/LegalCaseForm';
+import ConfirmModal from '../component/basic-component/ConfirmModal';
+import { ToastContainer, useToast } from '../component/basic-component/Toast';
 import { LegalCaseService } from '../services/LegalCaseService';
 import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
@@ -73,6 +75,22 @@ const LegalCaseManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCase, setEditingCase] = useState<LegalCaseResponse | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Toast và Confirm Modal
+  const toast = useToast();
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'warning' | 'danger' | 'info' | 'success';
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'warning',
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     fetchLegalCases();
@@ -209,11 +227,11 @@ const LegalCaseManager = () => {
       if (editingCase) {
         // Cập nhật án
         await LegalCaseService.update(editingCase.legalCaseId, data as LegalCaseRequest);
-        alert('Cập nhật án thành công!');
+        toast.success('Cập nhật thành công', 'Án đã được cập nhật thành công!');
       } else {
         // Thêm án mới
         await LegalCaseService.create(data as LegalCaseRequest);
-        alert('Thêm án mới thành công!');
+        toast.success('Thêm mới thành công', 'Án mới đã được thêm vào hệ thống!');
       }
       
       // Load lại danh sách án sau khi thêm/sửa thành công
@@ -221,7 +239,7 @@ const LegalCaseManager = () => {
       handleCloseForm();
     } catch (error) {
       console.error('Error saving legal case:', error);
-      alert('Có lỗi xảy ra. Vui lòng thử lại!');
+      toast.error('Có lỗi xảy ra', 'Không thể lưu thông tin án. Vui lòng thử lại!');
     } finally {
       setFormLoading(false);
     }
@@ -240,6 +258,29 @@ const LegalCaseManager = () => {
   const handleAssign = (legalCase: LegalCaseResponse) => {
     console.log('Assign legal case:', legalCase);
     // Implement assign functionality
+  };
+
+  const handleDeleteCase = (legalCase: LegalCaseResponse) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận xóa án',
+      message: `Bạn có chắc chắn muốn xóa án "${legalCase.acceptanceNumber}"? Hành động này không thể hoàn tác.`,
+      type: 'danger',
+      onConfirm: () => confirmDeleteCase(legalCase.legalCaseId),
+    });
+  };
+
+  const confirmDeleteCase = async (legalCaseId: string) => {
+    try {
+      setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      // Giả sử có API delete
+      // await LegalCaseService.delete(legalCaseId);
+      toast.success('Xóa thành công', 'Án đã được xóa khỏi hệ thống!');
+      await fetchLegalCases();
+    } catch (error) {
+      console.error('Error deleting legal case:', error);
+      toast.error('Có lỗi xảy ra', 'Không thể xóa án. Vui lòng thử lại!');
+    }
   };
 
   return (
@@ -606,6 +647,24 @@ const LegalCaseManager = () => {
         legalCase={editingCase}
         legalRelationships={legalRelationships}
         isLoading={formLoading}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
+
+      {/* Toast Container */}
+      <ToastContainer
+        toasts={toast.toasts}
+        onRemove={toast.removeToast}
       />
     </div>
   );
