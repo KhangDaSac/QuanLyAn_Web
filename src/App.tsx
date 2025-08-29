@@ -4,6 +4,7 @@ import MainLayout from './component/layout/MainLayout';
 import LoginPage from './page/LoginPage';
 import HomePage from './page/HomePage';
 import LegalCaseManager from './page/LegalCaseManager';
+import JudgeManager from './page/JudgeManager';
 import ProtectedRoute from './component/auth/ProtectedRoute';
 import './App.css';
 
@@ -23,11 +24,21 @@ const App = () => {
           }
         />
         <Route
-          path="/legal-cases"
+          path="/legal-case"
           element={
             <ProtectedRoute>
               <MainLayout>
                 <LegalCaseManager />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/judge"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <JudgeManager />
               </MainLayout>
             </ProtectedRoute>
           }
