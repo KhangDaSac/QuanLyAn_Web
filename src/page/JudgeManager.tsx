@@ -58,7 +58,7 @@ const JudgeManager = () => {
   const fetchJudges = async () => {
     setLoading(true);
     try {
-      const response = await JudgeService.getAll();
+      const response = await JudgeService.getTop50()
       setJudges(response.data);
     } catch (error) {
       console.error('Error fetching judges:', error);

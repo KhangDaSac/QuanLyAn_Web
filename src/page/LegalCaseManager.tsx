@@ -15,6 +15,7 @@ import { LegalRelationshipService } from '../services/LegalRelationshipService';
 import { LegalRelationshipGroupService } from '../services/LegalRelationshipGroupService';
 import * as XLSX from "xlsx";
 import type { LegalCasesRequest } from '../types/request/legal-case/LegalCasesRequest';
+import { StatusOfLegalCase } from '../types/enum/StatusOfLegalCase';
 
 const LegalCaseManager = () => {
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
@@ -43,12 +44,10 @@ const LegalCaseManager = () => {
 
   const statusOfLegalCases: Option[] = [
     { value: "", label: "Tất cả trạng thái" },
-    { value: "TEMPORARY_SUSPENSION", label: "Tạm đình chỉ" },
-    { value: "OVERDUE", label: "Án hủy" },
-    { value: "EDIT_LEGAL_CASE", label: "Án sửa" },
-    { value: "WAITING_FOR_ASSIGNMENT", label: "Chờ được phân công" },
-    { value: "IN_PROCESS", label: "Đang giải quyết" },
-    { value: "SOLVED", label: "Đã được giải quyết" },
+    ...Object.entries(StatusOfLegalCase).map(([key, value]) => ({
+      value: key,
+      label: value
+    }))
   ];
 
   const [typeOfLegalCaseFilters, setTypeOfLegalCaseFilters] = useState({

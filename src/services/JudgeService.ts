@@ -19,6 +19,22 @@ export class JudgeService {
       throw error;
     }
   }
+  
+    static async getTop50(): Promise<ApiResponse<JudgeResponse[]>> {
+    try {
+      const token = localStorage.getItem('token');
+      return Connect.request(
+        '/judge/top-50',
+        'GET',
+        null,
+        token
+      );
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+
 
   static async search(judgeSearch: JudgeSearchRequest): Promise<ApiResponse<JudgeResponse[]>> {
     try {
