@@ -1,5 +1,6 @@
 import { type LegalRelationshipResponse } from "./LegalRelationshipResponse";
 import { type JudgeResponse } from "../judge/JudgeResponse"; 
+import type { StatusOfLegalCase } from "../../enum/StatusOfLegalCase";
 
 export interface LegalCaseResponse {
   legalCaseId: string;
@@ -14,6 +15,6 @@ export interface LegalCaseResponse {
   storageDate: string;
   assignment: string | null;
   assignmentDate: string | null;
-  statusOfLegalCase: string;
+  statusOfLegalCase: StatusOfLegalCase;
   judge: JudgeResponse | null;
 }

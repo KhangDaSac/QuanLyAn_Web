@@ -616,7 +616,7 @@ const LegalCaseManager = () => {
                   }))
                   setLegalCaseSearch({
                     ...legalCaseSearch,
-                    statusOfLegalCase: val != '' ? val : null
+                    statusOfLegalCase: val != '' ? val as StatusOfLegalCase : null
                   })
                 }}
                 placeholder="Chọn trạng thái"

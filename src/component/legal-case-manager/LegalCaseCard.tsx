@@ -152,15 +152,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-md text-orange-600 font-medium">
-                  {
-                    legalCase.statusOfLegalCase == 'TEMPORARY_SUSPENSION' ? 'Tạm đình chỉ'
-                    : legalCase.statusOfLegalCase == 'OVERDUE' ? 'Quá hạn'
-                    : legalCase.statusOfLegalCase == 'CANCELED_LEGAL_CASE' ? 'Án hủy'
-                    : legalCase.statusOfLegalCase == 'WAITING_FOR_ASSIGNMENT' ? 'Chờ được phân công'
-                    : legalCase.statusOfLegalCase == 'IN_PROCESS' ? 'Đang giải quyết'
-                    : legalCase.statusOfLegalCase == 'SOLVED' ? 'Đã được giải quyết'
-                    : ''
-                  }
+                  {legalCase.statusOfLegalCase}
                 </p>
               </div>
             </div>

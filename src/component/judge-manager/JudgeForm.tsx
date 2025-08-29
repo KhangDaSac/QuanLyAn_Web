@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
-import type { JudgeRequest, StatusOfJudge } from '../../types/request/judge/JudgeRequest';
+import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
+import type { StatusOfJudge } from '../../types/enum/StatusOfJudge';
 
 interface JudgeFormProps {
     isOpen: boolean;

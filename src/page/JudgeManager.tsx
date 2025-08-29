@@ -245,7 +245,7 @@ const JudgeManager = () => {
                   }))
                   setJudgeSearch({
                     ...judgeSearch,
-                    statusOfJudge: val != '' ? val : null
+                    statusOfJudge: val != '' ? val as StatusOfJudge : null
                   })
                 }}
                 placeholder="Chọn trạng quan hệ pháp luật"
