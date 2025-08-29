@@ -6,7 +6,7 @@ import { ToastContainer, useToast } from '../component/basic-component/Toast';
 import { JudgeService } from '../services/JudgeService';
 import type { JudgeResponse } from '../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../types/request/judge/JudgeSearchRequest';
-import type { JudgeRequest, JudgeCreateRequest, StatusOfJudge } from '../types/request/judge/JudgeRequest';
+import type { JudgeRequest, StatusOfJudge } from '../types/request/judge/JudgeRequest';
 
 const JudgeManager = () => {
   const [judges, setJudges] = useState<JudgeResponse[]>([]);
@@ -136,17 +136,17 @@ const JudgeManager = () => {
     }
   };
 
-  const handleFormSubmit = async (data: JudgeCreateRequest | Omit<JudgeRequest, 'email'>) => {
+  const handleFormSubmit = async (data: JudgeRequest) => {
     try {
       setFormLoading(true);
 
       if (editingJudge) {
-        // Cập nhật thẩm phán (không cập nhật email)
-        await JudgeService.update(editingJudge.judgeId, data as Omit<JudgeRequest, 'email'>);
+        // Cập nhật thẩm phán
+        await JudgeService.update(editingJudge.judgeId, data);
         toast.success('Cập nhật thành công', 'Thông tin thẩm phán đã được cập nhật thành công!');
       } else {
         // Thêm thẩm phán mới
-        await JudgeService.create(data as JudgeCreateRequest);
+        await JudgeService.create(data);
         toast.success('Thêm mới thành công', 'Thẩm phán mới đã được thêm vào hệ thống!');
       }
 

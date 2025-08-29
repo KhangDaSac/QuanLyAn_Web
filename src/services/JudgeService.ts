@@ -1,7 +1,7 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { type JudgeResponse } from "../types/response/judge/JudgeResponse";
 import { type JudgeSearchRequest } from "../types/request/judge/JudgeSearchRequest";
-import { type JudgeRequest, type JudgeCreateRequest } from "../types/request/judge/JudgeRequest";
+import { type JudgeRequest } from "../types/request/judge/JudgeRequest";
 import { Connect } from "../connect/Connect";
 
 export class JudgeService {
@@ -35,7 +35,7 @@ export class JudgeService {
     }
   }
 
-  static async create(createRequest: JudgeCreateRequest): Promise<ApiResponse<JudgeResponse>> {
+  static async create(createRequest: JudgeRequest): Promise<ApiResponse<JudgeResponse>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(
@@ -50,7 +50,7 @@ export class JudgeService {
     }
   }
 
-  static async update(judgeId: string, updateRequest: Omit<JudgeRequest, 'email'>): Promise<ApiResponse<JudgeResponse>> {
+  static async update(judgeId: string, updateRequest: JudgeRequest): Promise<ApiResponse<JudgeResponse>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(

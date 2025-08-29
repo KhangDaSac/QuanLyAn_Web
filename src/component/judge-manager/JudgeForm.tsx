@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
-import type { JudgeRequest, JudgeCreateRequest, StatusOfJudge } from '../../types/request/judge/JudgeRequest';
+import type { JudgeRequest, StatusOfJudge } from '../../types/request/judge/JudgeRequest';
 
 interface JudgeFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: JudgeCreateRequest | Omit<JudgeRequest, 'email'>) => void;
+    onSubmit: (data: JudgeRequest) => void;
     judge?: JudgeResponse | null;
     isLoading?: boolean;
 }
@@ -21,8 +21,8 @@ const JudgeForm = ({
         firstName: '',
         lastName: '',
         maxNumberOfLegalCase: 0,
-        statusOfJudge: 'ACTIVE',
-        email: ''
+        statusOfJudge: null,
+        email: null
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -64,8 +64,8 @@ const JudgeForm = ({
                 firstName: '',
                 lastName: '',
                 maxNumberOfLegalCase: 0,
-                statusOfJudge: 'ACTIVE',
-                email: ''
+                statusOfJudge: null,
+                email: null
             });
         }
         setErrors({});
@@ -86,7 +86,7 @@ const JudgeForm = ({
             newErrors.maxNumberOfLegalCase = 'Số án tối đa phải lớn hơn 0';
         }
 
-        if (!judge && !formData.email.trim()) {
+        if (!judge && !formData.email?.trim()) {
             newErrors.email = 'Email là bắt buộc';
         }
 
@@ -107,14 +107,21 @@ const JudgeForm = ({
 
         // Nếu đang sửa, không gửi email
         if (judge) {
-            const { email, ...updateData } = formData;
-            onSubmit(updateData);
-        } else {
-            // Khi tạo mới, chỉ gửi các trường cần thiết
-            const createData: JudgeCreateRequest = {
+            const updateData: JudgeRequest = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
+                statusOfJudge: formData.statusOfJudge,
+                email: null
+            };
+            onSubmit(updateData);
+        } else {
+            // Khi tạo mới, gửi email
+            const createData: JudgeRequest = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
+                statusOfJudge: null,
                 email: formData.email
             };
             onSubmit(createData);
@@ -218,7 +225,7 @@ const JudgeForm = ({
                                     <input
                                         type="email"
                                         id="email"
-                                        value={formData.email}
+                                        value={formData.email || ''}
                                         onChange={(e) => handleInputChange('email', e.target.value)}
                                         className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                                             errors.email ? 'border-red-500' : 'border-gray-300'
@@ -261,7 +268,7 @@ const JudgeForm = ({
                                         </label>
                                         <select
                                             id="statusOfJudge"
-                                            value={formData.statusOfJudge}
+                                            value={formData.statusOfJudge || 'ACTIVE'}
                                             onChange={(e) => handleInputChange('statusOfJudge', e.target.value as StatusOfJudge)}
                                             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                                                 errors.statusOfJudge ? 'border-red-500' : 'border-gray-300'

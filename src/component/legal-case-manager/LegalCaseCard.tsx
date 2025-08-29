@@ -138,7 +138,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
                 </svg>
                 <p className="text-xs text-green-600 font-medium">Thẩm phán</p>
               </div>
-              <p className="text-sm font-semibold text-green-900 truncate">{legalCase.judge.judgeName}</p>
+              <p className="text-sm font-semibold text-green-900 truncate">{legalCase.judge.fullName}</p>
               {legalCase.assignmentDate && (
                 <p className="text-xs text-green-700">
                   {formatDate(legalCase.assignmentDate)}
@@ -177,7 +177,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
       <div className="flex flex-wrap items-center gap-2 pt-4 mt-4 border-t border-gray-100">
         <button
           onClick={() => onEdit?.(legalCase)}
-          className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+          className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-blue-300 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -187,7 +187,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
 
         <button
           onClick={() => onDelete?.(legalCase.legalCaseId)}
-          className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+          className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -198,7 +198,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
         {!legalCase.judge && (
           <button
             onClick={() => onAssign?.(legalCase)}
-            className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200"
+            className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-green-300 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -209,7 +209,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
 
         <button
           onClick={() => onDelete?.(legalCase.legalCaseId)}
-          className="flex items-center space-x-1 px-3 py-2 text-md font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200"
+          className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-purple-300 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

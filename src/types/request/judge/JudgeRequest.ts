@@ -4,13 +4,6 @@ export interface JudgeRequest {
   firstName: string;
   lastName: string;
   maxNumberOfLegalCase: number;
-  statusOfJudge: StatusOfJudge;
-  email: string;
-}
-
-export interface JudgeCreateRequest {
-  firstName: string;
-  lastName: string;
-  maxNumberOfLegalCase: number;
-  email: string;
+  statusOfJudge: StatusOfJudge | null;
+  email: string | null;
 }
