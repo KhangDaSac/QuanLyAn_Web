@@ -1,6 +1,25 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { AuthContext, type User, type AuthContextType } from './AuthContext.types';
 import { AuthService } from '../../services/AuthService';
+import { createContext } from 'react';
+import type { ApiResponse } from '../../types/ApiResponse';
+import type { AuthenticationResponse } from '../../types/response/auth/AuthenticationResponse';
+
+interface User {
+  id: string;
+  username: string;
+  email?: string;
+  scope?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (username: string, password: string) => Promise<ApiResponse<AuthenticationResponse>>;
+  logout: () => void;
+}
+
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -41,13 +60,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(false);
   }, []);
 
-  const login = async (identifier: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+  const login = async (identifier: string, password: string): Promise<ApiResponse<AuthenticationResponse>> => {
+
 
     try {
-      const response = await AuthService.login({identifier, password});
-      console.log({identifier, password})
-
+      setIsLoading(true);
+      const response = await AuthService.login({ identifier, password });
       if (response.success && response.data.authenticated && response.data.token) {
         const jwtToken = response.data.token;
         const decodedToken = AuthService.decodeJWT(jwtToken);
@@ -64,17 +82,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setToken(jwtToken);
           localStorage.setItem('user', JSON.stringify(newUser));
           localStorage.setItem('token', jwtToken);
-          setIsLoading(false);
-          return true;
         }
       }
-
-      setIsLoading(false);
-      return false;
+      return response;
     } catch (error) {
-      console.error('Login failed:', error);
+      throw new Error("Lỗi khi đăng nhập");
+    } finally {
       setIsLoading(false);
-      return false;
     }
   };
 
@@ -106,3 +120,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     </AuthContext.Provider>
   );
 }
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);

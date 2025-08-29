@@ -31,7 +31,7 @@ export class Connect {
                 console.error("API Error:", error.message);
                 throw error;
             }
-            throw new Error("Đã xảy ra lỗi không xác định!");
+            throw new Error("Không kết nối được với server!");
         }
     }
 }

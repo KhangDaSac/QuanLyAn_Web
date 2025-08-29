@@ -27,11 +27,11 @@ const LoginPage = () => {
     }
 
     try {
-      const success = await login(username.trim(), password);
-      if (success) {
+      const response = await login(username.trim(), password);
+      if (response.success) {
         navigate('/');
       } else {
-        setError('Tên đăng nhập hoặc mật khẩu không chính xác');
+        setError(`${response.error}`);
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
