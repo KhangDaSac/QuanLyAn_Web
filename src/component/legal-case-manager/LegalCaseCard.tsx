@@ -6,7 +6,7 @@ interface LegalCaseCardProps {
   onEdit?: (legalCase: LegalCaseResponse) => void;
   onDelete?: (legalCaseId: string) => void;
   onAssign?: (legalCase: LegalCaseResponse) => void;
-}  
+}
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -26,11 +26,66 @@ const getStatusText = (status: string) => {
   return StatusOfLegalCase[status as keyof typeof StatusOfLegalCase] || status;
 };
 
+const getStatusColor = (status: string) => {
+  const statusText = getStatusText(status);
+  
+  switch (statusText) {
+    case 'Tạm đình chỉ':
+      return {
+        bg: 'bg-gray-50',
+        text: 'text-gray-600',
+        icon: 'text-gray-600'
+      };
+    case 'Quá hạn':
+      return {
+        bg: 'bg-red-50',
+        text: 'text-red-600',
+        icon: 'text-red-600'
+      };
+    case 'Án hủy':
+      return {
+        bg: 'bg-purple-50',
+        text: 'text-purple-600',
+        icon: 'text-purple-600'
+      };
+    case 'Án sửa':
+      return {
+        bg: 'bg-blue-50',
+        text: 'text-blue-600',
+        icon: 'text-blue-600'
+      };
+    case 'Chờ được phân công':
+      return {
+        bg: 'bg-orange-50',
+        text: 'text-orange-600',
+        icon: 'text-orange-600'
+      };
+    case 'Đang giải quyết':
+      return {
+        bg: 'bg-yellow-50',
+        text: 'text-yellow-600',
+        icon: 'text-yellow-600'
+      };
+    case 'Đã được giải quyết':
+      return {
+        bg: 'bg-green-50',
+        text: 'text-green-600',
+        icon: 'text-green-600'
+      };
+    default:
+      return {
+        bg: 'bg-gray-50',
+        text: 'text-gray-600',
+        icon: 'text-gray-600'
+      };
+  }
+};
+
 const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 hover:shadow-xl transition-all duration-300">
       {/* Horizontal Layout */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-6 space-y-4 lg:space-y-0">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6 space-y-4 lg:space-y-0">
 
         {/* Left Section - Main Info */}
         <div className="flex-1 space-y-3 lg:space-y-4">
@@ -45,16 +100,15 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
             <div className="flex flex-wrap items-center gap-2">
               <span className={`
               text-md px-5 py-1 rounded-full font-medium
-                ${
-                  legalCase.legalRelationship.typeOfLegalCase.codeName == 'HS' ? 'bg-red-200 text-red-500'
+                ${legalCase.legalRelationship.typeOfLegalCase.codeName == 'HS' ? 'bg-red-200 text-red-500'
                   : legalCase.legalRelationship.typeOfLegalCase.codeName == 'DS' ? 'bg-blue-200 text-blue-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HN' ? 'bg-pink-200 text-pink-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'LD' ? 'bg-purple-200 text-pink-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'KT' ? 'bg-orange-200 text-orange-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HC' ? 'bg-green-200 text-green-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'PS' ? 'bg-yellow-200 text-yellow-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'BP' ? 'bg-stone-200 text-stone-500'
-                  : ''
+                    : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HN' ? 'bg-pink-200 text-pink-500'
+                      : legalCase.legalRelationship.typeOfLegalCase.codeName == 'LD' ? 'bg-purple-200 text-pink-500'
+                        : legalCase.legalRelationship.typeOfLegalCase.codeName == 'KT' ? 'bg-orange-200 text-orange-500'
+                          : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HC' ? 'bg-green-200 text-green-500'
+                            : legalCase.legalRelationship.typeOfLegalCase.codeName == 'PS' ? 'bg-yellow-200 text-yellow-500'
+                              : legalCase.legalRelationship.typeOfLegalCase.codeName == 'BP' ? 'bg-stone-200 text-stone-500'
+                                : ''
                 }
                 `}>
                 {legalCase.legalRelationship.typeOfLegalCase.typeOfLegalCaseName}
@@ -140,31 +194,31 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
           </div>
 
           {/* Judge Assignment */}
-          {legalCase.judge ? (
+          <div className={`${getStatusColor(legalCase.statusOfLegalCase).bg} rounded-lg p-3`}>
+            <div className="flex items-center space-x-2">
+              <svg className={`w-4 h-4 ${getStatusColor(legalCase.statusOfLegalCase).icon}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className={`text-md ${getStatusColor(legalCase.statusOfLegalCase).text} font-medium`}>
+                {getStatusText(legalCase.statusOfLegalCase)}
+              </p>
+            </div>
+          </div>
+
+          {legalCase.judge && (
             <div className="bg-green-50 rounded-lg p-3">
               <div className="flex items-center space-x-2 mb-1">
                 <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-xs text-green-600 font-medium">Thẩm phán</p>
+                <p className="text-sm text-green-600 font-medium">Thẩm phán</p>
               </div>
-              <p className="text-sm font-semibold text-green-900 truncate">{legalCase.judge.fullName}</p>
+              <p className="text-md font-semibold text-green-900 truncate">{legalCase.judge.fullName}</p>
               {legalCase.assignmentDate && (
-                <p className="text-xs text-green-700">
+                <p className="text-sm text-green-700">
                   {formatDate(legalCase.assignmentDate)}
                 </p>
               )}
-            </div>
-          ) : (
-            <div className="bg-orange-50 rounded-lg p-3">
-              <div className="flex items-center space-x-2">
-                <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-md text-orange-600 font-medium">
-                  {getStatusText(legalCase.statusOfLegalCase)}
-                </p>
-              </div>
             </div>
           )}
 
