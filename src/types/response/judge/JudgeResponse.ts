@@ -1,4 +1,5 @@
-import type { StatusOfJudge } from '../../request/judge/JudgeRequest';
+import type { StatusOfJudge } from "../../enum/StatusOfJudge";
+
 
 export interface JudgeResponse {
   judgeId: string;

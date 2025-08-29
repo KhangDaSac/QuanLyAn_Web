@@ -6,7 +6,9 @@ import { ToastContainer, useToast } from '../component/basic-component/Toast';
 import { JudgeService } from '../services/JudgeService';
 import type { JudgeResponse } from '../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../types/request/judge/JudgeSearchRequest';
-import type { JudgeRequest, StatusOfJudge } from '../types/request/judge/JudgeRequest';
+import type { JudgeRequest } from '../types/request/judge/JudgeRequest';
+import { StatusOfJudge } from '../types/enum/StatusOfJudge';
+import ComboboxSearch from '../component/basic-component/ComboboxSearch';
 
 const JudgeManager = () => {
   const [judges, setJudges] = useState<JudgeResponse[]>([]);
@@ -24,10 +26,10 @@ const JudgeManager = () => {
 
   const statusOfJudges = [
     { value: "", label: "Tất cả trạng thái" },
-    { value: "ACTIVE", label: "Đang hoạt động" },
-    { value: "INACTIVE", label: "Không hoạt động" },
-    { value: "ON_LEAVE", label: "Đang nghỉ phép" },
-    { value: "RETIRED", label: "Đã nghỉ hưu" },
+    ...Object.entries(StatusOfJudge).map(([key, value]) => ({
+      value: key,
+      label: value
+    }))
   ];
 
   // States for form modal
@@ -233,23 +235,21 @@ const JudgeManager = () => {
             {/* Trạng thái */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
-              <select
+              <ComboboxSearch
+                options={statusOfJudges}
                 value={statusOfJudgeFilters.statusOfJudge}
-                onChange={(e) => {
-                  setStatusOfJudgeFilters({ statusOfJudge: e.target.value });
-                  setJudgeSearch(prev => ({ 
-                    ...prev, 
-                    statusOfJudge: e.target.value ? e.target.value as StatusOfJudge : null 
-                  }));
+                onChange={(val) => {
+                  setStatusOfJudgeFilters((prev) => ({
+                    ...prev,
+                    statusOfJudge: val,
+                  }))
+                  setJudgeSearch({
+                    ...judgeSearch,
+                    statusOfJudge: val != '' ? val : null
+                  })
                 }}
-                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-              >
-                {statusOfJudges.map((status) => (
-                  <option key={status.value} value={status.value}>
-                    {status.label}
-                  </option>
-                ))}
-              </select>
+                placeholder="Chọn trạng quan hệ pháp luật"
+              />
             </div>
           </div>
 

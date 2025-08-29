@@ -1,4 +1,4 @@
-export type StatusOfJudge = 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | 'RETIRED';
+import type { StatusOfJudge } from "../../enum/StatusOfJudge";
 
 export interface JudgeRequest {
   firstName: string;

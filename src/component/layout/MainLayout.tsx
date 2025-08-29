@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/authContext/useAuth';
 
 interface MainLayoutProps {
@@ -15,6 +15,7 @@ const MainLayout = ({
 }: MainLayoutProps) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { logout } = useAuth();
+    const location = useLocation();
 
     const handleLogout = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +31,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/',
-            active: true,
         },
         {
             name: 'PC án ngẫu nhiên',
@@ -40,7 +40,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/cases',
-            active: false,
         },
         {
             name: 'Quản lý án',
@@ -50,7 +49,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/legal-case',
-            active: false,
         },
         {
             name: 'Quản lý thông tin án',
@@ -60,7 +58,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/legal-cases',
-            active: false,
         },
         {
             name: 'Quản lý thẩm phán',
@@ -70,7 +67,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/judge',
-            active: false,
         },
         {
             name: 'Quản lý tài khoản',
@@ -80,7 +76,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/appointments',
-            active: false,
         },
         {
             name: 'Báo cáo, thống kê',
@@ -90,7 +85,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/reports',
-            active: false,
         },
         {
             name: 'Cài Đặt',
@@ -101,7 +95,6 @@ const MainLayout = ({
                 </svg>
             ),
             href: '/settings',
-            active: false,
         },
     ];
 
@@ -121,33 +114,35 @@ const MainLayout = ({
                                 <p className="text-xs text-gray-800">Nguyễn Văn A</p>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <nav className="mt-8 px-4 space-y-2">
-                    {menuItems.map((item, index) => (
-                        <Link
-                            key={index}
-                            to={item.href}
-                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${item.active
-                                ? 'border-2 border-red-600'
-                                : 'text-gray-700 hover:bg-blue-100'
+                    {menuItems.map((item, index) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                            <Link
+                                key={index}
+                                to={item.href}
+                                className={`flex items-center space-x-3 px-4 py-3 rounded-lg ${isActive
+                                    ? 'border-2 border-red-600 bg-red-50 text-red-600'
+                                    : 'text-gray-700 hover:bg-blue-100'
                                 }`}
-                        >
-                            <span className={`w-5 h-5 ${item.active ? 'text-red-600' : 'text-gray-700'}`}>
-                                {React.cloneElement(item.icon, {
-                                    className: `w-5 h-5 ${item.active ? 'text-red-600' : 'text-gray-700'}`
-                                })}
-                            </span>
-                            <span
-                                className={`font-medium ${item.active ? 'text-red-600' : 'text-gray-700'
-                                    }`}
                             >
-                                {item.name}
-                            </span>
-                        </Link>
-                    ))}
+                                <span className={`w-5 h-5 ${isActive ? 'text-red-600' : 'text-gray-700'}`}>
+                                    {React.cloneElement(item.icon, {
+                                        className: `w-5 h-5 ${isActive ? 'text-red-600' : 'text-gray-700'}`
+                                    })}
+                                </span>
+                                <span
+                                    className={`font-medium ${isActive ? 'text-red-600' : 'text-gray-700'
+                                    }`}
+                                >
+                                    {item.name}
+                                </span>
+                            </Link>
+                        );
+                    })}
                 </nav>
 
                 <div className="absolute bottom-4 left-4 right-4">
