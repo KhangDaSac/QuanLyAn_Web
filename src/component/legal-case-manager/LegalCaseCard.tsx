@@ -28,7 +28,7 @@ const getStatusText = (status: string) => {
 
 const getStatusColor = (status: string) => {
   const statusText = getStatusText(status);
-  
+
   switch (statusText) {
     case 'Tạm đình chỉ':
       return {
@@ -225,6 +225,14 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
           {/* Storage Date */}
           <div className="text-sm text-gray-500">
             <span>Lưu trữ: {formatDate(legalCase.storageDate.split(' ')[0])}</span>
+          </div>
+
+          {/* Batch */}
+          <div className="text-sm text-gray-500">
+            <span>Mã đợt nhập: {legalCase.batch?.batchId}</span>
+          </div>
+          <div className="text-sm text-gray-500">
+            <span>Tên đợt nhập: {legalCase.batch?.batchName}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { type LegalRelationshipResponse } from "./LegalRelationshipResponse";
 import { type JudgeResponse } from "../judge/JudgeResponse"; 
 import type { StatusOfLegalCase } from "../../enum/StatusOfLegalCase";
+import type { BatchResponse } from "../batch/BatchResponse";
 
 export interface LegalCaseResponse {
   legalCaseId: string;
@@ -17,4 +18,5 @@ export interface LegalCaseResponse {
   assignmentDate: string | null;
   statusOfLegalCase: StatusOfLegalCase;
   judge: JudgeResponse | null;
+  batch: BatchResponse | null;
 }
