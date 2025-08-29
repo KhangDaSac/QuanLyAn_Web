@@ -20,18 +20,43 @@ export class Connect {
                 body: body ? JSON.stringify(body) : undefined,
             });
 
+            // Xử lý response cho cả trường hợp thành công và thất bại
+            const responseData = await response.json().catch(() => ({}));
+            
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Error ${response.status}`);
+                // Trả về response với thông tin lỗi thay vì ném exception
+                return {
+                    success: false,
+                    status: response.status,
+                    message: responseData.message || `HTTP Error ${response.status}`,
+                    error: responseData.error || responseData.message || `Lỗi ${response.status}: ${response.statusText}`,
+                    data: {} as T,
+                    timestamp: responseData.timestamp || new Date().toISOString()
+                };
             }
 
-            return await response.json() as ApiResponse<T>;
+            return responseData as ApiResponse<T>;
         } catch (error: unknown) {
+            // Xử lý lỗi network hoặc lỗi khác
+            let errorMessage = "Không thể kết nối đến máy chủ";
+            
             if (error instanceof Error) {
                 console.error("API Error:", error.message);
-                throw error;
+                if (error.message.includes('fetch')) {
+                    errorMessage = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet.";
+                } else {
+                    errorMessage = error.message;
+                }
             }
-            throw new Error("Không kết nối được với server!");
+            
+            return {
+                success: false,
+                status: 500,
+                message: "Lỗi kết nối",
+                error: errorMessage,
+                data: {} as T,
+                timestamp: new Date().toISOString()
+            };
         }
     }
 }

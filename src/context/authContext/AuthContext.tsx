@@ -61,11 +61,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = async (identifier: string, password: string): Promise<ApiResponse<AuthenticationResponse>> => {
-
-
     try {
       setIsLoading(true);
       const response = await AuthService.login({ identifier, password });
+      
       if (response.success && response.data.authenticated && response.data.token) {
         const jwtToken = response.data.token;
         const decodedToken = AuthService.decodeJWT(jwtToken);
@@ -84,9 +83,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
           localStorage.setItem('token', jwtToken);
         }
       }
+      
       return response;
     } catch (error) {
-      throw new Error("Lỗi khi đăng nhập");
+      // Trả về response với thông tin lỗi cụ thể
+      if (error instanceof Error) {
+        return {
+          success: false,
+          status: 500,
+          message: "Đăng nhập thất bại",
+          error: error.message,
+          data: {} as AuthenticationResponse,
+          timestamp: new Date().toISOString()
+        };
+      }
+      
+      return {
+        success: false,
+        status: 500,
+        message: "Đăng nhập thất bại",
+        error: "Lỗi không xác định",
+        data: {} as AuthenticationResponse,
+        timestamp: new Date().toISOString()
+      };
     } finally {
       setIsLoading(false);
     }

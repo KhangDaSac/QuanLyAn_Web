@@ -28,18 +28,18 @@ const LoginPage = () => {
 
     try {
       const response = await login(username.trim(), password);
+      
       if (response.success) {
         navigate('/');
       } else {
-        setError(`${response.error}`);
+        // Hiển thị lỗi cụ thể từ response.error
+        const errorMessage = response.error || response.message || 'Đăng nhập thất bại';
+        setError(errorMessage);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      if (errorMessage.includes('fetch')) {
-        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
-      } else {
-        setError('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
-      }
+      // Fallback cho trường hợp exception vẫn được ném ra
+      const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -81,7 +81,7 @@ const LoginPage = () => {
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-3 animate-pulse">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-3">
                   <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
