@@ -1,4 +1,5 @@
 import { type LegalCaseResponse } from "../../types/response/legal-case/LegalCaseResponse";
+import { StatusOfLegalCase } from "../../types/enum/StatusOfLegalCase";
 
 interface LegalCaseCardProps {
   legalCase: LegalCaseResponse;
@@ -14,6 +15,15 @@ const formatDate = (dateString: string) => {
     month: "2-digit",
     year: "numeric",
   });
+};
+
+const getStatusText = (status: string) => {
+  // Nếu status đã là tiếng Việt thì trả về luôn
+  if (Object.values(StatusOfLegalCase).includes(status as any)) {
+    return status;
+  }
+  // Nếu status là key tiếng Anh thì chuyển sang tiếng Việt
+  return StatusOfLegalCase[status as keyof typeof StatusOfLegalCase] || status;
 };
 
 const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardProps) => {
@@ -152,7 +162,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-md text-orange-600 font-medium">
-                  {legalCase.statusOfLegalCase}
+                  {getStatusText(legalCase.statusOfLegalCase)}
                 </p>
               </div>
             </div>
