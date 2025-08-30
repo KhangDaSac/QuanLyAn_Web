@@ -2,6 +2,7 @@ import { type ApiResponse } from "../types/ApiResponse";
 import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
+import { type LegalCaseAssignmentRequest } from "../types/request/legal-case/LegalCaseAssignmentRequest";
 import { Connect } from "../connect/Connect";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
 
@@ -95,6 +96,21 @@ export class LegalCaseService {
       );
     } catch (error) {
       console.error('Error importing legal cases from Excel:', error);
+      throw error;
+    }
+  }
+
+  static async assignJudge(request: LegalCaseAssignmentRequest): Promise<ApiResponse<any>> {
+    try {
+      const token = localStorage.getItem('token');
+      return Connect.request(
+        '/legal-case/assign-assignment',
+        'POST',
+        request,
+        token
+      );
+    } catch (error) {
+      console.error('Error assigning judge to legal case:', error);
       throw error;
     }
   }

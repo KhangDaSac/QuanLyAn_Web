@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import LegalCaseForm from '../component/legal-case-manager/LegalCaseForm';
+import JudgeAssignmentModal from '../component/legal-case-manager/JudgeAssignmentModal';
 import ConfirmModal from '../component/basic-component/ConfirmModal';
 import BatchForm from '../component/basic-component/BatchForm';
 import { ToastContainer, useToast } from '../component/basic-component/Toast';
@@ -9,6 +10,7 @@ import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
 import type { LegalCaseRequest } from '../types/request/legal-case/LegalCaseRequest';
+import type { LegalCaseAssignmentRequest } from '../types/request/legal-case/LegalCaseAssignmentRequest';
 import type { BatchRequest } from '../types/request/batch/BatchRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { LegalRelationshipService } from '../services/LegalRelationshipService';
@@ -76,6 +78,11 @@ const LegalCaseManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCase, setEditingCase] = useState<LegalCaseResponse | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+
+  // States for judge assignment modal
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [assigningCase, setAssigningCase] = useState<LegalCaseResponse | null>(null);
+  const [assignmentLoading, setAssignmentLoading] = useState(false);
 
   // Import Excel
   const [importLoading, setImportLoading] = useState(false);
@@ -251,6 +258,41 @@ const LegalCaseManager = () => {
     }
   };
 
+  const handleAssign = (legalCase: LegalCaseResponse) => {
+    setAssigningCase(legalCase);
+    setShowAssignmentModal(true);
+    toast.info('Phân công thẩm phán', `Đang mở form phân công cho án "${legalCase.acceptanceNumber}"`);
+  };
+
+  const handleAssignSubmit = async (judgeId: string) => {
+    if (!assigningCase) return;
+
+    setAssignmentLoading(true);
+    try {
+      const request: LegalCaseAssignmentRequest = {
+        legalCaseId: assigningCase.legalCaseId,
+        judgeId: judgeId
+      };
+
+      const response = await LegalCaseService.assignJudge(request);
+      
+      if (response.success) {
+        toast.success('Phân công thành công', `Đã phân công thẩm phán cho án "${assigningCase.acceptanceNumber}"`);
+        setShowAssignmentModal(false);
+        setAssigningCase(null);
+        // Reload data to show updated assignment
+        await handleSearch();
+      } else {
+        toast.error('Phân công thất bại', response.error || 'Có lỗi xảy ra khi phân công thẩm phán');
+      }
+    } catch (error) {
+      console.error('Error assigning judge:', error);
+      toast.error('Phân công thất bại', 'Có lỗi xảy ra khi phân công thẩm phán');
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+
   const handleFormSubmit = async (data: LegalCaseRequest) => {
     try {
       setFormLoading(true);
@@ -284,11 +326,6 @@ const LegalCaseManager = () => {
   const handleAddNew = () => {
     setEditingCase(null);
     setShowForm(true);
-  };
-
-  const handleAssign = (legalCase: LegalCaseResponse) => {
-    console.log('Assign legal case:', legalCase);
-    // Implement assign functionality
   };
 
   const handleImportExcel = () => {
@@ -788,6 +825,18 @@ const LegalCaseManager = () => {
         legalCase={editingCase}
         legalRelationships={legalRelationships}
         isLoading={formLoading}
+      />
+
+      {/* Judge Assignment Modal */}
+      <JudgeAssignmentModal
+        isOpen={showAssignmentModal}
+        onClose={() => {
+          setShowAssignmentModal(false);
+          setAssigningCase(null);
+        }}
+        onAssign={handleAssignSubmit}
+        legalCase={assigningCase}
+        isLoading={assignmentLoading}
       />
 
       {/* Confirm Modal */}
