@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
-import RandomAssignmentService from "../services/RandomAssignmentService";
+import { LegalCaseService } from "../services/LegalCaseService";
+import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import type { JudgeResponse } from "../types/response/judge/JudgeResponse";
@@ -19,11 +20,11 @@ const RandomAssignment = () => {
     const [assignedCases, setAssignedCases] = useState<LegalCaseResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
-    const [showJudges, setShowJudges] = useState(false);
 
-    // Load danh sách nhóm quan hệ pháp luật khi component mount
+    // Load danh sách nhóm quan hệ pháp luật và thẩm phán khi component mount
     useEffect(() => {
         loadLegalRelationshipGroups();
+        loadAllJudges(); // Load tất cả thẩm phán ngay từ đầu
     }, []);
 
     const loadLegalRelationshipGroups = async () => {
@@ -77,11 +78,11 @@ const RandomAssignment = () => {
                 storageDate: null
             };
 
-            const response = await RandomAssignmentService.searchPendingCases(searchRequest);
+            const response = await LegalCaseService.searchPendingCases(searchRequest);
             if (response.success && response.data) {
                 setPendingCases(response.data);
                 setSelectedCases([]);
-                setShowJudges(false);
+                setAssignableJudges([]);
                 setAssignedCases([]);
             } else {
                 addToast({
@@ -102,22 +103,12 @@ const RandomAssignment = () => {
         }
     };
 
-    const loadAssignableJudges = async () => {
-        if (selectedCases.length === 0) {
-            addToast({
-                title: "Thông báo",
-                message: "Vui lòng chọn ít nhất một án để phân công",
-                type: "warning"
-            });
-            return;
-        }
-
+    const loadAllJudges = async () => {
         setLoading(true);
         try {
-            const response = await RandomAssignmentService.getAssignableJudges();
+            const response = await JudgeService.getAssignableJudges();
             if (response.success && response.data) {
                 setAssignableJudges(response.data);
-                setShowJudges(true);
             } else {
                 addToast({
                     title: "Lỗi",
@@ -158,7 +149,7 @@ const RandomAssignment = () => {
 
         setLoading(true);
         try {
-            const response = await RandomAssignmentService.assignRandomly(selectedCases);
+            const response = await LegalCaseService.assignRandomly(selectedCases);
             if (response.success && response.data) {
                 setAssignedCases(response.data);
                 addToast({
@@ -166,11 +157,10 @@ const RandomAssignment = () => {
                     message: `Đã phân công thành công ${response.data.length} án`,
                     type: "success"
                 });
-                
+
                 // Reset lại danh sách sau khi phân công thành công
                 setPendingCases([]);
                 setSelectedCases([]);
-                setShowJudges(false);
                 setAssignableJudges([]);
             } else {
                 addToast({
@@ -192,8 +182,8 @@ const RandomAssignment = () => {
     };
 
     const handleSelectCase = (caseId: string) => {
-        setSelectedCases(prev => 
-            prev.includes(caseId) 
+        setSelectedCases(prev =>
+            prev.includes(caseId)
                 ? prev.filter(id => id !== caseId)
                 : [...prev, caseId]
         );
@@ -241,7 +231,7 @@ const RandomAssignment = () => {
                 {/* Bộ lọc tìm kiếm */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h3>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
                         <div className="lg:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -254,7 +244,7 @@ const RandomAssignment = () => {
                                 placeholder="Chọn nhóm quan hệ pháp luật"
                             />
                         </div>
-                        
+
                         <button
                             onClick={searchPendingCases}
                             disabled={searchLoading || !selectedGroupId}
@@ -277,102 +267,93 @@ const RandomAssignment = () => {
                     </div>
                 </div>
 
-            {/* Danh sách án chờ phân công */}
-            {pendingCases.length > 0 && (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                        <h2 className="text-xl font-semibold text-gray-900">
-                            Danh sách án chờ phân công ({pendingCases.length})
-                        </h2>
-                        <div className="flex flex-wrap gap-2">
-                            <button
-                                onClick={handleSelectAll}
-                                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                            >
-                                Chọn tất cả
-                            </button>
-                            <button
-                                onClick={handleDeselectAll}
-                                className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors duration-200"
-                            >
-                                Bỏ chọn tất cả
-                            </button>
-                            <button
-                                onClick={loadAssignableJudges}
-                                disabled={selectedCases.length === 0 || loading}
-                                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
-                            >
-                                Xem thẩm phán ({selectedCases.length})
-                            </button>
+                {/* Danh sách án chờ phân công */}
+                {pendingCases.length > 0 && (
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                            <h2 className="text-xl font-semibold text-gray-900">
+                                Danh sách án chờ phân công ({pendingCases.length})
+                            </h2>
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    onClick={handleSelectAll}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                >
+                                    Chọn tất cả
+                                </button>
+                                <button
+                                    onClick={handleDeselectAll}
+                                    className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                >
+                                    Bỏ chọn tất cả
+                                </button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {pendingCases.map((legalCase) => (
+                                <div
+                                    key={legalCase.legalCaseId}
+                                    className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedCases.includes(legalCase.legalCaseId)
+                                            ? 'border-red-500 bg-red-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    onClick={() => handleSelectCase(legalCase.legalCaseId)}
+                                >
+                                    {/* Sử dụng LegalCaseCard cho bố cục đẹp hơn */}
+                                    {/* <LegalCaseCard legalCase={legalCase} /> */}
+                                    <div className="flex items-start justify-between mb-2">
+                                        <h3 className="font-semibold text-gray-900 text-sm">
+                                            {legalCase.acceptanceNumber}
+                                        </h3>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCases.includes(legalCase.legalCaseId)}
+                                            onChange={() => handleSelectCase(legalCase.legalCaseId)}
+                                            className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        Nguyên đơn: {legalCase.plaintiff}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        Bị đơn: {legalCase.defendant}
+                                    </p>
+                                    <div className="text-xs text-gray-500">
+                                        <p>Ngày tiếp nhận: {new Date(legalCase.acceptanceDate).toLocaleDateString('vi-VN')}</p>
+                                        <p>Quan hệ pháp luật: {legalCase.legalRelationship.legalRelationshipName}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {pendingCases.map((legalCase) => (
-                            <div
-                                key={legalCase.legalCaseId}
-                                className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                                    selectedCases.includes(legalCase.legalCaseId)
-                                        ? 'border-red-500 bg-red-50'
-                                        : 'border-gray-200 hover:border-gray-300'
-                                }`}
-                                onClick={() => handleSelectCase(legalCase.legalCaseId)}
-                            >
-                                {/* Sử dụng LegalCaseCard cho bố cục đẹp hơn */}
-                                {/* <LegalCaseCard legalCase={legalCase} /> */}
-                                <div className="flex items-start justify-between mb-2">
-                                    <h3 className="font-semibold text-gray-900 text-sm">
-                                        {legalCase.acceptanceNumber}
-                                    </h3>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCases.includes(legalCase.legalCaseId)}
-                                        onChange={() => handleSelectCase(legalCase.legalCaseId)}
-                                        className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
-                                </div>
-                                <p className="text-sm text-gray-600 mb-2">
-                                    Nguyên đơn: {legalCase.plaintiff}
-                                </p>
-                                <p className="text-sm text-gray-600 mb-2">
-                                    Bị đơn: {legalCase.defendant}
-                                </p>
-                                <div className="text-xs text-gray-500">
-                                    <p>Ngày tiếp nhận: {new Date(legalCase.acceptanceDate).toLocaleDateString('vi-VN')}</p>
-                                    <p>Quan hệ pháp luật: {legalCase.legalRelationship.legalRelationshipName}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                )}
 
-            {/* Loading khi đang tìm kiếm */}
-            {searchLoading && (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                    <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Đang tìm kiếm...</h3>
-                        <p className="text-gray-600">Vui lòng chờ trong giây lát.</p>
+                {/* Loading khi đang tìm kiếm */}
+                {searchLoading && (
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                        <div className="text-center py-8">
+                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Đang tìm kiếm...</h3>
+                            <p className="text-gray-600">Vui lòng chờ trong giây lát.</p>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Message khi không có dữ liệu */}
-            {searchLoading === false && pendingCases.length === 0 && selectedGroupId && (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                    <div className="text-center py-8">
-                        <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy án chờ phân công</h3>
-                        <p className="text-gray-600">Không có án nào chờ phân công cho nhóm quan hệ pháp luật đã chọn.</p>
+                {/* Message khi không có dữ liệu */}
+                {searchLoading === false && pendingCases.length === 0 && selectedGroupId && (
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                        <div className="text-center py-8">
+                            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy án chờ phân công</h3>
+                            <p className="text-gray-600">Không có án nào chờ phân công cho nhóm quan hệ pháp luật đã chọn.</p>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Danh sách thẩm phán đủ điều kiện */}
-            {showJudges && assignableJudges.length > 0 && (
+                {/* Danh sách thẩm phán đủ điều kiện - Luôn hiển thị */}
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                         <h2 className="text-xl font-semibold text-gray-900">
@@ -381,7 +362,7 @@ const RandomAssignment = () => {
                         
                         <button
                             onClick={handleRandomAssignment}
-                            disabled={loading || selectedCases.length === 0}
+                            disabled={loading || selectedCases.length === 0 || assignableJudges.length === 0}
                             className="px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
                         >
                             {loading ? (
@@ -400,65 +381,78 @@ const RandomAssignment = () => {
                         </button>
                     </div>
 
-                    <div className="flex flex-col gap-4">
-                        {assignableJudges.map((judge) => (
-                            <div
-                                key={judge.judgeId}
-                                className="border border-gray-200 rounded-lg p-4"
-                            >
-                                <h3 className="font-semibold text-gray-900 mb-2">
-                                    {judge.fullName}
-                                </h3>
-                                <div className="text-sm text-gray-600 space-y-1">
-                                    <p>Email: {judge.email}</p>
-                                    <p>Số án hiện tại: {judge.numberOfLegalCases}</p>
-                                    <p>Số án tối đa: {judge.maxNumberOfLegalCase === -1 ? 'Không giới hạn' : judge.maxNumberOfLegalCase}</p>
+                    {loading ? (
+                        <div className="text-center py-8">
+                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+                            <p className="text-gray-600">Đang tải danh sách thẩm phán...</p>
+                        </div>
+                    ) : assignableJudges.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            {selectedCases.length === 0 
+                                ? "Chọn án để xem thẩm phán đủ điều kiện phân công." 
+                                : "Không có thẩm phán đủ điều kiện phân công cho các án đã chọn."
+                            }
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-4">
+                            {assignableJudges.map((judge) => (
+                                <div
+                                    key={judge.judgeId}
+                                    className="border border-gray-200 rounded-lg p-4"
+                                >
+                                    <h3 className="font-semibold text-gray-900 mb-2">
+                                        {judge.fullName}
+                                    </h3>
+                                    <div className="text-sm text-gray-600 space-y-1">
+                                        <p>Email: {judge.email}</p>
+                                        <p>Số án hiện tại: {judge.numberOfLegalCases}</p>
+                                        <p>Số án tối đa: {judge.maxNumberOfLegalCase === -1 ? 'Không giới hạn' : judge.maxNumberOfLegalCase}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            )}
 
-            {/* Kết quả phân công */}
-            {assignedCases.length > 0 && (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                        Kết quả phân công ({assignedCases.length} án)
-                    </h2>
-                    
-                    <div className="space-y-4">
-                        {assignedCases.map((legalCase) => (
-                            <div
-                                key={legalCase.legalCaseId}
-                                className="border border-green-200 rounded-lg p-4 bg-green-50"
-                            >
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-gray-900">
-                                            {legalCase.acceptanceNumber}
-                                        </h3>
-                                        <p className="text-sm text-gray-600">
-                                            Nguyên đơn: {legalCase.plaintiff}
-                                        </p>
-                                        <p className="text-sm text-gray-600">
-                                            Bị đơn: {legalCase.defendant}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-medium text-green-800">
-                                            Thẩm phán: {legalCase.judge?.fullName}
-                                        </p>
-                                        <p className="text-sm text-green-600">
-                                            Email: {legalCase.judge?.email}
-                                        </p>
+                {/* Kết quả phân công */}
+                {assignedCases.length > 0 && (
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            Kết quả phân công ({assignedCases.length} án)
+                        </h2>
+
+                        <div className="space-y-4">
+                            {assignedCases.map((legalCase) => (
+                                <div
+                                    key={legalCase.legalCaseId}
+                                    className="border border-green-200 rounded-lg p-4 bg-green-50"
+                                >
+                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-gray-900">
+                                                {legalCase.acceptanceNumber}
+                                            </h3>
+                                            <p className="text-sm text-gray-600">
+                                                Nguyên đơn: {legalCase.plaintiff}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                Bị đơn: {legalCase.defendant}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-medium text-green-800">
+                                                Thẩm phán: {legalCase.judge?.fullName}
+                                            </p>
+                                            <p className="text-sm text-green-600">
+                                                Email: {legalCase.judge?.email}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
                 {/* Toast Container */}
                 <ToastContainer toasts={toasts} onRemove={removeToast} />

@@ -2,7 +2,7 @@ import { type ApiResponse } from "../types/ApiResponse";
 import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
-import { type LegalCaseAssignmentRequest } from "../types/request/legal-case/LegalCaseAssignmentRequest";
+import { type AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
 import { Connect } from "../connect/Connect";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
 
@@ -100,7 +100,7 @@ export class LegalCaseService {
     }
   }
 
-  static async assignJudge(request: LegalCaseAssignmentRequest): Promise<ApiResponse<any>> {
+  static async assignJudge(request: AssignAssignmentRequest): Promise<ApiResponse<any>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(
@@ -111,6 +111,36 @@ export class LegalCaseService {
       );
     } catch (error) {
       console.error('Error assigning judge to legal case:', error);
+      throw error;
+    }
+  }
+
+  static async searchPendingCases(searchRequest: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await Connect.request<LegalCaseResponse[]>(
+        `/legal-case/search`,
+        "POST",
+        searchRequest,
+        token
+      );
+      return response;
+    } catch (error) {
+      console.error("Error searching pending cases:", error);
+      throw error;
+    }
+  }
+
+  static async assignRandomly(caseIds: string[]): Promise<ApiResponse<LegalCaseResponse[]>> {
+    try {
+      const response = await Connect.request<LegalCaseResponse[]>(
+        `/legal-case/random-assignment`,
+        "POST",
+        { caseIds }
+      );
+      return response;
+    } catch (error) {
+      console.error("Error assigning cases randomly:", error);
       throw error;
     }
   }

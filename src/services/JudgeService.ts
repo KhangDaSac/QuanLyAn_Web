@@ -19,8 +19,8 @@ export class JudgeService {
       throw error;
     }
   }
-  
-    static async getTop50(): Promise<ApiResponse<JudgeResponse[]>> {
+
+  static async getTop50(): Promise<ApiResponse<JudgeResponse[]>> {
     try {
       const token = localStorage.getItem('token');
       return Connect.request(
@@ -107,6 +107,22 @@ export class JudgeService {
       );
     } catch (error) {
       console.error('Error:', error);
+      throw error;
+    }
+  }
+
+  static async getAssignableJudges(): Promise<ApiResponse<JudgeResponse[]>> {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await Connect.request<JudgeResponse[]>(
+        '/judge/list-assignment',
+        'GET',
+        null,
+        token
+      );
+      return response;
+    } catch (error) {
+      console.error("Error getting assignable judges:", error);
       throw error;
     }
   }

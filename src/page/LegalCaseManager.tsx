@@ -10,7 +10,7 @@ import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { LegalCaseSearchRequest } from '../types/request/legal-case/LegalCaseSearchRequest';
 import type { LegalCaseRequest } from '../types/request/legal-case/LegalCaseRequest';
-import type { LegalCaseAssignmentRequest } from '../types/request/legal-case/LegalCaseAssignmentRequest';
+import type { LegalCaseAssignmentRequest } from '../types/request/legal-case/AssignAssignmentRequest';
 import type { BatchRequest } from '../types/request/batch/BatchRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { LegalRelationshipService } from '../services/LegalRelationshipService';
