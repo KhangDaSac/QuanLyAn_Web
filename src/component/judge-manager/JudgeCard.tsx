@@ -55,47 +55,45 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                                     {judge.email}
                                 </span>
                             </div>
-
-                            <div className="flex flex-col">
-                                <span className="text-xs md:text-sm font-medium text-gray-500">Số án tối đa</span>
-                                <span className="text-sm md:text-base text-gray-900 font-medium">
-                                    {judge.maxNumberOfLegalCase === -1 ? 'Không giới hạn' : judge.maxNumberOfLegalCase}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="space-y-2 md:space-y-3">
-                            <div className="flex flex-col">
+                                                        <div className="flex flex-col">
                                 <span className="text-xs md:text-sm font-medium text-gray-500">Số án hiện tại</span>
                                 <span className="text-sm md:text-base text-gray-900 font-medium">
                                     {judge.numberOfLegalCases}
                                 </span>
                             </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs md:text-sm font-medium text-gray-500">Quá hạn</span>
+                                <span className="text-sm md:text-base text-red-600 font-medium">
+                                    {judge.numberOfOverdue}
+                                </span>
+                            </div>
+
+
+
+                        </div>
+                        <div className="space-y-2 md:space-y-3">
+                            <div className="flex flex-col">
+                                                                <span className="text-xs md:text-sm font-medium text-gray-500">Số án tối đa</span>
+                                <span className="text-sm md:text-base text-gray-900 font-medium">
+                                    {judge.maxNumberOfLegalCase === -1 ? 'Không giới hạn' : judge.maxNumberOfLegalCase}
+                                </span>
+
+                            </div>
+
+                            
+                            <div className="flex flex-col">
+                                <span className="text-xs md:text-sm font-medium text-gray-500">Tạm đình chỉ</span>
+                                <span className="text-sm md:text-base text-orange-600 font-medium">
+                                    {judge.numberOfTemporarySuspension}
+                                </span>
+                            </div>
+
 
                             <div className="flex flex-col">
-                                <span className="text-xs md:text-sm font-medium text-gray-500">Tỷ lệ công việc</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm md:text-base text-gray-900 font-medium">
-                                        {judge.maxNumberOfLegalCase === -1 
-                                            ? `${judge.numberOfLegalCases} án` 
-                                            : `${((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100).toFixed(1)}%`
-                                        }
-                                    </span>
-                                    {judge.maxNumberOfLegalCase !== -1 && (
-                                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                            <div
-                                                className={`h-2 rounded-full transition-all duration-300 ${(judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.8
-                                                    ? 'bg-red-500'
-                                                    : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.6
-                                                        ? 'bg-yellow-500'
-                                                        : 'bg-green-500'
-                                                    }`}
-                                                style={{
-                                                    width: `${Math.min((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100, 100)}%`
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                                <span className="text-xs md:text-sm font-medium text-gray-500">Hủy/Sửa đổi</span>
+                                <span className="text-sm md:text-base text-yellow-600 font-medium">
+                                    {judge.numberOfCanceledAndEdited}
+                                </span>
                             </div>
                         </div>
                     </div>
