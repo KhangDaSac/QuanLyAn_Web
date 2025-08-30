@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import RandomAssignmentService from "../services/RandomAssignmentService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
@@ -10,6 +11,7 @@ import { ToastContainer, useToast } from "../component/basic-component/Toast";
 const RandomAssignment = () => {
     const { toasts, addToast, removeToast } = useToast();
     const [legalRelationshipGroups, setLegalRelationshipGroups] = useState<LegalRelationshipGroupResponse[]>([]);
+    const [legalRelationshipGroupOptions, setLegalRelationshipGroupOptions] = useState<Option[]>([]);
     const [selectedGroupId, setSelectedGroupId] = useState<string>("");
     const [pendingCases, setPendingCases] = useState<LegalCaseResponse[]>([]);
     const [selectedCases, setSelectedCases] = useState<string[]>([]);
@@ -29,6 +31,12 @@ const RandomAssignment = () => {
             const response = await LegalRelationshipGroupService.getAll();
             if (response.success && response.data) {
                 setLegalRelationshipGroups(response.data);
+                setLegalRelationshipGroupOptions(
+                    response.data.map((group: LegalRelationshipGroupResponse) => ({
+                        value: group.legalRelationshipGroupId,
+                        label: group.legalRelationshipGroupName
+                    }))
+                );
             }
         } catch (error) {
             console.error("Error loading legal relationship groups:", error);
@@ -239,18 +247,12 @@ const RandomAssignment = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Nhóm quan hệ pháp luật <span className="text-red-500">*</span>
                             </label>
-                            <select
+                            <ComboboxSearch
+                                options={legalRelationshipGroupOptions}
                                 value={selectedGroupId}
-                                onChange={(e) => setSelectedGroupId(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-                            >
-                                <option value="">Chọn nhóm quan hệ pháp luật</option>
-                                {legalRelationshipGroups.map((group) => (
-                                    <option key={group.legalRelationshipGroupId} value={group.legalRelationshipGroupId}>
-                                        {group.legalRelationshipGroupName}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={setSelectedGroupId}
+                                placeholder="Chọn nhóm quan hệ pháp luật"
+                            />
                         </div>
                         
                         <button
