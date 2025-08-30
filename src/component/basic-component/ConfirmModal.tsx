@@ -109,11 +109,6 @@ const ConfirmModal = ({
     return (
         <div 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9998]"
-            onClick={(e) => {
-                if (e.target === e.currentTarget && !isLoading) {
-                    onClose();
-                }
-            }}
             style={{ 
                 margin: 0, 
                 padding: '1rem',
@@ -128,7 +123,6 @@ const ConfirmModal = ({
         >
             <div 
                 className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-200 scale-100 relative z-[9999] mx-auto"
-                onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
                     <div className="sm:flex sm:items-start">

@@ -116,12 +116,6 @@ const LegalCaseForm = ({
     return (
         <div 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]"
-            onClick={(e) => {
-                // Chỉ đóng modal khi click vào backdrop, không phải vào modal content
-                if (e.target === e.currentTarget) {
-                    onClose();
-                }
-            }}
             style={{ 
                 margin: 0, 
                 padding: '1rem',
@@ -136,7 +130,6 @@ const LegalCaseForm = ({
         >
             <div 
                 className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto overflow-hidden"
-                onClick={(e) => e.stopPropagation()} // Ngăn event bubbling
             >
                 <div className="overflow-y-auto max-h-[90vh] p-6">
                     {/* Header */}
