@@ -82,8 +82,8 @@ const RandomAssignment = () => {
             if (response.success && response.data) {
                 setPendingCases(response.data);
                 setSelectedCases([]);
-                setAssignableJudges([]);
                 setAssignedCases([]);
+                // Không xóa danh sách thẩm phán
             } else {
                 addToast({
                     title: "Thông báo",
