@@ -1,4 +1,4 @@
-import type { StatusOfJudge } from "../../enum/StatusOfJudge";
+import { StatusOfJudge } from "../../enum/StatusOfJudge";
 
 export interface JudgeResponse {
   judgeId: string;
@@ -10,6 +10,6 @@ export interface JudgeResponse {
   numberOfTemporarySuspension: number;
   numberOfOverdue: number;
   numberOfCanceledAndEdited: number;
-  statusOfJudge: StatusOfJudge;
+  statusOfJudge: keyof typeof StatusOfJudge;
   email: string;
 }

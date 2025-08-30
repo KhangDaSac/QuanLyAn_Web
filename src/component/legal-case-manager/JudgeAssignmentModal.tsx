@@ -3,7 +3,6 @@ import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../../types/request/judge/JudgeSearchRequest';
 import { JudgeService } from '../../services/JudgeService';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
-import { StatusOfJudge } from '../../types/enum/StatusOfJudge';
 
 interface JudgeAssignmentModalProps {
     isOpen: boolean;
@@ -51,7 +50,7 @@ const JudgeAssignmentModal = ({
             if (response.success && response.data) {
                 // Chỉ hiển thị thẩm phán đang hoạt động và còn khả năng nhận án
                 const availableJudges = response.data.filter(judge => 
-                    judge.statusOfJudge === StatusOfJudge.WORKING && 
+                    judge.statusOfJudge === 'WORKING' && 
                     (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCases < judge.maxNumberOfLegalCase)
                 );
                 setJudges(availableJudges);
