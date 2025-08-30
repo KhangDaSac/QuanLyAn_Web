@@ -1,4 +1,5 @@
 import { type JudgeResponse } from "../../types/response/judge/JudgeResponse";
+import { StatusOfJudge } from "../../types/enum/StatusOfJudge";
 
 interface JudgeCardProps {
     judge: JudgeResponse;
@@ -9,13 +10,15 @@ interface JudgeCardProps {
 const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'ACTIVE':
+            case StatusOfJudge.WORKING:
                 return 'bg-green-100 text-green-800';
-            case 'INACTIVE':
+            case StatusOfJudge.NOT_WORKING:
                 return 'bg-gray-100 text-gray-800';
-            case 'ON_LEAVE':
+            case StatusOfJudge.ON_BUSINESS_TRIP:
+                return 'bg-blue-100 text-blue-800';
+            case StatusOfJudge.ON_LEAVE:
                 return 'bg-yellow-100 text-yellow-800';
-            case 'RETIRED':
+            case StatusOfJudge.DISCIPLINED:
                 return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
@@ -23,18 +26,8 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
     };
 
     const getStatusText = (status: string) => {
-        switch (status) {
-            case 'ACTIVE':
-                return 'Đang hoạt động';
-            case 'INACTIVE':
-                return 'Không hoạt động';
-            case 'ON_LEAVE':
-                return 'Đang nghỉ phép';
-            case 'RETIRED':
-                return 'Đã nghỉ hưu';
-            default:
-                return status;
-        }
+        // Vì status đã là giá trị tiếng Việt, chỉ cần return luôn
+        return status;
     };
 
     return (
@@ -66,7 +59,7 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                             <div className="flex flex-col">
                                 <span className="text-xs md:text-sm font-medium text-gray-500">Số án tối đa</span>
                                 <span className="text-sm md:text-base text-gray-900 font-medium">
-                                    {judge.maxNumberOfLegalCase}
+                                    {judge.maxNumberOfLegalCase === -1 ? 'Không giới hạn' : judge.maxNumberOfLegalCase}
                                 </span>
                             </div>
                         </div>
@@ -82,21 +75,26 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                                 <span className="text-xs md:text-sm font-medium text-gray-500">Tỷ lệ công việc</span>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm md:text-base text-gray-900 font-medium">
-                                        {((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100).toFixed(1)}%
+                                        {judge.maxNumberOfLegalCase === -1 
+                                            ? `${judge.numberOfLegalCases} án` 
+                                            : `${((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100).toFixed(1)}%`
+                                        }
                                     </span>
-                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className={`h-2 rounded-full transition-all duration-300 ${(judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.8
-                                                ? 'bg-red-500'
-                                                : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.6
-                                                    ? 'bg-yellow-500'
-                                                    : 'bg-green-500'
-                                                }`}
-                                            style={{
-                                                width: `${Math.min((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100, 100)}%`
-                                            }}
-                                        />
-                                    </div>
+                                    {judge.maxNumberOfLegalCase !== -1 && (
+                                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div
+                                                className={`h-2 rounded-full transition-all duration-300 ${(judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.8
+                                                    ? 'bg-red-500'
+                                                    : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.6
+                                                        ? 'bg-yellow-500'
+                                                        : 'bg-green-500'
+                                                    }`}
+                                                style={{
+                                                    width: `${Math.min((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100, 100)}%`
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

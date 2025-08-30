@@ -3,6 +3,7 @@ import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../../types/request/judge/JudgeSearchRequest';
 import { JudgeService } from '../../services/JudgeService';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
+import { StatusOfJudge } from '../../types/enum/StatusOfJudge';
 
 interface JudgeAssignmentModalProps {
     isOpen: boolean;
@@ -50,8 +51,8 @@ const JudgeAssignmentModal = ({
             if (response.success && response.data) {
                 // Chỉ hiển thị thẩm phán đang hoạt động và còn khả năng nhận án
                 const availableJudges = response.data.filter(judge => 
-                    judge.statusOfJudge === 'Đang làm việc' && 
-                    judge.numberOfLegalCases < judge.maxNumberOfLegalCase
+                    judge.statusOfJudge === StatusOfJudge.WORKING && 
+                    (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCases < judge.maxNumberOfLegalCase)
                 );
                 setJudges(availableJudges);
             }
@@ -204,20 +205,32 @@ const JudgeAssignmentModal = ({
                                             </div>
                                             <div className="text-right mr-4">
                                                 <p className="text-sm text-gray-600 mb-1">
-                                                    Đang xử lý: <span className="font-medium">{judge.numberOfLegalCases}/{judge.maxNumberOfLegalCase}</span> án
+                                                    Đang xử lý: <span className="font-medium">
+                                                        {judge.maxNumberOfLegalCase === -1 
+                                                            ? `${judge.numberOfLegalCases} án` 
+                                                            : `${judge.numberOfLegalCases}/${judge.maxNumberOfLegalCase} án`
+                                                        }
+                                                    </span>
                                                 </p>
-                                                <div className="w-32 bg-gray-200 rounded-full h-2">
-                                                    <div 
-                                                        className={`h-2 rounded-full ${
-                                                            (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.8 
-                                                                ? 'bg-red-500' 
-                                                                : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.6 
-                                                                ? 'bg-yellow-500' 
-                                                                : 'bg-green-500'
-                                                        }`}
-                                                        style={{ width: `${(judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100}%` }}
-                                                    ></div>
-                                                </div>
+                                                {judge.maxNumberOfLegalCase !== -1 && (
+                                                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                                                        <div 
+                                                            className={`h-2 rounded-full ${
+                                                                (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.8 
+                                                                    ? 'bg-red-500' 
+                                                                    : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.6 
+                                                                    ? 'bg-yellow-500' 
+                                                                    : 'bg-green-500'
+                                                            }`}
+                                                            style={{ width: `${(judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100}%` }}
+                                                        ></div>
+                                                    </div>
+                                                )}
+                                                {judge.maxNumberOfLegalCase === -1 && (
+                                                    <div className="w-32 h-2 flex items-center justify-center">
+                                                        <span className="text-xs text-green-600 font-medium">Không giới hạn</span>
+                                                    </div>
+                                                )}
                                             </div>
                                             {selectedJudge?.judgeId === judge.judgeId && (
                                                 <div className="ml-2">

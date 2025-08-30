@@ -127,7 +127,7 @@ const ComboboxSearchForm: React.FC<ComboboxSearchFormProps> = ({
       {isOpen && createPortal(
         <div 
           ref={dropdownRef}
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden z-[10001]"
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden z-[10002]"
           style={{
             top: dropdownPosition.top,
             left: dropdownPosition.left,

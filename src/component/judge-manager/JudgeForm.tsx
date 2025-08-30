@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
-import type { StatusOfJudge } from '../../types/enum/StatusOfJudge';
+import { StatusOfJudge } from '../../types/enum/StatusOfJudge';
+import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 
 interface JudgeFormProps {
     isOpen: boolean;
@@ -29,22 +30,44 @@ const JudgeForm = ({
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const statusOptions = [
-        { value: 'ACTIVE', label: 'Đang hoạt động' },
-        { value: 'INACTIVE', label: 'Không hoạt động' },
-        { value: 'ON_LEAVE', label: 'Đang nghỉ phép' },
-        { value: 'RETIRED', label: 'Đã nghỉ hưu' }
+        { value: StatusOfJudge.WORKING, label: StatusOfJudge.WORKING },
+        { value: StatusOfJudge.NOT_WORKING, label: StatusOfJudge.NOT_WORKING },
+        { value: StatusOfJudge.ON_BUSINESS_TRIP, label: StatusOfJudge.ON_BUSINESS_TRIP },
+        { value: StatusOfJudge.ON_LEAVE, label: StatusOfJudge.ON_LEAVE },
+        { value: StatusOfJudge.DISCIPLINED, label: StatusOfJudge.DISCIPLINED }
     ];
+
+    const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
+        value: option.value,
+        label: option.label
+    }));
 
     // Ngăn cuộn trang khi modal mở
     useEffect(() => {
         if (isOpen) {
+            // Lưu trạng thái scroll hiện tại
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
         } else {
+            // Khôi phục trạng thái scroll
+            const scrollY = document.body.style.top;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
             document.body.style.overflow = '';
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
         }
 
         // Cleanup khi component unmount
         return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
             document.body.style.overflow = '';
         };
     }, [isOpen]);
@@ -83,8 +106,8 @@ const JudgeForm = ({
             newErrors.lastName = 'Họ là bắt buộc';
         }
 
-        if (formData.maxNumberOfLegalCase <= 0) {
-            newErrors.maxNumberOfLegalCase = 'Số án tối đa phải lớn hơn 0';
+        if (formData.maxNumberOfLegalCase !== -1 && formData.maxNumberOfLegalCase <= 0) {
+            newErrors.maxNumberOfLegalCase = 'Số án tối đa phải lớn hơn 0 hoặc chọn không giới hạn';
         }
 
         if (!judge && !formData.email?.trim()) {
@@ -242,52 +265,76 @@ const JudgeForm = ({
                             </div>
                         )}
 
-                        {/* Số án tối đa và Trạng thái */}
-                        <div className={`grid grid-cols-1 ${judge ? 'md:grid-cols-2' : ''} gap-6`}>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Số án tối đa <span className="text-red-500">*</span>
-                                </label>
+                        {/* Số án tối đa */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Số án tối đa <span className="text-red-500">*</span>
+                            </label>
+                            <div className="space-y-3">
+                                <div className="flex items-center space-x-3">
+                                    <input
+                                        type="radio"
+                                        id="limited"
+                                        name="limitType"
+                                        checked={formData.maxNumberOfLegalCase !== -1}
+                                        onChange={() => handleInputChange('maxNumberOfLegalCase', 1)}
+                                        className="text-red-600 focus:ring-red-500"
+                                    />
+                                    <label htmlFor="limited" className="text-sm text-gray-700">
+                                        Giới hạn số án
+                                    </label>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                    <input
+                                        type="radio"
+                                        id="unlimited"
+                                        name="limitType"
+                                        checked={formData.maxNumberOfLegalCase === -1}
+                                        onChange={() => handleInputChange('maxNumberOfLegalCase', -1)}
+                                        className="text-red-600 focus:ring-red-500"
+                                    />
+                                    <label htmlFor="unlimited" className="text-sm text-gray-700">
+                                        Không giới hạn
+                                    </label>
+                                </div>
                                 <input
                                     type="number"
                                     min="1"
-                                    value={formData.maxNumberOfLegalCase}
-                                    onChange={(e) => handleInputChange('maxNumberOfLegalCase', parseInt(e.target.value) || 0)}
+                                    value={formData.maxNumberOfLegalCase === -1 ? '' : formData.maxNumberOfLegalCase}
+                                    onChange={(e) => handleInputChange('maxNumberOfLegalCase', parseInt(e.target.value) || 1)}
+                                    disabled={formData.maxNumberOfLegalCase === -1}
                                     className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                                        errors.maxNumberOfLegalCase ? 'border-red-500' : 'border-gray-300'
+                                        formData.maxNumberOfLegalCase === -1 
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                            : errors.maxNumberOfLegalCase 
+                                                ? 'border-red-500' 
+                                                : 'border-gray-300'
                                     }`}
-                                    placeholder="Nhập số án tối đa"
+                                    placeholder={formData.maxNumberOfLegalCase === -1 ? "Không giới hạn" : "Nhập số án tối đa"}
                                 />
-                                {errors.maxNumberOfLegalCase && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.maxNumberOfLegalCase}</p>
-                                )}
                             </div>
-
-                            {/* Trạng thái - chỉ hiện khi cập nhật */}
-                            {judge && (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Trạng thái <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={formData.statusOfJudge || 'ACTIVE'}
-                                        onChange={(e) => handleInputChange('statusOfJudge', e.target.value as StatusOfJudge)}
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                                            errors.statusOfJudge ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                    >
-                                        {statusOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.statusOfJudge && (
-                                        <p className="text-red-500 text-xs mt-1">{errors.statusOfJudge}</p>
-                                    )}
-                                </div>
+                            {errors.maxNumberOfLegalCase && (
+                                <p className="text-red-500 text-xs mt-1">{errors.maxNumberOfLegalCase}</p>
                             )}
                         </div>
+
+                        {/* Trạng thái - chỉ hiện khi cập nhật */}
+                        {judge && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Trạng thái <span className="text-red-500">*</span>
+                                </label>
+                                <ComboboxSearchForm
+                                    options={statusOptionsForCombobox}
+                                    value={formData.statusOfJudge || StatusOfJudge.WORKING}
+                                    onChange={(value) => handleInputChange('statusOfJudge', value)}
+                                    placeholder="Chọn trạng thái thẩm phán"
+                                />
+                                {errors.statusOfJudge && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.statusOfJudge}</p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Buttons */}
                         <div className="flex flex-col sm:flex-row gap-3 pt-6">
