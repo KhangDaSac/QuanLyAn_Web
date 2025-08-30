@@ -147,171 +147,174 @@ const JudgeForm = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            {/* Overlay */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
-
-            {/* Modal */}
-            <div className="flex min-h-full items-center justify-center p-4">
-                <div className="relative w-full max-w-2xl transform rounded-lg bg-white shadow-xl transition-all">
+        <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]"
+            style={{ 
+                margin: 0, 
+                padding: '1rem',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100vw',
+                height: '100vh'
+            }}
+        >
+            <div 
+                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto overflow-hidden"
+            >
+                <div className="overflow-y-auto max-h-[90vh] p-6">
                     {/* Header */}
-                    <div className="border-b border-gray-200 px-6 py-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                {judge ? 'Cập nhật thẩm phán' : 'Thêm thẩm phán mới'}
-                            </h3>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="rounded-md bg-white text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                            >
-                                <span className="sr-only">Đóng</span>
-                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            {judge ? 'Cập nhật thẩm phán' : 'Thêm thẩm phán mới'}
+                        </h2>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit} className="px-6 py-4">
-                        <div className="space-y-6">
-                            {/* Họ và Tên */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Họ <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="lastName"
-                                        value={formData.lastName}
-                                        onChange={(e) => handleInputChange('lastName', e.target.value)}
-                                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
-                                            errors.lastName ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                        placeholder="Nhập họ"
-                                    />
-                                    {errors.lastName && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Tên <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="firstName"
-                                        value={formData.firstName}
-                                        onChange={(e) => handleInputChange('firstName', e.target.value)}
-                                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
-                                            errors.firstName ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                        placeholder="Nhập tên"
-                                    />
-                                    {errors.firstName && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
-                                    )}
-                                </div>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Họ và Tên */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Họ <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.lastName}
+                                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                                        errors.lastName ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    placeholder="Nhập họ"
+                                />
+                                {errors.lastName && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+                                )}
                             </div>
 
-                            {/* Email - chỉ hiện khi thêm mới */}
-                            {!judge && (
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Email <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        value={formData.email || ''}
-                                        onChange={(e) => handleInputChange('email', e.target.value)}
-                                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
-                                            errors.email ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                        placeholder="Nhập email"
-                                    />
-                                    {errors.email && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Số án tối đa và Trạng thái */}
-                            <div className={`grid grid-cols-1 ${judge ? 'md:grid-cols-2' : ''} gap-4`}>
-                                <div>
-                                    <label htmlFor="maxNumberOfLegalCase" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Số án tối đa <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        id="maxNumberOfLegalCase"
-                                        min="1"
-                                        value={formData.maxNumberOfLegalCase}
-                                        onChange={(e) => handleInputChange('maxNumberOfLegalCase', parseInt(e.target.value) || 0)}
-                                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
-                                            errors.maxNumberOfLegalCase ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                        placeholder="Nhập số án tối đa"
-                                    />
-                                    {errors.maxNumberOfLegalCase && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.maxNumberOfLegalCase}</p>
-                                    )}
-                                </div>
-
-                                {/* Trạng thái - chỉ hiện khi cập nhật */}
-                                {judge && (
-                                    <div>
-                                        <label htmlFor="statusOfJudge" className="block text-sm font-medium text-gray-700 mb-2">
-                                            Trạng thái <span className="text-red-500">*</span>
-                                        </label>
-                                        <select
-                                            id="statusOfJudge"
-                                            value={formData.statusOfJudge || 'ACTIVE'}
-                                            onChange={(e) => handleInputChange('statusOfJudge', e.target.value as StatusOfJudge)}
-                                            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
-                                                errors.statusOfJudge ? 'border-red-500' : 'border-gray-300'
-                                            }`}
-                                        >
-                                            {statusOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.statusOfJudge && (
-                                            <p className="mt-1 text-sm text-red-600">{errors.statusOfJudge}</p>
-                                        )}
-                                    </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Tên <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.firstName}
+                                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                                        errors.firstName ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    placeholder="Nhập tên"
+                                />
+                                {errors.firstName && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
                                 )}
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-3 justify-end pt-6 mt-6 border-t border-gray-200">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                disabled={isLoading}
-                            >
-                                Hủy
-                            </button>
+                        {/* Email - chỉ hiện khi thêm mới */}
+                        {!judge && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    value={formData.email || ''}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                                        errors.email ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    placeholder="Nhập email"
+                                />
+                                {errors.email && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Số án tối đa và Trạng thái */}
+                        <div className={`grid grid-cols-1 ${judge ? 'md:grid-cols-2' : ''} gap-6`}>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Số án tối đa <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={formData.maxNumberOfLegalCase}
+                                    onChange={(e) => handleInputChange('maxNumberOfLegalCase', parseInt(e.target.value) || 0)}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                                        errors.maxNumberOfLegalCase ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    placeholder="Nhập số án tối đa"
+                                />
+                                {errors.maxNumberOfLegalCase && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.maxNumberOfLegalCase}</p>
+                                )}
+                            </div>
+
+                            {/* Trạng thái - chỉ hiện khi cập nhật */}
+                            {judge && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Trạng thái <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={formData.statusOfJudge || 'ACTIVE'}
+                                        onChange={(e) => handleInputChange('statusOfJudge', e.target.value as StatusOfJudge)}
+                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                                            errors.statusOfJudge ? 'border-red-500' : 'border-gray-300'
+                                        }`}
+                                    >
+                                        {statusOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.statusOfJudge && (
+                                        <p className="text-red-500 text-xs mt-1">{errors.statusOfJudge}</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-6">
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
-                                    <div className="flex items-center">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    <span className="flex items-center justify-center">
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
                                         Đang xử lý...
-                                    </div>
+                                    </span>
                                 ) : (
                                     judge ? 'Cập nhật' : 'Thêm mới'
                                 )}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                disabled={isLoading}
+                                className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+                            >
+                                Hủy
                             </button>
                         </div>
                     </form>
