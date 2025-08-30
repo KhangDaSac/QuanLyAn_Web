@@ -282,7 +282,6 @@ const RandomAssignment = () => {
                         <h2 className="text-xl font-semibold text-gray-900">
                             Danh sách án chờ phân công ({pendingCases.length})
                         </h2>
-                        
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={handleSelectAll}
@@ -305,8 +304,7 @@ const RandomAssignment = () => {
                             </button>
                         </div>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {pendingCases.map((legalCase) => (
                             <div
                                 key={legalCase.legalCaseId}
@@ -317,6 +315,8 @@ const RandomAssignment = () => {
                                 }`}
                                 onClick={() => handleSelectCase(legalCase.legalCaseId)}
                             >
+                                {/* Sử dụng LegalCaseCard cho bố cục đẹp hơn */}
+                                {/* <LegalCaseCard legalCase={legalCase} /> */}
                                 <div className="flex items-start justify-between mb-2">
                                     <h3 className="font-semibold text-gray-900 text-sm">
                                         {legalCase.acceptanceNumber}
@@ -398,7 +398,7 @@ const RandomAssignment = () => {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-4">
                         {assignableJudges.map((judge) => (
                             <div
                                 key={judge.judgeId}
