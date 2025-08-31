@@ -47,8 +47,8 @@ const LegalCaseCardSimple = ({ legalCase, isSelected, onSelect }: LegalCaseCardS
       {/* Thông tin bên liên quan */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="flex items-start space-x-3">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-17 h-17 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
@@ -63,8 +63,8 @@ const LegalCaseCardSimple = ({ legalCase, isSelected, onSelect }: LegalCaseCardS
 
         {legalCase.legalRelationship.typeOfLegalCase.codeName != 'HS' && (
           <div className="flex items-start space-x-3">
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-17 h-17 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
@@ -99,9 +99,9 @@ const LegalCaseCardSimple = ({ legalCase, isSelected, onSelect }: LegalCaseCardS
           </p>
         </div>
         <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-sm text-gray-500 mb-1">Ngày hết hạn</p>
-          <p className="text-base font-semibold text-red-600">
-            {legalCase.expiredDate != null ? formatDate(legalCase.expiredDate) : "Chưa có"}
+          <p className="text-sm text-gray-500 mb-1">Ngày nhập kho</p>
+          <p className="text-base font-semibold text-blue-600">
+            {legalCase.storageDate != null ? formatDate(legalCase.storageDate) : "Chưa nhập kho"}
           </p>
         </div>
       </div>
