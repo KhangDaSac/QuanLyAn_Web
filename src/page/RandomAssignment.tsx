@@ -72,18 +72,17 @@ const RandomAssignment = () => {
                 typeOfLegalCaseId: null,
                 legalRelationshipId: null,
                 legalRelationshipGroupId: selectedGroupId,
-                statusOfLegalCase: "WAITING_FOR_ASSIGNMENT" as StatusOfLegalCase, // Cast string key thành type
+                statusOfLegalCase: null,
                 judgeName: null,
                 batchId: null,
                 storageDate: null
             };
 
-            const response = await LegalCaseService.searchPendingCases(searchRequest);
+            const response = await LegalCaseService.getAssignAssignmentByLegalRelationshipGroup(searchRequest);
             if (response.success && response.data) {
                 setPendingCases(response.data);
                 setSelectedCases([]);
                 setAssignedCases([]);
-                // Không xóa danh sách thẩm phán
             } else {
                 addToast({
                     title: "Thông báo",

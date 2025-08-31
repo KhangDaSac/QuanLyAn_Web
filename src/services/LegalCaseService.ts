@@ -115,12 +115,12 @@ export class LegalCaseService {
     }
   }
 
-  static async searchPendingCases(searchRequest: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+  static async getAssignAssignmentByLegalRelationshipGroup(searchRequest: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
       const token = localStorage.getItem('token');
       const response = await Connect.request<LegalCaseResponse[]>(
-        `/legal-case/search`,
-        "POST",
+        '/legal-case/list-waiting-for-assignment',
+        'POST',
         searchRequest,
         token
       );
@@ -131,12 +131,14 @@ export class LegalCaseService {
     }
   }
 
-  static async assignRandomly(caseIds: string[]): Promise<ApiResponse<LegalCaseResponse[]>> {
+  static async assignRandomly(legalCaseIds: string[]): Promise<ApiResponse<LegalCaseResponse[]>> {
     try {
+      const token = localStorage.getItem('token');
       const response = await Connect.request<LegalCaseResponse[]>(
         `/legal-case/random-assignment`,
         "POST",
-        { caseIds }
+        { legalCaseIds },
+        token
       );
       return response;
     } catch (error) {
