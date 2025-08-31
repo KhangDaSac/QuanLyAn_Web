@@ -7,6 +7,7 @@ import LegalCaseManager from './page/LegalCaseManager';
 import JudgeManager from './page/JudgeManager';
 import RandomAssignment from './page/RandomAssignment';
 import ProtectedRoute from './component/auth/ProtectedRoute';
+import CaseDataManager from './page/CaseDataManager';
 import './App.css';
 
 const App = () => {
@@ -30,6 +31,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <LegalCaseManager />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/legal-case-data"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <CaseDataManager />
               </MainLayout>
             </ProtectedRoute>
           }
