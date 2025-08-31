@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
+import LegalCaseCardSimple from '../component/random-assignment/LegalCaseCardSimple';
+import JudgeCardSimple from '../component/random-assignment/JudgeCardSimple';
 import { LegalCaseService } from "../services/LegalCaseService";
 import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
@@ -287,39 +289,12 @@ const RandomAssignment = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {pendingCases.map((legalCase) => (
-                                <div
+                                <LegalCaseCardSimple
                                     key={legalCase.legalCaseId}
-                                    className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedCases.includes(legalCase.legalCaseId)
-                                            ? 'border-red-500 bg-red-50'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                    onClick={() => handleSelectCase(legalCase.legalCaseId)}
-                                >
-                                    {/* Sử dụng LegalCaseCard cho bố cục đẹp hơn */}
-                                    {/* <LegalCaseCard legalCase={legalCase} /> */}
-                                    <div className="flex items-start justify-between mb-2">
-                                        <h3 className="font-semibold text-gray-900 text-sm">
-                                            {legalCase.acceptanceNumber}
-                                        </h3>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedCases.includes(legalCase.legalCaseId)}
-                                            onChange={() => handleSelectCase(legalCase.legalCaseId)}
-                                            className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        Nguyên đơn: {legalCase.plaintiff}
-                                    </p>
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        Bị đơn: {legalCase.defendant}
-                                    </p>
-                                    <div className="text-xs text-gray-500">
-                                        <p>Ngày tiếp nhận: {new Date(legalCase.acceptanceDate).toLocaleDateString('vi-VN')}</p>
-                                        <p>Quan hệ pháp luật: {legalCase.legalRelationship.legalRelationshipName}</p>
-                                    </div>
-                                </div>
+                                    legalCase={legalCase}
+                                    isSelected={selectedCases.includes(legalCase.legalCaseId)}
+                                    onSelect={handleSelectCase}
+                                />
                             ))}
                         </div>
                     </div>
@@ -392,19 +367,10 @@ const RandomAssignment = () => {
                     ) : (
                         <div className="flex flex-col gap-4">
                             {assignableJudges.map((judge) => (
-                                <div
+                                <JudgeCardSimple
                                     key={judge.judgeId}
-                                    className="border border-gray-200 rounded-lg p-4"
-                                >
-                                    <h3 className="font-semibold text-gray-900 mb-2">
-                                        {judge.fullName}
-                                    </h3>
-                                    <div className="text-sm text-gray-600 space-y-1">
-                                        <p>Email: {judge.email}</p>
-                                        <p>Số án hiện tại: {judge.numberOfLegalCases}</p>
-                                        <p>Số án tối đa: {judge.maxNumberOfLegalCase === -1 ? 'Không giới hạn' : judge.maxNumberOfLegalCase}</p>
-                                    </div>
-                                </div>
+                                    judge={judge}
+                                />
                             ))}
                         </div>
                     )}
