@@ -6,12 +6,10 @@ import { LegalRelationshipGroupService } from "../services/LegalRelationshipGrou
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import type { JudgeResponse } from "../types/response/judge/JudgeResponse";
 import type { LegalRelationshipGroupResponse } from "../types/response/legal-case/LegalRelationshipGroup";
-import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 
 const RandomAssignment = () => {
     const { toasts, addToast, removeToast } = useToast();
-    const [legalRelationshipGroups, setLegalRelationshipGroups] = useState<LegalRelationshipGroupResponse[]>([]);
     const [legalRelationshipGroupOptions, setLegalRelationshipGroupOptions] = useState<Option[]>([]);
     const [selectedGroupId, setSelectedGroupId] = useState<string>("");
     const [pendingCases, setPendingCases] = useState<LegalCaseResponse[]>([]);
@@ -31,7 +29,6 @@ const RandomAssignment = () => {
         try {
             const response = await LegalRelationshipGroupService.getAll();
             if (response.success && response.data) {
-                setLegalRelationshipGroups(response.data);
                 setLegalRelationshipGroupOptions(
                     response.data.map((group: LegalRelationshipGroupResponse) => ({
                         value: group.legalRelationshipGroupId,
