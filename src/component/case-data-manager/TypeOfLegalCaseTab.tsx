@@ -5,7 +5,7 @@ import { type TypeOfLegalCaseSearchRequest } from '../../types/request/type-of-l
 import { TypeOfLegalCaseService } from '../../services/TypeOfLegalCaseService';
 import TypeOfLegalCaseForm from './TypeOfLegalCaseForm';
 import TypeOfLegalCaseCard from './TypeOfLegalCaseCard';
-import SimpleToast from '../basic-component/SimpleToast';
+import { useToast, ToastContainer } from '../basic-component/Toast';
 
 const TypeOfLegalCaseTab = () => {
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<TypeOfLegalCaseResponse[]>([]);
@@ -14,9 +14,8 @@ const TypeOfLegalCaseTab = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<TypeOfLegalCaseResponse | null>(null);
   const [searchCriteria, setSearchCriteria] = useState<TypeOfLegalCaseSearchRequest>({});
-  const [toastMessage, setToastMessage] = useState<string>('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const [submitting, setSubmitting] = useState(false);
+  const { toasts, success, error: showError, removeToast } = useToast();
 
   useEffect(() => {
     loadTypeOfLegalCases();
@@ -32,7 +31,7 @@ const TypeOfLegalCaseTab = () => {
       }
     } catch (error) {
       console.error('Error loading type of legal cases:', error);
-      showToast('Lỗi khi tải dữ liệu', 'error');
+      showError('Lỗi', 'Lỗi khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -58,7 +57,7 @@ const TypeOfLegalCaseTab = () => {
       setFilteredData(filtered);
     } catch (error) {
       console.error('Error searching:', error);
-      showToast('Lỗi khi tìm kiếm', 'error');
+      showError('Lỗi', 'Lỗi khi tìm kiếm');
     } finally {
       setLoading(false);
     }
@@ -69,17 +68,17 @@ const TypeOfLegalCaseTab = () => {
       setSubmitting(true);
       if (editingItem) {
         // Update logic would go here when API is available
-        showToast('Cập nhật thành công', 'success');
+        success('Thành công', 'Cập nhật thành công');
       } else {
         // Create logic would go here when API is available
-        showToast('Thêm mới thành công', 'success');
+        success('Thành công', 'Thêm mới thành công');
       }
       setShowForm(false);
       setEditingItem(null);
       loadTypeOfLegalCases();
     } catch (error) {
       console.error('Error submitting:', error);
-      showToast('Có lỗi xảy ra', 'error');
+      showError('Lỗi', 'Có lỗi xảy ra');
     } finally {
       setSubmitting(false);
     }
@@ -93,18 +92,12 @@ const TypeOfLegalCaseTab = () => {
   const handleDelete = async (id: string) => {
     try {
       // Delete logic would go here when API is available
-      showToast('Xóa thành công', 'success');
+      success('Thành công', 'Xóa thành công');
       loadTypeOfLegalCases();
     } catch (error) {
       console.error('Error deleting:', error);
-      showToast('Lỗi khi xóa', 'error');
+      showError('Lỗi', 'Lỗi khi xóa');
     }
-  };
-
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToastMessage(message);
-    setToastType(type);
-    setTimeout(() => setToastMessage(''), 3000);
   };
 
   const resetSearch = () => {
@@ -125,7 +118,7 @@ const TypeOfLegalCaseTab = () => {
 
   return (
     <div className="space-y-6">
-      {toastMessage && <SimpleToast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       
       <TypeOfLegalCaseForm
         isOpen={showForm}

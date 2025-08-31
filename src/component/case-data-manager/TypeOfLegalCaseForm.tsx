@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { type TypeOfLegalCaseRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseRequest';
 import { type TypeOfLegalCaseResponse } from '../../types/response/type-of-legal-case/TypeOfLegalCaseResponse';
-import SimpleToast from '../basic-component/SimpleToast';
+import { useToast, ToastContainer } from '../basic-component/Toast';
 
 interface TypeOfLegalCaseFormProps {
   isOpen: boolean;
@@ -24,8 +24,7 @@ const TypeOfLegalCaseForm = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [toastMessage, setToastMessage] = useState<string>('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const { toasts, success, error: showError, removeToast } = useToast();
 
   // Ngăn cuộn trang khi modal mở
   useEffect(() => {
@@ -79,12 +78,12 @@ const TypeOfLegalCaseForm = ({
     if (validateForm()) {
       try {
         onSubmit(formData);
-        showToast(
-          initialData ? 'Cập nhật loại vụ án thành công!' : 'Thêm loại vụ án mới thành công!',
-          'success'
+        success(
+          'Thành công',
+          initialData ? 'Cập nhật loại vụ án thành công!' : 'Thêm loại vụ án mới thành công!'
         );
       } catch (error) {
-        showToast('Có lỗi xảy ra khi lưu dữ liệu', 'error');
+        showError('Lỗi', 'Có lỗi xảy ra khi lưu dữ liệu');
       }
     }
   };
@@ -95,12 +94,6 @@ const TypeOfLegalCaseForm = ({
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
-  };
-
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToastMessage(message);
-    setToastType(type);
-    setTimeout(() => setToastMessage(''), 3000);
   };
 
   if (!isOpen) return null;
@@ -120,14 +113,7 @@ const TypeOfLegalCaseForm = ({
         height: '100vh'
       }}
     >
-      {/* Toast */}
-      {toastMessage && (
-        <SimpleToast 
-          message={toastMessage} 
-          type={toastType} 
-          onClose={() => setToastMessage('')} 
-        />
-      )}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       
       <div 
         className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto overflow-hidden"

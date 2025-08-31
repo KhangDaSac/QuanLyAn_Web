@@ -9,7 +9,7 @@ import { TypeOfLegalCaseService } from '../../services/TypeOfLegalCaseService';
 import { LegalRelationshipGroupService } from '../../services/LegalRelationshipGroupService';
 import LegalRelationshipForm from './LegalRelationshipForm';
 import LegalRelationshipCard from './LegalRelationshipCard';
-import SimpleToast from '../basic-component/SimpleToast';
+import { useToast, ToastContainer } from '../basic-component/Toast';
 
 const LegalRelationshipTab = () => {
   const [relationships, setRelationships] = useState<LegalRelationshipResponse[]>([]);
@@ -20,8 +20,7 @@ const LegalRelationshipTab = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<LegalRelationshipResponse | null>(null);
   const [searchCriteria, setSearchCriteria] = useState<LegalRelationshipSearchRequest>({});
-  const [toastMessage, setToastMessage] = useState<string>('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const { toasts, success, error: showError, removeToast } = useToast();
 
   useEffect(() => {
     loadData();
@@ -37,7 +36,7 @@ const LegalRelationshipTab = () => {
       ]);
     } catch (error) {
       console.error('Error loading data:', error);
-      showToast('Lỗi khi tải dữ liệu', 'error');
+      showError('Lỗi', 'Lỗi khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -98,7 +97,7 @@ const LegalRelationshipTab = () => {
       setFilteredData(filtered);
     } catch (error) {
       console.error('Error searching:', error);
-      showToast('Lỗi khi tìm kiếm', 'error');
+      showError('Lỗi', 'Lỗi khi tìm kiếm');
     } finally {
       setLoading(false);
     }
@@ -108,17 +107,17 @@ const LegalRelationshipTab = () => {
     try {
       if (editingItem) {
         await LegalRelationshipService.updateLegalRelationship(editingItem.legalRelationshipId, data);
-        showToast('Cập nhật thành công', 'success');
+        success('Thành công', 'Cập nhật thành công');
       } else {
         await LegalRelationshipService.createLegalRelationship(data);
-        showToast('Thêm mới thành công', 'success');
+        success('Thành công', 'Thêm mới thành công');
       }
       setShowForm(false);
       setEditingItem(null);
       loadRelationships();
     } catch (error) {
       console.error('Error submitting:', error);
-      showToast('Có lỗi xảy ra', 'error');
+      showError('Lỗi', 'Có lỗi xảy ra');
     }
   };
 
@@ -130,18 +129,12 @@ const LegalRelationshipTab = () => {
   const handleDelete = async (id: string) => {
     try {
       await LegalRelationshipService.deleteLegalRelationship(id);
-      showToast('Xóa thành công', 'success');
+      success('Thành công', 'Xóa thành công');
       loadRelationships();
     } catch (error) {
       console.error('Error deleting:', error);
-      showToast('Lỗi khi xóa', 'error');
+      showError('Lỗi', 'Lỗi khi xóa');
     }
-  };
-
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToastMessage(message);
-    setToastType(type);
-    setTimeout(() => setToastMessage(''), 3000);
   };
 
   const resetSearch = () => {
@@ -161,7 +154,7 @@ const LegalRelationshipTab = () => {
 
   return (
     <div className="p-6">
-      {toastMessage && <SimpleToast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       
       {showForm && (
         <LegalRelationshipForm
