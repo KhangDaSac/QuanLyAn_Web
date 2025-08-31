@@ -1,6 +1,6 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { type TypeOfLegalCaseResponse } from "../types/response/legal-case/TypeOfLegalCaseResponse"; 
-import { Connect } from "../connect/Connect";
+import { Connect }from "../connect/Connect";
 
 export class TypeOfLegalCaseService {
   static async top50(): Promise<ApiResponse<TypeOfLegalCaseResponse[]>> {
