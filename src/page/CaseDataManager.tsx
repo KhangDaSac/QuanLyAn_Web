@@ -16,8 +16,7 @@ const CaseDataManager = () => {
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-      ),
-      description: 'Quản lý các loại vụ án trong hệ thống'
+      )
     },
     {
       id: 'legalRelationshipGroup' as TabType,
@@ -26,8 +25,7 @@ const CaseDataManager = () => {
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
-      ),
-      description: 'Quản lý nhóm phân loại quan hệ pháp luật'
+      )
     },
     {
       id: 'legalRelationship' as TabType,
@@ -36,8 +34,7 @@ const CaseDataManager = () => {
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
         </svg>
-      ),
-      description: 'Quản lý chi tiết quan hệ pháp luật'
+      )
     }
   ];
 
@@ -60,46 +57,17 @@ const CaseDataManager = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-red-50">
-      {/* Header Section */}
-      <div className="bg-white shadow-xl border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-6 md:py-8">
-            <div className="flex-1">
-              <div className="flex items-center space-x-3 mb-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý thông tin án</h1>
-              </div>
-              <p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-2xl">
-                Quản lý và cấu hình dữ liệu cơ bản cho hệ thống: loại vụ án, nhóm quan hệ pháp luật và quan hệ pháp luật
-              </p>
-            </div>
-            
-            {/* Current Tab Info */}
-            <div className="mt-4 md:mt-0 bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
-              <div className="flex items-center space-x-2">
-                <div className="text-red-600">
-                  {getActiveTabInfo()?.icon}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-red-700">{getActiveTabInfo()?.label}</p>
-                  <p className="text-xs text-red-600">{getActiveTabInfo()?.description}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-6 md:mb-8 overflow-hidden">
+          <div className='p-6'>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý thông tin án</h1>
+              <p className="text-gray-600 mt-1 text-sm md:text-base">Quản lý các thông tin về loại vụ án, quan hệ pháp luật và nhóm quan hệ pháp luật</p>
+            </div>
+        </div>
         {/* Tab Navigation */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-6 md:mb-8 overflow-hidden">
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Danh mục quản lý</h3>
-            <p className="text-sm text-gray-600 mt-1">Chọn mục bạn muốn quản lý</p>
           </div>
           <div className="p-2">
             <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
@@ -107,20 +75,16 @@ const CaseDataManager = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 p-4 inline-flex items-center justify-center space-x-3 rounded-lg font-medium text-sm transition-all duration-300 ${
-                    activeTab === tab.id
+                  className={`flex-1 p-4 inline-flex items-center justify-center space-x-3 rounded-lg font-medium text-sm transition-all duration-300 ${activeTab === tab.id
                       ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg transform scale-105'
                       : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 border border-gray-200'
-                  }`}
+                    }`}
                 >
                   <div className={`${activeTab === tab.id ? 'text-white' : 'text-gray-500'}`}>
                     {tab.icon}
                   </div>
                   <div className="text-center">
                     <span className="block">{tab.label}</span>
-                    <span className={`text-xs ${activeTab === tab.id ? 'text-red-100' : 'text-gray-400'} hidden md:block`}>
-                      {tab.description}
-                    </span>
                   </div>
                 </button>
               ))}
@@ -137,7 +101,6 @@ const CaseDataManager = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{getActiveTabInfo()?.label}</h3>
-                <p className="text-sm text-gray-600">{getActiveTabInfo()?.description}</p>
               </div>
             </div>
           </div>
