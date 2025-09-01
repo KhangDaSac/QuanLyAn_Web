@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { type TypeOfLegalCaseResponse } from '../../types/response/type-of-legal-case/TypeOfLegalCaseResponse';
-import { type TypeOfLegalCaseRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseRequest';
 import { type TypeOfLegalCaseSearchRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseSearchRequest';
 import { TypeOfLegalCaseService } from '../../services/TypeOfLegalCaseService';
 import TypeOfLegalCaseForm from './TypeOfLegalCaseForm';
@@ -63,7 +62,7 @@ const TypeOfLegalCaseTab = () => {
     }
   };
 
-  const handleSubmit = async (data: TypeOfLegalCaseRequest) => {
+  const handleSubmit = async () => {
     try {
       setSubmitting(true);
       if (editingItem) {
@@ -89,7 +88,7 @@ const TypeOfLegalCaseTab = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
     try {
       // Delete logic would go here when API is available
       success('Thành công', 'Xóa thành công');
