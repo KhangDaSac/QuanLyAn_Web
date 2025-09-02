@@ -6,6 +6,7 @@ import TypeOfLegalCaseForm from './TypeOfLegalCaseForm';
 import TypeOfLegalCaseCard from './TypeOfLegalCaseCard';
 import { useToast, ToastContainer } from '../basic-component/Toast';
 import type { TypeOfLegalCaseRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseRequest';
+import ConfirmModal from '../basic-component/ConfirmModal';
 
 const TypeOfLegalCaseTab = () => {
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<TypeOfLegalCaseResponse[]>([]);
@@ -15,8 +16,22 @@ const TypeOfLegalCaseTab = () => {
   const [editingItem, setEditingItem] = useState<TypeOfLegalCaseResponse | null>(null);
   const [searchCriteria, setSearchCriteria] = useState<TypeOfLegalCaseSearchRequest>({});
   const [submitting, setSubmitting] = useState(false);
-  const { toasts, success, error: showError, removeToast } = useToast();
+  const toast = useToast();
   const [showFilters, setShowFilters] = useState(false);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'warning' | 'danger' | 'info' | 'success';
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'danger',
+    onConfirm: () => { },
+  });
 
   useEffect(() => {
     loadTypeOfLegalCases();
@@ -32,7 +47,7 @@ const TypeOfLegalCaseTab = () => {
       }
     } catch (error) {
       console.error('Error loading type of legal cases:', error);
-      showError('Lỗi', 'Lỗi khi tải dữ liệu');
+      toast.error('Lỗi', 'Lỗi khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -49,16 +64,16 @@ const TypeOfLegalCaseTab = () => {
       // For now, filter locally since search API might not be available
       const filtered = typeOfLegalCases.filter(item => {
         return (
-          (!searchCriteria.typeOfLegalCaseName || 
-           item.typeOfLegalCaseName.toLowerCase().includes(searchCriteria.typeOfLegalCaseName.toLowerCase())) &&
-          (!searchCriteria.codeName || 
-           item.codeName.toLowerCase().includes(searchCriteria.codeName.toLowerCase()))
+          (!searchCriteria.typeOfLegalCaseName ||
+            item.typeOfLegalCaseName.toLowerCase().includes(searchCriteria.typeOfLegalCaseName.toLowerCase())) &&
+          (!searchCriteria.codeName ||
+            item.codeName.toLowerCase().includes(searchCriteria.codeName.toLowerCase()))
         );
       });
       setFilteredData(filtered);
     } catch (error) {
       console.error('Error searching:', error);
-      showError('Lỗi', 'Lỗi khi tìm kiếm');
+      toast.error('Lỗi', 'Lỗi khi tìm kiếm');
     } finally {
       setLoading(false);
     }
@@ -69,35 +84,65 @@ const TypeOfLegalCaseTab = () => {
       setSubmitting(true);
       if (editingItem) {
         await TypeOfLegalCaseService.update(editingItem.typeOfLegalCaseId, data);
-        success('Thành công', 'Cập nhật thành công');
+        toast.success('Thành công', 'Cập nhật thành công');
       } else {
         await TypeOfLegalCaseService.create(data);
-        success('Thành công', 'Thêm mới thành công');
+        toast.success('Thành công', 'Thêm mới thành công');
       }
       setShowForm(false);
       setEditingItem(null);
       loadTypeOfLegalCases();
     } catch (error) {
       console.error('Error submitting:', error);
-      showError('Lỗi', 'Có lỗi xảy ra');
+      toast.error('Lỗi', 'Có lỗi xảy ra');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleEdit = (item: TypeOfLegalCaseResponse) => {
-    setEditingItem(item);
-    setShowForm(true);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận chỉnh sửa',
+      message: `Bạn có muốn chỉnh sửa loại vụ án"${item.typeOfLegalCaseName}"?`,
+      type: 'danger',
+      onConfirm: () => confirmEdit(item),
+    });
   };
 
-  const handleDelete = async () => {
+  const confirmEdit = (item: TypeOfLegalCaseResponse) => {
+    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+    setEditingItem(item);
+    setShowForm(true);
+    toast.info('Bắt đầu chỉnh sửa', `Đang mở form chỉnh sửa loại vụ án "${item.typeOfLegalCaseName}"`);
+  };
+
+
+  const handleDelete = async (id: string) => {
+    const item = filteredData.find(item => item.typeOfLegalCaseId === id);
+    if (!item) return;
+
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận xóa án',
+      message: `Bạn có chắc chắn muốn xóa án "${item.typeOfLegalCaseName}"? Hành động này không thể hoàn tác.`,
+      type: 'danger',
+      onConfirm: () => confirmDelete(item.typeOfLegalCaseId),
+    });
+  };
+
+  const confirmDelete = async (id: string) => {
     try {
-      // Delete logic would go here when API is available
-      success('Thành công', 'Xóa thành công');
-      loadTypeOfLegalCases();
+      setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      setLoading(true);
+      await TypeOfLegalCaseService.delete(id);
+      setTypeOfLegalCases(prev => prev.filter(item => item.typeOfLegalCaseId !== id));
+      toast.success('Xóa thành công', 'Loại vụ án đã được xóa khỏi hệ thống!');
     } catch (error) {
-      console.error('Error deleting:', error);
-      showError('Lỗi', 'Lỗi khi xóa');
+      console.error('Error deleting legal case:', error);
+      toast.error('Xóa thất bại', 'Có lỗi xảy ra khi xóa loại vụ án. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,8 +164,6 @@ const TypeOfLegalCaseTab = () => {
 
   return (
     <div className="space-y-6">
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-      
       <TypeOfLegalCaseForm
         isOpen={showForm}
         typeOfLegalCase={editingItem}
@@ -141,11 +184,10 @@ const TypeOfLegalCaseTab = () => {
         <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${
-              showFilters 
-                ? 'border-red-300 bg-red-50 text-red-700' 
-                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
+            className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${showFilters
+              ? 'border-red-300 bg-red-50 text-red-700'
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+              }`}
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
@@ -214,7 +256,7 @@ const TypeOfLegalCaseTab = () => {
             Kết quả ({filteredData.length} loại vụ án)
           </h3>
         </div>
-        
+
         {filteredData.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredData.map((item) => (
@@ -251,6 +293,23 @@ const TypeOfLegalCaseTab = () => {
           </div>
         )}
       </div>
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
+
+      <ToastContainer
+        toasts={toast.toasts}
+        onRemove={toast.removeToast}
+      />
     </div>
   );
 };

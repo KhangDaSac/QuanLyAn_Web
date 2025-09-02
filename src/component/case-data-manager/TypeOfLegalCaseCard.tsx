@@ -23,14 +23,14 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
 
         {/* Content */}
         <div className="space-y-3 mb-6">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-sm text-gray-600 mb-1">Mã loại vụ án</p>
-            <p className="text-base font-semibold text-gray-900">{typeOfLegalCase.codeName}</p>
-          </div>
-
           <div className="bg-blue-50 rounded-lg p-3">
             <p className="text-sm text-blue-600 mb-1">Tên loại vụ án</p>
             <p className="text-base font-semibold text-blue-900">{typeOfLegalCase.typeOfLegalCaseName}</p>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-sm text-gray-600 mb-1">Mã loại vụ án</p>
+            <p className="text-base font-semibold text-gray-900">{typeOfLegalCase.codeName}</p>
           </div>
         </div>
       </div>
@@ -48,11 +48,7 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
         </button>
 
         <button
-          onClick={() => {
-            if (window.confirm(`Bạn có chắc chắn muốn xóa loại vụ án "${typeOfLegalCase.typeOfLegalCaseName}"?`)) {
-              onDelete(typeOfLegalCase.typeOfLegalCaseId);
-            }
-          }}
+          onClick={() => onDelete(typeOfLegalCase.typeOfLegalCaseId)}
           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
