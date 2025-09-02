@@ -2,6 +2,7 @@ import { type ApiResponse } from "../types/ApiResponse";
 import { type TypeOfLegalCaseResponse } from "../types/response/legal-case/TypeOfLegalCaseResponse";
 import { Connect } from "../connect/Connect";
 import { type TypeOfLegalCaseRequest } from "../types/request/type-of-legal-case/TypeOfLegalCaseRequest";
+import type { TypeOfLegalCaseSearchRequest } from "../types/request/type-of-legal-case/TypeOfLegalCaseSearchRequest";
 
 export class TypeOfLegalCaseService {
   static api: string = '/type-of-legal-case';
@@ -66,6 +67,20 @@ export class TypeOfLegalCaseService {
     }
   }
 
+  static async search(searchData: TypeOfLegalCaseSearchRequest): Promise<ApiResponse<TypeOfLegalCaseResponse[]>> {
+    try {
+      const token = localStorage.getItem('token');
+      return Connect.request(
+        `${this.api}/search`,
+        'POST',
+        searchData,
+        token
+      );
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
 
   static async getAll(): Promise<ApiResponse<TypeOfLegalCaseResponse[]>> {
     try {

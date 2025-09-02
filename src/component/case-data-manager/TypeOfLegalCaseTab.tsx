@@ -55,22 +55,13 @@ const TypeOfLegalCaseTab = () => {
 
   const handleSearch = async () => {
     try {
-      if (Object.keys(searchCriteria).length === 0) {
-        setFilteredData(typeOfLegalCases);
-        return;
-      }
-
       setLoading(true);
-      // For now, filter locally since search API might not be available
-      const filtered = typeOfLegalCases.filter(item => {
-        return (
-          (!searchCriteria.typeOfLegalCaseName ||
-            item.typeOfLegalCaseName.toLowerCase().includes(searchCriteria.typeOfLegalCaseName.toLowerCase())) &&
-          (!searchCriteria.codeName ||
-            item.codeName.toLowerCase().includes(searchCriteria.codeName.toLowerCase()))
-        );
-      });
-      setFilteredData(filtered);
+      const response = await TypeOfLegalCaseService.search(searchCriteria);
+      if (response.success) {
+        setFilteredData(response.data);
+      } else {
+        toast.error('Lấy dữ liệu thất bại', `${response.error}`);
+      }
     } catch (error) {
       console.error('Error searching:', error);
       toast.error('Lỗi', 'Lỗi khi tìm kiếm');
@@ -83,11 +74,19 @@ const TypeOfLegalCaseTab = () => {
     try {
       setSubmitting(true);
       if (editingItem) {
-        await TypeOfLegalCaseService.update(editingItem.typeOfLegalCaseId, data);
-        toast.success('Thành công', 'Cập nhật thành công');
+        const result = await TypeOfLegalCaseService.update(editingItem.typeOfLegalCaseId, data);
+        if (result.success) {
+          toast.success('Thành công', 'Cập nhật loại vụ án thành công');
+        } else {
+          toast.error('Thất bại', `${result.error}`);
+        }
       } else {
-        await TypeOfLegalCaseService.create(data);
-        toast.success('Thành công', 'Thêm mới thành công');
+        const result = await TypeOfLegalCaseService.create(data);
+        if (result.success) {
+          toast.success('Thành công', 'Thêm mới loại vụ án thành công');
+        } else {
+          toast.error('Thất bại', `${result.error}`);
+        }
       }
       setShowForm(false);
       setEditingItem(null);
@@ -135,9 +134,12 @@ const TypeOfLegalCaseTab = () => {
     try {
       setConfirmModal(prev => ({ ...prev, isOpen: false }));
       setLoading(true);
-      await TypeOfLegalCaseService.delete(id);
-      setTypeOfLegalCases(prev => prev.filter(item => item.typeOfLegalCaseId !== id));
-      toast.success('Xóa thành công', 'Loại vụ án đã được xóa khỏi hệ thống!');
+      const result = await TypeOfLegalCaseService.delete(id);
+      if (result.success) {
+        toast.success('Xóa thành công', 'Loại vụ án đã được xóa khỏi hệ thống!');
+      } else {
+        toast.error('Xóa thất bại', `${result.error}`);
+      }
     } catch (error) {
       console.error('Error deleting legal case:', error);
       toast.error('Xóa thất bại', 'Có lỗi xảy ra khi xóa loại vụ án. Vui lòng thử lại!');
@@ -280,15 +282,6 @@ const TypeOfLegalCaseTab = () => {
                 <h3 className="text-lg font-medium text-gray-900">Không có dữ liệu</h3>
                 <p className="text-sm text-gray-500 mt-1">Không tìm thấy loại vụ án nào phù hợp với tiêu chí tìm kiếm.</p>
               </div>
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-gradient-to-br from-red-500 to-red-600 text-white px-6 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Thêm loại vụ án đầu tiên</span>
-              </button>
             </div>
           </div>
         )}
