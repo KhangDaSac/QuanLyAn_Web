@@ -156,6 +156,8 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
 
           </div>
 
+
+
           {/* Legal Relationship */}
           <div className="bg-blue-50 rounded-lg p-3">
             <p className="text-sm text-blue-600 mb-1">
@@ -173,6 +175,47 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
               {legalCase.legalRelationship.legalRelationshipGroup.legalRelationshipGroupName}
             </p>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Additional Info */}
+            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-gray-600 font-medium">Thông tin lưu trữ</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Ngày lưu trữ:</span> {formatDate(legalCase.storageDate.split(' ')[0])}
+                </p>
+              </div>
+            </div>
+            {/* Additional Info */}
+            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-gray-600 font-medium">Thông tin đợt nhập án</p>
+              </div>
+              <div className="space-y-1">
+                {legalCase.batch ? (
+                  <>
+                    <p className="text-sm text-gray-700">
+                      <span className="font-medium">Mã đợt nhập:</span> {legalCase.batch.batchId}
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      <span className="font-medium">Tên đợt nhập:</span> {legalCase.batch.batchName}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-700">Không có đợt nhập án</p>
+                )}
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Right Section - Dates & Status */}
@@ -222,30 +265,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
             </div>
           )}
 
-          {/* Additional Info */}
-          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-            <div className="flex items-center space-x-2">
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-sm text-gray-600 font-medium">Thông tin lưu trữ</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-700">
-                <span className="font-medium">Ngày lưu trữ:</span> {formatDate(legalCase.storageDate.split(' ')[0])}
-              </p>
-              {legalCase.batch && (
-                <>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Mã đợt nhập:</span> {legalCase.batch.batchId}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Tên đợt nhập:</span> {legalCase.batch.batchName}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -286,10 +306,10 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
           onClick={() => onDelete?.(legalCase.legalCaseId)}
           className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-purple-300 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>Thêm QĐ/TB</span>
+          <span>Thêm QĐ</span>
         </button>
       </div>
     </div>

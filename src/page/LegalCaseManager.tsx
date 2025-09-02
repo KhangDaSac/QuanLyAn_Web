@@ -102,7 +102,7 @@ const LegalCaseManager = () => {
     isOpen: false,
     title: '',
     message: '',
-    type: 'warning',
+    type: 'danger',
     onConfirm: () => { },
   });
 
@@ -218,7 +218,7 @@ const LegalCaseManager = () => {
       isOpen: true,
       title: 'Xác nhận chỉnh sửa',
       message: `Bạn có muốn chỉnh sửa án "${legalCase.acceptanceNumber}"?`,
-      type: 'info',
+      type: 'danger',
       onConfirm: () => confirmEdit(legalCase),
     });
   };
