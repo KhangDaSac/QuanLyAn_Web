@@ -9,27 +9,29 @@ interface TypeOfLegalCaseCardProps {
 const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalCaseCardProps) => {
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            {typeOfLegalCase.typeOfLegalCaseName}
-          </h3>
-          <p className="text-sm text-gray-500">ID: {typeOfLegalCase.typeOfLegalCaseId}</p>
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+      <div>
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              {typeOfLegalCase.typeOfLegalCaseName}
+            </h3>
+            <p className="text-sm text-gray-500">ID: {typeOfLegalCase.typeOfLegalCaseId}</p>
+          </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="space-y-3 mb-6">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-sm text-gray-600 mb-1">Mã loại vụ án</p>
-          <p className="text-base font-semibold text-gray-900">{typeOfLegalCase.codeName}</p>
-        </div>
-        
-        <div className="bg-blue-50 rounded-lg p-3">
-          <p className="text-sm text-blue-600 mb-1">Tên loại vụ án</p>
-          <p className="text-base font-semibold text-blue-900">{typeOfLegalCase.typeOfLegalCaseName}</p>
+        {/* Content */}
+        <div className="space-y-3 mb-6">
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-sm text-gray-600 mb-1">Mã loại vụ án</p>
+            <p className="text-base font-semibold text-gray-900">{typeOfLegalCase.codeName}</p>
+          </div>
+
+          <div className="bg-blue-50 rounded-lg p-3">
+            <p className="text-sm text-blue-600 mb-1">Tên loại vụ án</p>
+            <p className="text-base font-semibold text-blue-900">{typeOfLegalCase.typeOfLegalCaseName}</p>
+          </div>
         </div>
       </div>
 

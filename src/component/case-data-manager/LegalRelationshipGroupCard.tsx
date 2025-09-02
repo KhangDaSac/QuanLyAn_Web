@@ -8,29 +8,31 @@ interface LegalRelationshipGroupCardProps {
 
 const LegalRelationshipGroupCard = ({ group, onEdit, onDelete }: LegalRelationshipGroupCardProps) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300">
-      {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-          {group.legalRelationshipGroupName}
-        </h3>
-        <p className="text-sm text-gray-500">ID: {group.legalRelationshipGroupId}</p>
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+      <div>
+        {/* Header */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {group.legalRelationshipGroupName}
+          </h3>
+          <p className="text-sm text-gray-500">ID: {group.legalRelationshipGroupId}</p>
+        </div>
+        {/* Content */}
+        <div className="space-y-3 mb-6">
+          <div className="bg-blue-50 rounded-lg p-3">
+            <p className="text-sm text-blue-600 mb-1">Tên nhóm</p>
+            <p className="text-base font-semibold text-blue-900">{group.legalRelationshipGroupName}</p>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-sm text-gray-600 mb-1">Mô tả</p>
+            <p className="text-base text-gray-900">
+              {group.description || 'Không có mô tả'}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="space-y-3 mb-6">
-        <div className="bg-blue-50 rounded-lg p-3">
-          <p className="text-sm text-blue-600 mb-1">Tên nhóm</p>
-          <p className="text-base font-semibold text-blue-900">{group.legalRelationshipGroupName}</p>
-        </div>
-        
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-sm text-gray-600 mb-1">Mô tả</p>
-          <p className="text-base text-gray-900">
-            {group.description || 'Không có mô tả'}
-          </p>
-        </div>
-      </div>
 
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">

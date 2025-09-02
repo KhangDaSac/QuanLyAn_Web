@@ -61,8 +61,8 @@ const LegalRelationshipGroupTab = () => {
       setLoading(true);
       const filtered = groups.filter(item => {
         return (
-          (!searchCriteria.legalRelationshipGroupName || 
-           item.legalRelationshipGroupName.toLowerCase().includes(searchCriteria.legalRelationshipGroupName.toLowerCase()))
+          (!searchCriteria.legalRelationshipGroupName ||
+            item.legalRelationshipGroupName.toLowerCase().includes(searchCriteria.legalRelationshipGroupName.toLowerCase()))
         );
       });
       setFilteredData(filtered);
@@ -153,11 +153,10 @@ const LegalRelationshipGroupTab = () => {
         <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${
-              showFilters 
-                ? 'border-red-300 bg-red-50 text-red-700' 
+            className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${showFilters
+                ? 'border-red-300 bg-red-50 text-red-700'
                 : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
+              }`}
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
@@ -210,31 +209,46 @@ const LegalRelationshipGroupTab = () => {
       )}
 
       {/* Data List */}
-      <div className="space-y-4">
-        {filteredData.map((item) => (
-          <LegalRelationshipGroupCard
-            key={item.legalRelationshipGroupId}
-            group={item}
-            onEdit={handleEdit}
-            onDelete={(id) => {
-              const itemToDelete = filteredData.find(item => item.legalRelationshipGroupId === id);
-              if (itemToDelete) {
-                handleDelete(itemToDelete);
-              }
-            }}
-          />
-        ))}
-        {filteredData.length === 0 && (
-          <div className="text-center py-8">
-            <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      {filteredData.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredData.map((item) => (
+            <LegalRelationshipGroupCard
+              key={item.legalRelationshipGroupId}
+              group={item}
+              onEdit={handleEdit}
+              onDelete={(id) => {
+                const itemToDelete = filteredData.find(item => item.legalRelationshipGroupId === id);
+                if (itemToDelete) {
+                  handleDelete(itemToDelete);
+                }
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="text-gray-500">Không có dữ liệu để hiển thị</p>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">Không có dữ liệu</h3>
+              <p className="text-sm text-gray-500 mt-1">Không tìm thấy loại vụ án nào phù hợp với tiêu chí tìm kiếm.</p>
+            </div>
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-gradient-to-br from-red-500 to-red-600 text-white px-6 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Thêm loại vụ án đầu tiên</span>
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Form Modal */}
       {showForm && (
