@@ -2,7 +2,7 @@ import { type ApiResponse } from "../types/ApiResponse";
 import { type JudgeResponse } from "../types/response/judge/JudgeResponse";
 import { type JudgeSearchRequest } from "../types/request/judge/JudgeSearchRequest";
 import { type JudgeRequest } from "../types/request/judge/JudgeRequest";
-import { Connect } from "../connect/Connect";
+import { Connect } from "../connect/Connect"; 
 
 export class JudgeService {
   static async getAll(): Promise<ApiResponse<JudgeResponse[]>> {

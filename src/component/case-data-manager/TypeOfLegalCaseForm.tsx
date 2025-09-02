@@ -5,18 +5,18 @@ import { useToast, ToastContainer } from '../basic-component/Toast';
 
 interface TypeOfLegalCaseFormProps {
   isOpen: boolean;
-  initialData?: TypeOfLegalCaseResponse | null;
+  onClose: () => void;
   onSubmit: (data: TypeOfLegalCaseRequest) => void;
-  onCancel: () => void;
+  typeOfLegalCase?: TypeOfLegalCaseResponse | null;
   isLoading?: boolean;
 }
 
-const TypeOfLegalCaseForm = ({ 
-  isOpen, 
-  initialData, 
-  onSubmit, 
-  onCancel, 
-  isLoading = false 
+const TypeOfLegalCaseForm = ({
+  isOpen,
+  typeOfLegalCase,
+  onSubmit,
+  onClose,
+  isLoading = false
 }: TypeOfLegalCaseFormProps) => {
   const [formData, setFormData] = useState<TypeOfLegalCaseRequest>({
     typeOfLegalCaseName: '',
@@ -41,20 +41,20 @@ const TypeOfLegalCaseForm = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (initialData) {
+    if (typeOfLegalCase) {
       setFormData({
-        typeOfLegalCaseName: initialData.typeOfLegalCaseName,
-        codeName: initialData.codeName
+        typeOfLegalCaseName: typeOfLegalCase.typeOfLegalCaseName,
+        codeName: typeOfLegalCase.codeName
       });
     } else {
-      // Reset form khi không có initialData
+      // Reset form khi không có typeOfLegalCase
       setFormData({
         typeOfLegalCaseName: '',
         codeName: ''
       });
     }
     setErrors({});
-  }, [initialData, isOpen]);
+  }, [typeOfLegalCase, isOpen]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -80,7 +80,7 @@ const TypeOfLegalCaseForm = ({
         onSubmit(formData);
         success(
           'Thành công',
-          initialData ? 'Cập nhật loại vụ án thành công!' : 'Thêm loại vụ án mới thành công!'
+          typeOfLegalCase ? 'Cập nhật loại vụ án thành công!' : 'Thêm loại vụ án mới thành công!'
         );
       } catch (error) {
         showError('Lỗi', 'Có lỗi xảy ra khi lưu dữ liệu');
@@ -99,10 +99,10 @@ const TypeOfLegalCaseForm = ({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]"
-      style={{ 
-        margin: 0, 
+      style={{
+        margin: 0,
         padding: '1rem',
         position: 'fixed',
         top: 0,
@@ -114,18 +114,18 @@ const TypeOfLegalCaseForm = ({
       }}
     >
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-      
-      <div 
+
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto overflow-hidden"
       >
         <div className="overflow-y-auto max-h-[90vh] p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {initialData ? 'Cập nhật loại vụ án' : 'Thêm loại vụ án mới'}
+              {typeOfLegalCase ? 'Cập nhật loại vụ án' : 'Thêm loại vụ án mới'}
             </h2>
             <button
-              onClick={onCancel}
+              onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,9 +144,8 @@ const TypeOfLegalCaseForm = ({
                 type="text"
                 value={formData.typeOfLegalCaseName}
                 onChange={(e) => handleInputChange('typeOfLegalCaseName', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                  errors.typeOfLegalCaseName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${errors.typeOfLegalCaseName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Nhập tên loại vụ án"
               />
               {errors.typeOfLegalCaseName && (
@@ -162,9 +161,8 @@ const TypeOfLegalCaseForm = ({
                 type="text"
                 value={formData.codeName}
                 onChange={(e) => handleInputChange('codeName', e.target.value.toUpperCase())}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                  errors.codeName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${errors.codeName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Nhập mã loại vụ án (VD: HS, DS, ...)"
                 maxLength={10}
               />
@@ -192,12 +190,12 @@ const TypeOfLegalCaseForm = ({
                     Đang xử lý...
                   </span>
                 ) : (
-                  initialData ? 'Cập nhật' : 'Thêm mới'
+                  typeOfLegalCase ? 'Cập nhật' : 'Thêm mới'
                 )}
               </button>
               <button
                 type="button"
-                onClick={onCancel}
+                onClick={onClose}
                 disabled={isLoading}
                 className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
               >

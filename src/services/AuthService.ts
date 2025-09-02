@@ -1,6 +1,6 @@
 import type { ApiResponse } from '../types/ApiResponse';
 import type { LoginRequest } from '../types/request/auth/LoginRequest';
-import { Connect } from '../connect/Connect';
+import { Connect } from '../connect/Connect'; 
 import type { AuthenticationResponse } from '../types/response/auth/AuthenticationResponse';
 
 interface JWTPayload {

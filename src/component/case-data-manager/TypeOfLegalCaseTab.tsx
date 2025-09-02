@@ -5,6 +5,7 @@ import { TypeOfLegalCaseService } from '../../services/TypeOfLegalCaseService';
 import TypeOfLegalCaseForm from './TypeOfLegalCaseForm';
 import TypeOfLegalCaseCard from './TypeOfLegalCaseCard';
 import { useToast, ToastContainer } from '../basic-component/Toast';
+import type { TypeOfLegalCaseRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseRequest';
 
 const TypeOfLegalCaseTab = () => {
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<TypeOfLegalCaseResponse[]>([]);
@@ -63,14 +64,14 @@ const TypeOfLegalCaseTab = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (data: TypeOfLegalCaseRequest) => {
     try {
       setSubmitting(true);
       if (editingItem) {
-        // Update logic would go here when API is available
+        await TypeOfLegalCaseService.update(editingItem.typeOfLegalCaseId, data);
         success('Thành công', 'Cập nhật thành công');
       } else {
-        // Create logic would go here when API is available
+        await TypeOfLegalCaseService.create(data);
         success('Thành công', 'Thêm mới thành công');
       }
       setShowForm(false);
@@ -122,9 +123,9 @@ const TypeOfLegalCaseTab = () => {
       
       <TypeOfLegalCaseForm
         isOpen={showForm}
-        initialData={editingItem}
+        typeOfLegalCase={editingItem}
         onSubmit={handleSubmit}
-        onCancel={() => {
+        onClose={() => {
           setShowForm(false);
           setEditingItem(null);
         }}

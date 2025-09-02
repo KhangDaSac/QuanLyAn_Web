@@ -235,7 +235,7 @@ const LegalRelationshipGroupTab = () => {
             </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900">Không có dữ liệu</h3>
-              <p className="text-sm text-gray-500 mt-1">Không tìm thấy loại vụ án nào phù hợp với tiêu chí tìm kiếm.</p>
+              <p className="text-sm text-gray-500 mt-1">Không tìm thấy nhóm quan hệ pháp luật nào phù hợp với tiêu chí tìm kiếm.</p>
             </div>
             <button
               onClick={() => setShowForm(true)}
@@ -244,7 +244,7 @@ const LegalRelationshipGroupTab = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              <span>Thêm loại vụ án đầu tiên</span>
+              <span>Thêm nhóm quan hệ pháp luật đầu tiên</span>
             </button>
           </div>
         </div>
