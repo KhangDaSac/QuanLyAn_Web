@@ -1,101 +1,68 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { Connect } from "../connect/Connect";
-import type { LegalRelationshipResponse } from "../types/response/legal-case/LegalRelationshipResponse";
+import type { LegalRelationshipResponse } from "../types/response/legal-relationship/LegalRelationshipResponse";
 import type { LegalRelationshipRequest } from "../types/request/legal-relationship/LegalRelationshipRequest";
 import type { LegalRelationshipSearchRequest } from "../types/request/legal-relationship/LegalRelationshipSearchRequest";
 
 export class LegalRelationshipService {
-  static async top50(): Promise<ApiResponse<LegalRelationshipResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        '/legal-relationship/top-50',
-        'GET',
-        null,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+  static api: string = '/legal-relationship';
+  static async getTop50(): Promise<ApiResponse<LegalRelationshipResponse[]>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalRelationshipResponse[]>(
+      `${this.api}/top-50`,
+      'GET',
+      null,
+      token
+    );
   }
 
-    static async getAll(): Promise<ApiResponse<LegalRelationshipResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        '/legal-relationship/all',
-        'GET',
-        null,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+  static async getAll(): Promise<ApiResponse<LegalRelationshipResponse[]>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalRelationshipResponse[]>(
+      `${this.api}/all`,
+      'GET',
+      null,
+      token
+    );
   }
 
-  static async getAllLegalRelationships(): Promise<ApiResponse<LegalRelationshipResponse[]>> {
-    return this.getAll();
+  static async search(request: LegalRelationshipSearchRequest): Promise<ApiResponse<LegalRelationshipResponse[]>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalRelationshipResponse[]>(
+      `${this.api}/search`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async searchLegalRelationships(request: LegalRelationshipSearchRequest): Promise<ApiResponse<LegalRelationshipResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        '/legal-relationship/search',
-        'POST',
-        request,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+  static async create(request: LegalRelationshipRequest): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async createLegalRelationship(request: LegalRelationshipRequest): Promise<ApiResponse<LegalRelationshipResponse>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        '/legal-relationship',
-        'POST',
-        request,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+  static async update(id: string, request: LegalRelationshipRequest): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/${id}`,
+      'PUT',
+      request,
+      token
+    );
   }
 
-  static async updateLegalRelationship(id: string, request: LegalRelationshipRequest): Promise<ApiResponse<LegalRelationshipResponse>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        `/legal-relationship/${id}`,
-        'PUT',
-        request,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
-  }
-
-  static async deleteLegalRelationship(id: string): Promise<ApiResponse<void>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        `/legal-relationship/${id}`,
-        'DELETE',
-        null,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+  static async delete(id: string): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/${id}`,
+      'DELETE',
+      null,
+      token
+    );
   }
 }

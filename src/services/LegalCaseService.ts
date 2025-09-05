@@ -5,145 +5,97 @@ import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequ
 import { type AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
 import { Connect } from "../connect/Connect";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
+import type { RandomAssignmentRequest } from "../types/request/legal-case/RandomAssignmentRequest";
 
 export class LegalCaseService {
+  static api: string = '/legal-case';
   static async top50(): Promise<ApiResponse<LegalCaseResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        '/legal-case/top-50',
-        'GET',
-        null,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalCaseResponse[]>(
+      `${this.api}/top-50`,
+      'GET',
+      null,
+      token
+    );
   }
 
-  static async search(legalCaseSearch: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      console.log(legalCaseSearch)
-      return Connect.request(
-        '/legal-case/search',
-        'POST',
-        legalCaseSearch,
-        token
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
+  static async search(request: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalCaseResponse[]>(
+      `${this.api}/search`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async create(createRequest: LegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
-    try {
-      const token = localStorage.getItem('token');
-      console.log(createRequest)
-      return Connect.request(
-        '/legal-case/',
-        'POST',
-        createRequest,
-        token
-      );
-    } catch (error) {
-      console.error('Error creating legal case:', error);
-      throw error;
-    }
+  static async create(request: LegalCaseRequest): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async update(legalCaseId: string, updateRequest: LegalCaseRequest): Promise<ApiResponse<LegalCaseResponse>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        `/legal-case/${legalCaseId}`,
-        'PUT',
-        updateRequest,
-        token
-      );
-    } catch (error) {
-      console.error('Error updating legal case:', error);
-      throw error;
-    }
+  static async update(id: string, updateRequest: LegalCaseRequest): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/${id}`,
+      'PUT',
+      updateRequest,
+      token
+    );
   }
 
-  static async delete(legalCaseId: string): Promise<ApiResponse<void>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        `/legal-case/${legalCaseId}`,
-        'DELETE',
-        null,
-        token
-      );
-    } catch (error) {
-      console.error('Error deleting legal case:', error);
-      throw error;
-    }
+  static async delete(id: string): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/${id}`,
+      'DELETE',
+      null,
+      token
+    );
   }
 
-  static async importFromExcel(legalCases: LegalCasesRequest): Promise<ApiResponse<any>> {
-    try {
-      const token = localStorage.getItem('token');
-
-      return Connect.request(
-        `/legal-case/import-excel`,
-        'POST',
-        legalCases,
-        token
-      );
-    } catch (error) {
-      console.error('Error importing legal cases from Excel:', error);
-      throw error;
-    }
+  static async importFromExcel(request: LegalCasesRequest): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/import-excel`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async assignJudge(request: AssignAssignmentRequest): Promise<ApiResponse<any>> {
-    try {
-      const token = localStorage.getItem('token');
-      return Connect.request(
-        '/legal-case/assign-assignment',
-        'POST',
-        request,
-        token
-      );
-    } catch (error) {
-      console.error('Error assigning judge to legal case:', error);
-      throw error;
-    }
+  static async assignAssignment(request: AssignAssignmentRequest): Promise<ApiResponse<any>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<void>(
+      `${this.api}/assign-assignment`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async getAssignAssignmentByLegalRelationshipGroup(searchRequest: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await Connect.request<LegalCaseResponse[]>(
-        '/legal-case/list-waiting-for-assignment',
-        'POST',
-        searchRequest,
-        token
-      );
-      return response;
-    } catch (error) {
-      console.error("Error searching pending cases:", error);
-      throw error;
-    }
+  static async getAssignAssignmentByLegalRelationshipGroup(request: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalCaseResponse[]>(
+      `${this.api}/list-waiting-for-assignment`,
+      'POST',
+      request,
+      token
+    );
   }
 
-  static async assignRandomly(legalCaseIds: string[]): Promise<ApiResponse<LegalCaseResponse[]>> {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await Connect.request<LegalCaseResponse[]>(
-        `/legal-case/random-assignment`,
-        "POST",
-        { legalCaseIds },
-        token
-      );
-      return response;
-    } catch (error) {
-      console.error("Error assigning cases randomly:", error);
-      throw error;
-    }
+  static async randomAssignment(request: RandomAssignmentRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalCaseResponse[]>(
+      `${this.api}/random-assignment`,
+      'POST',
+      request,
+      token
+    );
   }
 }
