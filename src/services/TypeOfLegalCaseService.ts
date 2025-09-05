@@ -1,5 +1,5 @@
 import { type ApiResponse } from "../types/ApiResponse";
-import { type TypeOfLegalCaseResponse } from "../types/response/legal-case/TypeOfLegalCaseResponse";
+import { type TypeOfLegalCaseResponse } from "../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
 import { Connect } from "../connect/Connect";
 import { type TypeOfLegalCaseRequest } from "../types/request/type-of-legal-case/TypeOfLegalCaseRequest";
 import type { TypeOfLegalCaseSearchRequest } from "../types/request/type-of-legal-case/TypeOfLegalCaseSearchRequest";

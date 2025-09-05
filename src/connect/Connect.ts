@@ -10,7 +10,6 @@ export class Connect {
     ): Promise<ApiResponse<T>> {
         try {
             const accessToken = token ?? localStorage.getItem("token");
-            console.log(body)
             const response = await fetch(`${server_url}${endpoint}`, {
                 method,
                 headers: {
@@ -23,17 +22,17 @@ export class Connect {
             // Xử lý response cho cả trường hợp thành công và thất bại
             const responseData = await response.json().catch(() => ({}));
             
-            if (!response.ok) {
-                // Trả về response với thông tin lỗi thay vì ném exception
-                return {
-                    success: false,
-                    status: response.status,
-                    message: responseData.message || `HTTP Error ${response.status}`,
-                    error: responseData.error || responseData.message || `Lỗi ${response.status}: ${response.statusText}`,
-                    data: {} as T,
-                    timestamp: responseData.timestamp || new Date().toISOString()
-                };
-            }
+            // if (!response.ok) {
+            //     // Trả về response với thông tin lỗi thay vì ném exception
+            //     return {
+            //         success: false,
+            //         status: response.status,
+            //         message: responseData.message || `HTTP Error ${response.status}`,
+            //         error: responseData.error || responseData.message || `Lỗi ${response.status}: ${response.statusText}`,
+            //         data: {} as T,
+            //         timestamp: responseData.timestamp || new Date().toISOString()
+            //     };
+            // }
 
             return responseData as ApiResponse<T>;
         } catch (error: unknown) {
@@ -54,9 +53,8 @@ export class Connect {
                 status: 500,
                 message: "Lỗi kết nối",
                 error: errorMessage,
-                data: {} as T,
                 timestamp: new Date().toISOString()
-            };
+            } as ApiResponse<T>;
         }
     }
 }

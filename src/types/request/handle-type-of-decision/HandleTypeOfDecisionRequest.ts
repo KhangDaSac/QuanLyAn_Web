@@ -1,6 +1,6 @@
 import type { StatusOfLegalCase } from "../../enum/StatusOfLegalCase";
 
-export default interface AccountRequest {
+export default interface HandleTypeOfDecisionResponse {
     typeOfDecisionId: string;
     preStatus: StatusOfLegalCase;
     postStatus: StatusOfLegalCase;
