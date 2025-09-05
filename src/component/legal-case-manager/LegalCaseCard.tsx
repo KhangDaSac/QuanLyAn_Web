@@ -19,11 +19,11 @@ const formatDate = (dateString: string) => {
 
 const getStatusText = (status: string) => {
   // Nếu status đã là tiếng Việt thì trả về luôn
-  if (Object.values(StatusOfLegalCase).includes(status as any)) {
+  if (Object.values(StatusOfLegalCase).includes(status as StatusOfLegalCase)) {
     return status;
   }
   // Nếu status là key tiếng Anh thì chuyển sang tiếng Việt
-  return StatusOfLegalCase[status as keyof typeof StatusOfLegalCase] || status;
+  return (StatusOfLegalCase as any)[status] || status;
 };
 
 const getStatusColor = (status: string) => {
@@ -100,14 +100,14 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
             <div className="flex flex-wrap items-center gap-2">
               <span className={`
               text-md px-5 py-1 rounded-full font-medium
-                ${legalCase.legalRelationship.typeOfLegalCase.codeName == 'HS' ? 'bg-red-200 text-red-500'
-                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'DS' ? 'bg-blue-200 text-blue-500'
-                    : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HN' ? 'bg-pink-200 text-pink-500'
-                      : legalCase.legalRelationship.typeOfLegalCase.codeName == 'LD' ? 'bg-purple-200 text-pink-500'
-                        : legalCase.legalRelationship.typeOfLegalCase.codeName == 'KT' ? 'bg-orange-200 text-orange-500'
-                          : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HC' ? 'bg-green-200 text-green-500'
-                            : legalCase.legalRelationship.typeOfLegalCase.codeName == 'PS' ? 'bg-yellow-200 text-yellow-500'
-                              : legalCase.legalRelationship.typeOfLegalCase.codeName == 'BP' ? 'bg-stone-200 text-stone-500'
+                ${legalCase.legalRelationship.typeOfLegalCase.codeName == 'HS' ? 'bg-red-50 text-red-600 border border-red-300'
+                  : legalCase.legalRelationship.typeOfLegalCase.codeName == 'DS' ? 'bg-blue-50 text-blue-600 border border-blue-300'
+                    : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HN' ? 'bg-pink-50 text-pink-600 border border-pink-300'
+                      : legalCase.legalRelationship.typeOfLegalCase.codeName == 'LD' ? 'bg-purple-50 text-purple-600 border border-purple-300'
+                        : legalCase.legalRelationship.typeOfLegalCase.codeName == 'KT' ? 'bg-orange-50 text-orange-600 border border-orange-300'
+                          : legalCase.legalRelationship.typeOfLegalCase.codeName == 'HC' ? 'bg-green-50 text-green-600 border border-green-300'
+                            : legalCase.legalRelationship.typeOfLegalCase.codeName == 'PS' ? 'bg-yellow-50 text-yellow-600 border border-yellow-300'
+                              : legalCase.legalRelationship.typeOfLegalCase.codeName == 'BP' ? 'bg-stone-50 text-stone-600 border border-stone-300'
                                 : ''
                 }
                 `}>
@@ -272,8 +272,17 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
       {/* Actions - Always at bottom */}
       <div className="flex flex-wrap items-center gap-2 pt-4 mt-4 border-t border-gray-100">
         <button
-          onClick={() => onEdit?.(legalCase)}
           className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-blue-300 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <span className="text-md">Chi tiết</span>
+        </button>
+
+        <button
+          onClick={() => onEdit?.(legalCase)}
+          className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-yellow-300 text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -309,7 +318,7 @@ const LegalCaseCard = ({ legalCase, onEdit, onDelete, onAssign }: LegalCaseCardP
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>Thêm QĐ</span>
+          <span>Thêm</span>
         </button>
       </div>
     </div>
