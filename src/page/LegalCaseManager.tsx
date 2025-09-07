@@ -116,7 +116,10 @@ const LegalCaseManager = () => {
   const fetchLegalCases = async () => {
     setLoading(true);
     try {
-      setLegalCases((await LegalCaseService.top50()).data);
+      const { data } = await LegalCaseService.top50();
+      if (data) {
+        setLegalCases(data);
+      }
     } catch (error) {
       console.error('Error fetching legal cases:', error);
     } finally {
@@ -127,15 +130,17 @@ const LegalCaseManager = () => {
   const fetchTypeOfLegalCases = async () => {
     setLoading(true);
     try {
-      setTypeOfLegalCases([
-        ...typeOfLegalCases,
-        ...(await TypeOfLegalCaseService.getAll()).data.map(
-          (item): Option => ({
-            value: item.typeOfLegalCaseId,
-            label: item.typeOfLegalCaseName
-          })
-        )
-      ]);
+      const { data } = await TypeOfLegalCaseService.getAll();
+      if (data) {
+        setTypeOfLegalCases([
+          ...typeOfLegalCases,
+          ...data.map(
+            (item): Option => ({
+              value: item.typeOfLegalCaseId,
+              label: item.typeOfLegalCaseName
+            }))
+          ]);
+      }
     } catch (error) {
       console.error('Error fetching legal cases:', error);
     } finally {
@@ -146,15 +151,18 @@ const LegalCaseManager = () => {
   const fetchLegalRelationships = async () => {
     setLoading(true);
     try {
-      setLegalRelationships([
-        ...legalRelationships,
-        ...(await LegalRelationshipService.getAll()).data.map(
-          (item): Option => ({
-            value: item.legalRelationshipId,
-            label: item.legalRelationshipName
-          })
-        )
-      ]);
+      const { data } = await LegalRelationshipService.getAll();
+      if (data) {
+        setLegalRelationships([
+          ...legalRelationships,
+          ...data.map(
+            (item): Option => ({
+              value: item.legalRelationshipId,
+              label: item.legalRelationshipName
+            })
+          )]
+        );
+      }
     } catch (error) {
       console.error('Error fetching legal cases:', error);
     } finally {
@@ -165,15 +173,18 @@ const LegalCaseManager = () => {
   const fetchLegalRelationshipGroups = async () => {
     setLoading(true);
     try {
-      setLegalRelationshipGroups([
-        ...legalRelationshipGroups,
-        ...(await LegalRelationshipGroupService.getAll()).data.map(
-          (item): Option => ({
-            value: item.legalRelationshipGroupId,
-            label: item.legalRelationshipGroupName
-          })
-        )
-      ]);
+      const { data } = await LegalRelationshipGroupService.getAll();
+      if (data) {
+        setLegalRelationshipGroups([
+          ...legalRelationshipGroups,
+          ...data.map(
+            (item): Option => ({
+              value: item.legalRelationshipGroupId,
+              label: item.legalRelationshipGroupName
+            })
+          )
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching legal cases:', error);
     } finally {
@@ -184,8 +195,11 @@ const LegalCaseManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      setLegalCases((await LegalCaseService.search(legalCaseSearch)).data);
-      console.log((await LegalCaseService.search(legalCaseSearch)).data)
+      const { data } = await LegalCaseService.search(legalCaseSearch);
+      if (data) {
+        setLegalCases(data);
+      }
+      console.log(data);
     } catch (error) {
       console.error('Error searching legal cases:', error);
     } finally {
@@ -274,7 +288,7 @@ const LegalCaseManager = () => {
         judgeId: judgeId
       };
 
-      const response = await LegalCaseService.assignJudge(request);
+      const response = await LegalCaseService.assignAssignment(request);
       
       if (response.success) {
         toast.success('Phân công thành công', `Đã phân công thẩm phán cho án "${assigningCase.acceptanceNumber}"`);
@@ -417,7 +431,7 @@ const LegalCaseManager = () => {
         );
         await fetchLegalCases(); // Reload dữ liệu
       } else {
-        toast.error("Nhập án thất bại", response.error);
+        toast.error("Nhập án thất bại", response.error??"Có lỗi xảy ra khi nhập án");
       }
     } catch (error) {
       console.error("Error importing file:", error);

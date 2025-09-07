@@ -38,8 +38,8 @@ const LegalRelationshipGroupTab = () => {
   const loadGroups = async () => {
     try {
       setLoading(true);
-      const response = await LegalRelationshipGroupService.getAllLegalRelationshipGroups();
-      if (response.success) {
+      const response = await LegalRelationshipGroupService.getAll();
+      if (response.success && response.data) {
         setGroups(response.data);
         setFilteredData(response.data);
       }
@@ -77,10 +77,10 @@ const LegalRelationshipGroupTab = () => {
   const handleSubmit = async (data: LegalRelationshipGroupRequest) => {
     try {
       if (editingItem) {
-        await LegalRelationshipGroupService.updateLegalRelationshipGroup(editingItem.legalRelationshipGroupId, data);
+        await LegalRelationshipGroupService.update(editingItem.legalRelationshipGroupId, data);
         toast.success('Cập nhật thành công', `Đã cập nhật nhóm quan hệ pháp luật "${data.legalRelationshipGroupName}"`);
       } else {
-        await LegalRelationshipGroupService.createLegalRelationshipGroup(data);
+        await LegalRelationshipGroupService.create(data);
         toast.success('Thêm mới thành công', `Đã thêm nhóm quan hệ pháp luật "${data.legalRelationshipGroupName}"`);
       }
       setShowForm(false);

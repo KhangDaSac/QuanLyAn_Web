@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { type LegalRelationshipRequest } from '../../types/request/legal-relationship/LegalRelationshipRequest';
-import { type LegalRelationshipResponse } from '../../types/response/legal-case/LegalRelationshipResponse';
+import { type LegalRelationshipResponse } from '../../types/response/legal-relationship/LegalRelationshipResponse';
 import { type TypeOfLegalCaseResponse } from '../../types/response/type-of-legal-case/TypeOfLegalCaseResponse';
 import { type LegalRelationshipGroupResponse } from '../../types/response/legal-relationship-group/LegalRelationshipGroupResponse';
 

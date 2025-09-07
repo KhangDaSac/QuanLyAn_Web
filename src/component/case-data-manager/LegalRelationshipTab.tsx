@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { type LegalRelationshipResponse } from '../../types/response/legal-case/LegalRelationshipResponse';
+import { type LegalRelationshipResponse } from '../../types/response/legal-relationship/LegalRelationshipResponse';
 import { type LegalRelationshipRequest } from '../../types/request/legal-relationship/LegalRelationshipRequest';
 import { type LegalRelationshipSearchRequest } from '../../types/request/legal-relationship/LegalRelationshipSearchRequest';
 import { type TypeOfLegalCaseResponse } from '../../types/response/type-of-legal-case/TypeOfLegalCaseResponse';
@@ -44,8 +44,8 @@ const LegalRelationshipTab = () => {
 
   const loadRelationships = async () => {
     try {
-      const response = await LegalRelationshipService.getAllLegalRelationships();
-      if (response.success) {
+      const response = await LegalRelationshipService.getAll();
+      if (response.success && response.data) {
         setRelationships(response.data);
         setFilteredData(response.data);
       }
@@ -57,7 +57,7 @@ const LegalRelationshipTab = () => {
   const loadTypeOfLegalCases = async () => {
     try {
       const response = await TypeOfLegalCaseService.top50();
-      if (response.success) {
+      if (response.success && response.data) {
         setTypeOfLegalCases(response.data);
       }
     } catch (error) {
@@ -67,8 +67,8 @@ const LegalRelationshipTab = () => {
 
   const loadGroups = async () => {
     try {
-      const response = await LegalRelationshipGroupService.getAllLegalRelationshipGroups();
-      if (response.success) {
+      const response = await LegalRelationshipGroupService.getAll();
+      if (response.success && response.data) {
         setGroups(response.data);
       }
     } catch (error) {
@@ -106,10 +106,10 @@ const LegalRelationshipTab = () => {
   const handleSubmit = async (data: LegalRelationshipRequest) => {
     try {
       if (editingItem) {
-        await LegalRelationshipService.updateLegalRelationship(editingItem.legalRelationshipId, data);
+        await LegalRelationshipService.update(editingItem.legalRelationshipId, data);
         success('Thành công', 'Cập nhật thành công');
       } else {
-        await LegalRelationshipService.createLegalRelationship(data);
+        await LegalRelationshipService.create(data);
         success('Thành công', 'Thêm mới thành công');
       }
       setShowForm(false);
@@ -128,7 +128,7 @@ const LegalRelationshipTab = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await LegalRelationshipService.deleteLegalRelationship(id);
+      await LegalRelationshipService.delete(id);
       success('Thành công', 'Xóa thành công');
       loadRelationships();
     } catch (error) {

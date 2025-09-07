@@ -10,6 +10,6 @@ export interface JudgeResponse {
   numberOfTemporarySuspension: number;
   numberOfOverdue: number;
   numberOfCanceledAndEdited: number;
-  statusOfJudge: keyof typeof StatusOfJudge;
+  statusOfJudge: StatusOfJudge;
   email: string;
 }

@@ -61,7 +61,9 @@ const JudgeManager = () => {
     setLoading(true);
     try {
       const response = await JudgeService.getTop50()
-      setJudges(response.data);
+      if (response.success && response.data) {
+        setJudges(response.data);
+      }
     } catch (error) {
       console.error('Error fetching judges:', error);
       toast.error('Lỗi', 'Không thể tải danh sách thẩm phán');
@@ -74,7 +76,9 @@ const JudgeManager = () => {
     setLoading(true);
     try {
       const response = await JudgeService.search(judgeSearch);
-      setJudges(response.data);
+      if (response.success && response.data) {
+        setJudges(response.data);
+      }
     } catch (error) {
       console.error('Error searching judges:', error);
       toast.error('Lỗi', 'Không thể tìm kiếm thẩm phán');

@@ -7,7 +7,7 @@ import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import type { JudgeResponse } from "../types/response/judge/JudgeResponse";
-import type { LegalRelationshipGroupResponse } from "../types/response/legal-case/LegalRelationshipGroup";
+import type { LegalRelationshipGroupResponse } from "../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 
 const RandomAssignment = () => {
@@ -147,7 +147,11 @@ const RandomAssignment = () => {
 
         setLoading(true);
         try {
-            const response = await LegalCaseService.assignRandomly(selectedCases);
+          const request = {
+              legalCaseIds: selectedCases,
+              judgeIds: assignableJudges.map(judge => judge.judgeId)
+          };
+            const response = await LegalCaseService.randomAssignment(request);
             if (response.success && response.data) {
                 setAssignedCases(response.data);
                 addToast({

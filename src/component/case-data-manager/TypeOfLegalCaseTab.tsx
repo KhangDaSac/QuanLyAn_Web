@@ -41,7 +41,7 @@ const TypeOfLegalCaseTab = () => {
     try {
       setLoading(true);
       const response = await TypeOfLegalCaseService.top50();
-      if (response.success) {
+      if (response.success && response.data) {
         setTypeOfLegalCases(response.data);
         setFilteredData(response.data);
       }
@@ -57,7 +57,7 @@ const TypeOfLegalCaseTab = () => {
     try {
       setLoading(true);
       const response = await TypeOfLegalCaseService.search(searchCriteria);
-      if (response.success) {
+      if (response.success && response.data) {
         setFilteredData(response.data);
       } else {
         toast.error('Lấy dữ liệu thất bại', `${response.error}`);

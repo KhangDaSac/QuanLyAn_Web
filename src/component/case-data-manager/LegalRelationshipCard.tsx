@@ -1,4 +1,4 @@
-import { type LegalRelationshipResponse } from '../../types/response/legal-case/LegalRelationshipResponse';
+import { type LegalRelationshipResponse } from '../../types/response/legal-relationship/LegalRelationshipResponse';
 
 interface LegalRelationshipCardProps {
   relationship: LegalRelationshipResponse;

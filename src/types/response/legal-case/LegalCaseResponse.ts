@@ -1,4 +1,4 @@
-import { type LegalRelationshipResponse } from "./LegalRelationshipResponse";
+import { type LegalRelationshipResponse } from "../legal-relationship/LegalRelationshipResponse";
 import { type JudgeResponse } from "../judge/JudgeResponse"; 
 import type { StatusOfLegalCase } from "../../enum/StatusOfLegalCase";
 import type { BatchResponse } from "../batch/BatchResponse";
