@@ -9,7 +9,7 @@ export class LegalRelationshipGroupService {
   static async top50(): Promise<ApiResponse<LegalRelationshipGroupResponse[]>> {
     const token = localStorage.getItem('token');
     return Connect.request<LegalRelationshipGroupResponse[]>(
-      `${this.api}/top-50`,
+      `${this.api}/limit-50`,
       'GET',
       null,
       token

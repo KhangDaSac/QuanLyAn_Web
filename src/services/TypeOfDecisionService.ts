@@ -19,7 +19,7 @@ export class TypeOfDecisionService {
     static async getTop50(): Promise<ApiResponse<TypeOfDecisionResponse[]>> {
         const token = localStorage.getItem("token");
         return Connect.request<TypeOfDecisionResponse[]>(
-            `${this.api}/top-50`,
+            `${this.api}/limit-50`,
             'GET',
             null,
             token

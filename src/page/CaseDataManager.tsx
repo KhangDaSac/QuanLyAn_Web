@@ -75,8 +75,8 @@ const CaseDataManager = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 p-4 inline-flex items-center justify-center space-x-3 rounded-lg font-medium text-sm transition-all duration-300 ${activeTab === tab.id
-                      ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg transform scale-105'
+                  className={`flex-1 p-4 inline-flex items-center justify-center space-x-3 rounded-lg font-medium ${activeTab === tab.id
+                      ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg'
                       : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 border border-gray-200'
                     }`}
                 >

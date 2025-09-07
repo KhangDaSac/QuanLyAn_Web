@@ -18,7 +18,7 @@ export class BatchService {
     static async getTop50(): Promise<ApiResponse<BatchResponse[]>> {
         const token = localStorage.getItem("token");
         return Connect.request<BatchResponse[]>(
-            `${this.api}/top-50`,
+            `${this.api}/limit-50`,
             'GET',
             null,
             token

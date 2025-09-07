@@ -19,7 +19,7 @@ export class JudgeService {
   static async getTop50(): Promise<ApiResponse<JudgeResponse[]>> {
     const token = localStorage.getItem('token');
     return Connect.request<JudgeResponse[]>(
-      `${this.api}/top-50`,
+      `${this.api}/limit-50`,
       'GET',
       null,
       token
