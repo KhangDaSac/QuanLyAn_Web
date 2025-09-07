@@ -29,7 +29,6 @@ const LegalRelationshipTab = () => {
     useState<LegalRelationshipResponse | null>(null);
   const [searchCriteria, setSearchCriteria] =
     useState<LegalRelationshipSearchRequest>({});
-  const { toasts, success, error: showError, removeToast } = useToast();
   const toast = useToast();
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -59,7 +58,7 @@ const LegalRelationshipTab = () => {
       ]);
     } catch (error) {
       console.error("Error loading data:", error);
-      showError("Lỗi", "Lỗi khi tải dữ liệu");
+      toast.error("Lỗi", "Lỗi khi tải dữ liệu");
     } finally {
       setLoading(false);
     }
@@ -71,9 +70,14 @@ const LegalRelationshipTab = () => {
       if (response.success && response.data) {
         setRelationships(response.data);
         setFilteredData(response.data);
+      } else {
+        setRelationships([]);
+        setFilteredData([]);
       }
     } catch (error) {
       console.error("Error loading relationships:", error);
+      setRelationships([]);
+      setFilteredData([]);
     }
   };
 
@@ -82,9 +86,12 @@ const LegalRelationshipTab = () => {
       const response = await TypeOfLegalCaseService.top50();
       if (response.success && response.data) {
         setTypeOfLegalCases(response.data);
+      } else {
+        setTypeOfLegalCases([]);
       }
     } catch (error) {
       console.error("Error loading type of legal cases:", error);
+      setTypeOfLegalCases([]);
     }
   };
 
@@ -93,9 +100,12 @@ const LegalRelationshipTab = () => {
       const response = await LegalRelationshipGroupService.getAll();
       if (response.success && response.data) {
         setGroups(response.data);
+      } else {
+        setGroups([]);
       }
     } catch (error) {
       console.error("Error loading groups:", error);
+      setGroups([]);
     }
   };
 
@@ -124,7 +134,7 @@ const LegalRelationshipTab = () => {
       setFilteredData(filtered);
     } catch (error) {
       console.error("Error searching:", error);
-      showError("Lỗi", "Lỗi khi tìm kiếm");
+      toast.error("Lỗi", "Lỗi khi tìm kiếm");
     } finally {
       setLoading(false);
     }
@@ -133,21 +143,29 @@ const LegalRelationshipTab = () => {
   const handleSubmit = async (data: LegalRelationshipRequest) => {
     try {
       if (editingItem) {
-        await LegalRelationshipService.update(
+        const result = await LegalRelationshipService.update(
           editingItem.legalRelationshipId,
           data
         );
-        success("Thành công", "Cập nhật thành công");
+        if (result.success) {
+          toast.success("Thành công", "Cập nhật quan hệ pháp luật thành công");
+        } else {
+          toast.error("Thất bại", `${result.error}`);
+        }
       } else {
-        await LegalRelationshipService.create(data);
-        success("Thành công", "Thêm mới thành công");
+        const result = await LegalRelationshipService.create(data);
+        if (result.success) {
+          toast.success("Thành công", "Thêm mới quan hệ pháp luật thành công");
+        } else {
+          toast.error("Thất bại", `${result.error}`);
+        }
       }
       setShowForm(false);
       setEditingItem(null);
       loadRelationships();
     } catch (error) {
       console.error("Error submitting:", error);
-      showError("Lỗi", "Có lỗi xảy ra");
+      toast.error("Lỗi", "Có lỗi xảy ra");
     }
   };
 
@@ -157,37 +175,31 @@ const LegalRelationshipTab = () => {
     setShowForm(true);
     toast.info(
       "Bắt đầu chỉnh sửa",
-      `Đang mở form chỉnh sửa loại vụ án "${item.typeOfLegalCase.typeOfLegalCaseName}"`
+      `Đang mở form chỉnh sửa quan hệ pháp luật "${item.legalRelationshipName}"`
     );
   };
 
   const handleEdit = (item: LegalRelationshipResponse) => {
-    // setEditingItem(item);
-    // setShowForm(true);
     setConfirmModal({
       isOpen: true,
       title: "Xác nhận chỉnh sửa",
-      message: `Bạn có muốn chỉnh sửa quan hệ pháp luật"${item.legalRelationshipName}"?`,
+      message: `Bạn có muốn chỉnh sửa quan hệ pháp luật "${item.legalRelationshipName}"?`,
       type: "danger",
       onConfirm: () => confirmEdit(item),
     });
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await LegalRelationshipService.delete(id);
-      setConfirmModal({
-        isOpen: true,
-        title: "Xác nhận xóa",
-        message: `Bạn có chắc chắn muốn xóa "${id}"? Hành động này không thể hoàn tác.`,
-        type: "danger",
-        onConfirm: () => confirmDelete(id),
-      });
-      loadRelationships();
-    } catch (error) {
-      console.error("Error deleting:", error);
-      showError("Lỗi", "Lỗi khi xóa");
-    }
+    const item = filteredData.find(item => item.legalRelationshipId === id);
+    if (!item) return;
+
+    setConfirmModal({
+      isOpen: true,
+      title: "Xác nhận xóa",
+      message: `Bạn có chắc chắn muốn xóa quan hệ pháp luật "${item.legalRelationshipName}"? Hành động này không thể hoàn tác.`,
+      type: "danger",
+      onConfirm: () => confirmDelete(item.legalRelationshipId),
+    });
   };
 
     const confirmDelete = async (id: string) => {
@@ -196,13 +208,14 @@ const LegalRelationshipTab = () => {
       setLoading(true);
       const result = await LegalRelationshipService.delete(id);
       if (result.success) {
-        toast.success('Xóa thành công', 'Nhóm quan hệ pháp luật đã được xóa khỏi hệ thống!');
+        toast.success('Xóa thành công', 'Quan hệ pháp luật đã được xóa khỏi hệ thống!');
+        loadRelationships();
       } else {
         toast.error('Xóa thất bại', `${result.error}`);
       }
     } catch (error) {
-      console.error('Error deleting legal case:', error);
-      toast.error('Xóa thất bại', 'Có lỗi xảy ra khi xóa loại vụ án. Vui lòng thử lại!');
+      console.error('Error deleting legal relationship:', error);
+      toast.error('Xóa thất bại', 'Có lỗi xảy ra khi xóa quan hệ pháp luật. Vui lòng thử lại!');
     } finally {
       setLoading(false);
     }
@@ -225,20 +238,20 @@ const LegalRelationshipTab = () => {
 
   return (
     <div className="p-6">
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      {showForm && (
-        <LegalRelationshipForm
-          initialData={editingItem}
-          typeOfLegalCases={typeOfLegalCases}
-          groups={groups}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingItem(null);
-          }}
-        />
-      )}
+      <LegalRelationshipForm
+        isOpen={showForm}
+        initialData={editingItem}
+        typeOfLegalCases={typeOfLegalCases}
+        groups={groups}
+        onSubmit={handleSubmit}
+        onCancel={() => {
+          setShowForm(false);
+          setEditingItem(null);
+        }}
+        isLoading={loading}
+      />
 
       {!showForm && (
         <>

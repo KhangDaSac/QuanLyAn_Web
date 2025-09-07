@@ -80,11 +80,7 @@ const LegalRelationshipCard = ({ relationship, onEdit, onDelete }: LegalRelation
         </button>
 
         <button
-          onClick={() => {
-            if (window.confirm(`Bạn có chắc chắn muốn xóa quan hệ pháp luật "${relationship.legalRelationshipName}"?`)) {
-              onDelete(relationship.legalRelationshipId);
-            }
-          }}
+          onClick={() => onDelete(relationship.legalRelationshipId)}
           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

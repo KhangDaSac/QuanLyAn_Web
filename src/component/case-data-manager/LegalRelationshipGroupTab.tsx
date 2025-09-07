@@ -6,7 +6,7 @@ import { LegalRelationshipGroupService } from "../../services/LegalRelationshipG
 import LegalRelationshipGroupForm from "./LegalRelationshipGroupForm";
 import LegalRelationshipGroupCard from "./LegalRelationshipGroupCard";
 import ConfirmModal from "../basic-component/ConfirmModal";
-import { useToast } from "../basic-component/Toast";
+import { useToast, ToastContainer } from "../basic-component/Toast";
 
 const LegalRelationshipGroupTab = () => {
   const [groups, setGroups] = useState<LegalRelationshipGroupResponse[]>([]);
@@ -25,13 +25,13 @@ const LegalRelationshipGroupTab = () => {
     isOpen: boolean;
     title: string;
     message: string;
-    type: "warning" | "danger";
+    type: "warning" | "danger" | "info" | "success";
     onConfirm: () => void;
   }>({
     isOpen: false,
     title: "",
     message: "",
-    type: "warning",
+    type: "danger",
     onConfirm: () => {},
   });
 
@@ -46,6 +46,9 @@ const LegalRelationshipGroupTab = () => {
       if (response.success && response.data) {
         setGroups(response.data);
         setFilteredData(response.data);
+      } else {
+        setGroups([]);
+        setFilteredData([]);
       }
     } catch (error) {
       console.error("Error loading groups:", error);
@@ -86,20 +89,28 @@ const LegalRelationshipGroupTab = () => {
   const handleSubmit = async (data: LegalRelationshipGroupRequest) => {
     try {
       if (editingItem) {
-        await LegalRelationshipGroupService.update(
+        const result = await LegalRelationshipGroupService.update(
           editingItem.legalRelationshipGroupId,
           data
         );
-        toast.success(
-          "Cập nhật thành công",
-          `Đã cập nhật nhóm quan hệ pháp luật "${data.legalRelationshipGroupName}"`
-        );
+        if (result.success) {
+          toast.success(
+            "Cập nhật thành công",
+            `Đã cập nhật nhóm quan hệ pháp luật "${data.legalRelationshipGroupName}"`
+          );
+        } else {
+          toast.error("Cập nhật thất bại", `${result.error}`);
+        }
       } else {
-        await LegalRelationshipGroupService.create(data);
-        toast.success(
-          "Thêm mới thành công",
-          `Đã thêm nhóm quan hệ pháp luật "${data.legalRelationshipGroupName}"`
-        );
+        const result = await LegalRelationshipGroupService.create(data);
+        if (result.success) {
+          toast.success(
+            "Thêm mới thành công",
+            `Đã thêm nhóm quan hệ pháp luật "${data.legalRelationshipGroupName}"`
+          );
+        } else {
+          toast.error("Thêm mới thất bại", `${result.error}`);
+        }
       }
       setShowForm(false);
       setEditingItem(null);
@@ -124,9 +135,6 @@ const LegalRelationshipGroupTab = () => {
   };
 
   const handleEdit = (item: LegalRelationshipGroupResponse) => {
-    // setEditingItem(item);
-    // setShowForm(true);
-    // toast.info('Chỉnh sửa nhóm quan hệ pháp luật', `Đang mở form chỉnh sửa "${item.legalRelationshipGroupName}"`);
     setConfirmModal({
       isOpen: true,
       title: "Xác nhận chỉnh sửa",
@@ -156,14 +164,15 @@ const LegalRelationshipGroupTab = () => {
           "Xóa thành công",
           "Nhóm quan hệ pháp luật đã được xóa khỏi hệ thống!"
         );
+        loadGroups();
       } else {
         toast.error("Xóa thất bại", `${result.error}`);
       }
     } catch (error) {
-      console.error("Error deleting legal case:", error);
+      console.error("Error deleting legal relationship group:", error);
       toast.error(
         "Xóa thất bại",
-        "Có lỗi xảy ra khi xóa loại vụ án. Vui lòng thử lại!"
+        "Có lỗi xảy ra khi xóa nhóm quan hệ pháp luật. Vui lòng thử lại!"
       );
     } finally {
       setLoading(false);
@@ -253,6 +262,23 @@ const LegalRelationshipGroupTab = () => {
             Bộ lọc tìm kiếm
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mã nhóm quan hệ pháp luật
+              </label>
+              <input
+                type="text"
+                value={searchCriteria.legalRelationshipGroupId || ""}
+                onChange={(e) =>
+                  setSearchCriteria((prev) => ({
+                    ...prev,
+                    legalRelationshipGroupId: e.target.value,
+                  }))
+                }
+                placeholder="Nhập mã nhóm quan hệ pháp luật"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tên nhóm quan hệ pháp luật
@@ -353,16 +379,16 @@ const LegalRelationshipGroupTab = () => {
       )}
 
       {/* Form Modal */}
-      {showForm && (
-        <LegalRelationshipGroupForm
-          initialData={editingItem}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingItem(null);
-          }}
-        />
-      )}
+      <LegalRelationshipGroupForm
+        isOpen={showForm}
+        initialData={editingItem}
+        onSubmit={handleSubmit}
+        onCancel={() => {
+          setShowForm(false);
+          setEditingItem(null);
+        }}
+        isLoading={loading}
+      />
 
       {/* Confirm Modal */}
       <ConfirmModal
@@ -374,6 +400,11 @@ const LegalRelationshipGroupTab = () => {
         type={confirmModal.type}
         confirmText="Xác nhận"
         cancelText="Hủy"
+      />
+
+      <ToastContainer
+        toasts={toast.toasts}
+        onRemove={toast.removeToast}
       />
     </div>
   );
