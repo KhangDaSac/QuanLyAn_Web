@@ -11,6 +11,7 @@ import LegalRelationshipForm from "./LegalRelationshipForm";
 import LegalRelationshipCard from "./LegalRelationshipCard";
 import { useToast, ToastContainer } from "../basic-component/Toast";
 import ConfirmModal from "../basic-component/ConfirmModal";
+import type { Option } from "../basic-component/ComboboxSearchForm";
 
 const LegalRelationshipTab = () => {
   const [relationships, setRelationships] = useState<
@@ -20,7 +21,7 @@ const LegalRelationshipTab = () => {
     []
   );
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<
-    TypeOfLegalCaseResponse[]
+    Option[]
   >([]);
   const [groups, setGroups] = useState<LegalRelationshipGroupResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +87,10 @@ const LegalRelationshipTab = () => {
     try {
       const response = await TypeOfLegalCaseService.top50();
       if (response.success && response.data) {
-        setTypeOfLegalCases(response.data);
+        setTypeOfLegalCases(response.data.map((item) => ({
+          value: item.typeOfLegalCaseId,
+          label: item.typeOfLegalCaseName,
+        })));
       } else {
         setTypeOfLegalCases([]);
       }
@@ -326,8 +330,8 @@ const LegalRelationshipTab = () => {
                   >
                     <option value="">Chọn loại vụ án</option>
                     {typeOfLegalCases.map((type) => (
-                      <option key={type.typeOfLegalCaseId} value={type.typeOfLegalCaseId}>
-                        {type.typeOfLegalCaseName}
+                      <option key={type.value} value={type.value}>
+                        {type.label}
                       </option>
                     ))}
                   </select>
