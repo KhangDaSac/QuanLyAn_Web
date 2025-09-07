@@ -29,6 +29,7 @@ const LegalRelationshipTab = () => {
     useState<LegalRelationshipResponse | null>(null);
   const [searchCriteria, setSearchCriteria] =
     useState<LegalRelationshipSearchRequest>({});
+  const [showFilters, setShowFilters] = useState(false);
   const toast = useToast();
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -190,7 +191,7 @@ const LegalRelationshipTab = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const item = filteredData.find(item => item.legalRelationshipId === id);
+    const item = filteredData.find((item) => item.legalRelationshipId === id);
     if (!item) return;
 
     setConfirmModal({
@@ -202,20 +203,26 @@ const LegalRelationshipTab = () => {
     });
   };
 
-    const confirmDelete = async (id: string) => {
+  const confirmDelete = async (id: string) => {
     try {
-      setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      setConfirmModal((prev) => ({ ...prev, isOpen: false }));
       setLoading(true);
       const result = await LegalRelationshipService.delete(id);
       if (result.success) {
-        toast.success('Xóa thành công', 'Quan hệ pháp luật đã được xóa khỏi hệ thống!');
+        toast.success(
+          "Xóa thành công",
+          "Quan hệ pháp luật đã được xóa khỏi hệ thống!"
+        );
         loadRelationships();
       } else {
-        toast.error('Xóa thất bại', `${result.error}`);
+        toast.error("Xóa thất bại", `${result.error}`);
       }
     } catch (error) {
-      console.error('Error deleting legal relationship:', error);
-      toast.error('Xóa thất bại', 'Có lỗi xảy ra khi xóa quan hệ pháp luật. Vui lòng thử lại!');
+      console.error("Error deleting legal relationship:", error);
+      toast.error(
+        "Xóa thất bại",
+        "Có lỗi xảy ra khi xóa quan hệ pháp luật. Vui lòng thử lại!"
+      );
     } finally {
       setLoading(false);
     }
@@ -237,7 +244,7 @@ const LegalRelationshipTab = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="space-y-6">
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
       <LegalRelationshipForm
@@ -253,142 +260,160 @@ const LegalRelationshipTab = () => {
         isLoading={loading}
       />
 
-      {!showForm && (
-        <>
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Quản lý quan hệ pháp luật
-            </h2>
-            <button
-              onClick={() => setShowForm(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span>Thêm mới</span>
-            </button>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Danh sách quan hệ pháp luật
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">Quản lý các quan hệ pháp luật trong hệ thống</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${
+                  showFilters
+                    ? 'border-red-300 bg-red-50 text-red-700'
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                </svg>
+                Bộ lọc
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Thêm quan hệ pháp luật
+              </button>
+            </div>
           </div>
 
-          {/* Search */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <input
-                type="text"
-                placeholder="Tên quan hệ pháp luật"
-                value={searchCriteria.legalRelationshipName || ""}
-                onChange={(e) =>
-                  setSearchCriteria((prev) => ({
-                    ...prev,
-                    legalRelationshipName: e.target.value,
-                  }))
-                }
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-
-              <select
-                value={searchCriteria.typeOfLegalCaseId || ""}
-                onChange={(e) =>
-                  setSearchCriteria((prev) => ({
-                    ...prev,
-                    typeOfLegalCaseId: e.target.value,
-                  }))
-                }
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Chọn loại vụ án</option>
-                {typeOfLegalCases.map((type) => (
-                  <option
-                    key={type.typeOfLegalCaseId}
-                    value={type.typeOfLegalCaseId}>
-                    {type.typeOfLegalCaseName}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={searchCriteria.legalRelationshipGroupId || ""}
-                onChange={(e) =>
-                  setSearchCriteria((prev) => ({
-                    ...prev,
-                    legalRelationshipGroupId: e.target.value,
-                  }))
-                }
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Chọn nhóm quan hệ pháp luật</option>
-                {groups.map((group) => (
-                  <option
-                    key={group.legalRelationshipGroupId}
-                    value={group.legalRelationshipGroupId}>
-                    {group.legalRelationshipGroupName}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleSearch}
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                  Tìm kiếm
-                </button>
-                <button
-                  onClick={resetSearch}
-                  className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
-                  Đặt lại
-                </button>
+          {/* Filters */}
+          {showFilters && (
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tên quan hệ pháp luật</label>
+                  <input
+                    type="text"
+                    value={searchCriteria.legalRelationshipName || ''}
+                    onChange={(e) => setSearchCriteria(prev => ({ ...prev, legalRelationshipName: e.target.value }))}
+                    placeholder="Nhập tên quan hệ pháp luật"
+                    className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Loại vụ án</label>
+                  <select
+                    value={searchCriteria.typeOfLegalCaseId || ''}
+                    onChange={(e) => setSearchCriteria(prev => ({ ...prev, typeOfLegalCaseId: e.target.value }))}
+                    className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                  >
+                    <option value="">Chọn loại vụ án</option>
+                    {typeOfLegalCases.map((type) => (
+                      <option key={type.typeOfLegalCaseId} value={type.typeOfLegalCaseId}>
+                        {type.typeOfLegalCaseName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nhóm quan hệ pháp luật</label>
+                  <select
+                    value={searchCriteria.legalRelationshipGroupId || ''}
+                    onChange={(e) => setSearchCriteria(prev => ({ ...prev, legalRelationshipGroupId: e.target.value }))}
+                    className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                  >
+                    <option value="">Chọn nhóm quan hệ pháp luật</option>
+                    {groups.map((group) => (
+                      <option key={group.legalRelationshipGroupId} value={group.legalRelationshipGroupId}>
+                        {group.legalRelationshipGroupName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
+                  <button
+                    onClick={handleSearch}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Tìm kiếm
+                  </button>
+                  <button
+                    onClick={resetSearch}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Đặt lại
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Results */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredData.map((item) => (
-              <LegalRelationshipCard
-                key={item.legalRelationshipId}
-                relationship={item}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-
-          {filteredData.length === 0 && (
-            <div className="text-center py-12">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                Không có dữ liệu
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Kết quả ({filteredData.length} quan hệ pháp luật)
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
-                Không tìm thấy quan hệ pháp luật nào phù hợp.
-              </p>
             </div>
-          )}
-        </>
-      )}
+
+            {filteredData.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredData.map((item) => (
+                  <LegalRelationshipCard
+                    key={item.legalRelationshipId}
+                    relationship={item}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-8 h-8 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Không có dữ liệu</h3>
+                    <p className="text-sm text-gray-500 mt-1">Không tìm thấy quan hệ pháp luật nào phù hợp với tiêu chí tìm kiếm.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
       {/* Confirm Modal */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={confirmModal.onConfirm}
         title={confirmModal.title}
         message={confirmModal.message}

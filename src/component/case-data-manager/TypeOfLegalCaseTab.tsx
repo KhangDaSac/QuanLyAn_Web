@@ -198,7 +198,7 @@ const TypeOfLegalCaseTab = () => {
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -214,6 +214,16 @@ const TypeOfLegalCaseTab = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mã loại vụ án</label>
+              <input
+                type="text"
+                value={searchCriteria.typeOfLegalCaseId || ''}
+                onChange={(e) => setSearchCriteria(prev => ({ ...prev, typeOfLegalCaseId: e.target.value }))}
+                placeholder="Nhập mã loại vụ án"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Tên loại vụ án</label>
               <input
                 type="text"
@@ -224,12 +234,12 @@ const TypeOfLegalCaseTab = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mã loại vụ án</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ký hiệu</label>
               <input
                 type="text"
                 value={searchCriteria.codeName || ''}
                 onChange={(e) => setSearchCriteria(prev => ({ ...prev, codeName: e.target.value }))}
-                placeholder="Nhập mã loại vụ án"
+                placeholder="Nhập ký hiệu loại vụ án"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>

@@ -237,7 +237,7 @@ const LegalRelationshipGroupTab = () => {
           </button>
           <button
             onClick={handleAddNew}
-            className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+            className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg">
             <svg
               className="w-4 h-4 mr-2"
               fill="none"
@@ -313,7 +313,13 @@ const LegalRelationshipGroupTab = () => {
       )}
 
       {/* Data List */}
-      {filteredData.length > 0 ? (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Kết quả ({filteredData.length} loại vụ án)
+          </h3>
+        </div>
+        {filteredData.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredData.map((item) => (
             <LegalRelationshipGroupCard
@@ -357,26 +363,11 @@ const LegalRelationshipGroupTab = () => {
                 tìm kiếm.
               </p>
             </div>
-            <button
-              onClick={() => setShowForm(true)}
-              className="bg-gradient-to-br from-red-500 to-red-600 text-white px-6 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span>Thêm nhóm quan hệ pháp luật đầu tiên</span>
-            </button>
+            
           </div>
         </div>
       )}
+      </div>
 
       {/* Form Modal */}
       <LegalRelationshipGroupForm
