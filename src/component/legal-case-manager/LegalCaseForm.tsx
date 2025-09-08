@@ -129,9 +129,10 @@ const LegalCaseForm = ({
             }}
         >
             <div 
-                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto overflow-hidden"
+                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto"
             >
-                <div className="overflow-y-auto max-h-[90vh] p-6">
+                <div className="overflow-y-auto max-h-[90vh] p-6"
+                     style={{ position: 'relative' }}>
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">
@@ -264,6 +265,7 @@ const LegalCaseForm = ({
                                 value={formData.legalRelationshipId}
                                 onChange={(value) => handleInputChange('legalRelationshipId', value)}
                                 placeholder="Chọn quan hệ pháp luật"
+                                forceDirection="down"
                             />
                             {errors.legalRelationshipId && (
                                 <p className="text-red-500 text-xs mt-1">{errors.legalRelationshipId}</p>

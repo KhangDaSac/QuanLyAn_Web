@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { type LegalRelationshipRequest } from "../../types/request/legal-relationship/LegalRelationshipRequest";
 import { type LegalRelationshipResponse } from "../../types/response/legal-relationship/LegalRelationshipResponse";
 import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
@@ -33,6 +33,19 @@ const LegalRelationshipForm = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toasts, success, error: showError, removeToast } = useToast();
+
+  // Memoize options arrays để tránh re-render không cần thiết
+  const typeOfLegalCaseOptions = useMemo(() => 
+    typeOfLegalCases.map(type => ({ 
+      value: type.typeOfLegalCaseId, 
+      label: type.typeOfLegalCaseName 
+    })), [typeOfLegalCases]);
+
+  const groupOptions = useMemo(() => 
+    groups.map(g => ({ 
+      value: g.legalRelationshipGroupId, 
+      label: g.legalRelationshipGroupName 
+    })), [groups]);
 
   // Ngăn cuộn trang khi modal mở
   useEffect(() => {
@@ -182,7 +195,7 @@ const LegalRelationshipForm = ({
                 Loại vụ án <span className="text-red-500">*</span>
               </label>
               <ComboboxSearchForm
-                options={typeOfLegalCases.map(type => ({ value: type.typeOfLegalCaseId, label: type.typeOfLegalCaseName }))}
+                options={typeOfLegalCaseOptions}
                 value={formData.typeOfLegalCaseId}
                 onChange={(value: string) =>
                   handleInputChange("typeOfLegalCaseId", value)
@@ -201,7 +214,7 @@ const LegalRelationshipForm = ({
                 Nhóm quan hệ pháp luật <span className="text-red-500">*</span>
               </label>
               <ComboboxSearchForm
-                options={groups.map(g => ({ value: g.legalRelationshipGroupId, label: g.legalRelationshipGroupName }))}
+                options={groupOptions}
                 value={formData.legalRelationshipGroupId || ''}
                 onChange={(value: string) =>
                   handleInputChange("legalRelationshipGroupId", value)
