@@ -3,15 +3,18 @@ import { useToast, ToastContainer } from '../component/basic-component/Toast';
 import { AuthService } from '../services/AuthService';
 import type ForgotPasswordRequest from '../types/request/auth/ForgotPasswordRequest';
 import type VerifyOtpRequest from '../types/request/auth/VerifyOtpRequest';
+import type ResetPasswordRequest from '../types/request/auth/ResetPasswordRequest';
 
 interface ForgotPasswordPageProps {
   onBackToLogin: () => void;
 }
 
 const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
-  const [step, setStep] = useState<'email' | 'otp' | 'success'>('email');
+  const [step, setStep] = useState<'email' | 'otp' | 'resetPassword' | 'success'>('email');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -106,7 +109,9 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
 
       if (result.success) {
         toast.success('Thành công', result.message || "");
-        setStep('success');
+        // Lưu email để reset password và chuyển sang step nhập mật khẩu mới
+        localStorage.setItem('token', result?.data?.token || "")
+        setStep('resetPassword');
       } else {
         toast.error('Lỗi', result.message || "");
       }
@@ -138,6 +143,53 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
     }
   };
 
+  // Xử lý reset password
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    const newErrors: Record<string, string> = {};
+    
+    if (!newPassword.trim()) {
+      newErrors.newPassword = 'Mật khẩu mới là bắt buộc';
+    } else if (newPassword.length < 6) {
+      newErrors.newPassword = 'Mật khẩu phải có ít nhất 6 ký tự';
+    }
+    
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc';
+    } else if (newPassword !== confirmPassword) {
+      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const resetPasswordData: ResetPasswordRequest = { 
+        newPassword, 
+        confirmNewPassword: confirmPassword 
+      };
+      const result = await AuthService.resetPassword(resetPasswordData);
+
+      if (result.success) {
+        toast.success('Thành công', result.message || "Mật khẩu đã được đặt lại thành công");
+        setStep('success');
+      } else {
+        toast.error('Lỗi', result.message || "Có lỗi xảy ra khi đặt lại mật khẩu");
+      }
+    } catch (error) {
+      toast.error('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8">
@@ -151,12 +203,14 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             {step === 'email' && 'Quên mật khẩu'}
             {step === 'otp' && 'Xác thực OTP'}
+            {step === 'resetPassword' && 'Đặt mật khẩu mới'}
             {step === 'success' && 'Thành công'}
           </h1>
           <p className="text-gray-600">
             {step === 'email' && 'Nhập email để nhận mã xác thực'}
             {step === 'otp' && 'Nhập mã OTP được gửi đến email của bạn'}
-            {step === 'success' && 'Yêu cầu của bạn đã được xử lý thành công'}
+            {step === 'resetPassword' && 'Nhập mật khẩu mới cho tài khoản của bạn'}
+            {step === 'success' && 'Mật khẩu đã được đặt lại thành công'}
           </p>
         </div>
 
@@ -277,7 +331,77 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
           </form>
         )}
 
-        {/* Step 3: Thành công */}
+        {/* Step 3: Đặt mật khẩu mới */}
+        {step === 'resetPassword' && (
+          <form onSubmit={handleResetPassword} className="space-y-6">
+            <div>
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Mật khẩu mới <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  clearError('newPassword');
+                }}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors ${
+                  errors.newPassword ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập mật khẩu mới"
+                disabled={isLoading}
+                autoFocus
+              />
+              {errors.newPassword && (
+                <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Xác nhận mật khẩu <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  clearError('confirmPassword');
+                }}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors ${
+                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập lại mật khẩu mới"
+                disabled={isLoading}
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 focus:ring-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Đang đặt lại...
+                </span>
+              ) : (
+                'Đặt lại mật khẩu'
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Step 4: Thành công */}
         {step === 'success' && (
           <div className="text-center space-y-6">
             <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -288,10 +412,10 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
             
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Xác thực thành công!
+                Đặt lại mật khẩu thành công!
               </h3>
               <p className="text-gray-600">
-                Mã OTP đã được xác thực thành công. Bạn có thể đặt lại mật khẩu mới.
+                Mật khẩu của bạn đã được đặt lại thành công. Bạn có thể đăng nhập với mật khẩu mới.
               </p>
             </div>
 
@@ -304,14 +428,24 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
           </div>
         )}
 
-        {/* Back button cho step email và otp */}
-        {(step === 'email' || step === 'otp') && (
+        {/* Back button cho step email, otp và resetPassword */}
+        {(step === 'email' || step === 'otp' || step === 'resetPassword') && (
           <div className="mt-6 text-center">
             <button
-              onClick={step === 'email' ? onBackToLogin : () => setStep('email')}
+              onClick={() => {
+                if (step === 'email') {
+                  onBackToLogin();
+                } else if (step === 'otp') {
+                  setStep('email');
+                } else if (step === 'resetPassword') {
+                  setStep('otp');
+                }
+              }}
               className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors"
             >
-              ← {step === 'email' ? 'Quay lại đăng nhập' : 'Quay lại nhập email'}
+              ← {step === 'email' ? 'Quay lại đăng nhập' : 
+                  step === 'otp' ? 'Quay lại nhập email' : 
+                  'Quay lại xác thực OTP'}
             </button>
           </div>
         )}
