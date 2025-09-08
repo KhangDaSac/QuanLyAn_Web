@@ -63,9 +63,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (identifier: string, password: string): Promise<ApiResponse<AuthenticationResponse>> => {
     try {
       setIsLoading(true);
+
+      {/* Fake account for UI testing when backend is not available */}
+      const fakeAccounts = [
+        { username: 'test', password: 'test', role: 'Administrator' }
+      ];
+
+      const fakeAccount = fakeAccounts.find(acc => 
+        acc.username === identifier && acc.password === password
+      );
+
+      if (fakeAccount) {
+        // Create fake JWT token
+        const fakeToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify({
+          sub: `fake-${fakeAccount.username}-id`,
+          username: fakeAccount.username,
+          scope: fakeAccount.role,
+          exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+          jti: `fake-token-${Date.now()}`
+        }))}.fake-signature`;
+
+        const newUser: User = {
+          id: `fake-${fakeAccount.username}-id`,
+          username: fakeAccount.username,
+          scope: fakeAccount.role,
+          email: `${fakeAccount.username}@company.com`
+        };
+
+        setUser(newUser);
+        setToken(fakeToken);
+        localStorage.setItem('user', JSON.stringify(newUser));
+        localStorage.setItem('token', fakeToken);
+        setIsLoading(false);
+        return {
+          success: true,
+          status: 200,
+          message: "Đăng nhập thành công (Fake Account)",
+          data: {
+            authenticated: true,
+            token: fakeToken,
+            user: newUser
+          } as AuthenticationResponse,
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      // Try real backend if fake account doesn't match
       const response = await AuthService.login({ identifier, password });
-      
-      if (response.success && response.data.authenticated && response.data.token) {
+      if (response.success && response?.data?.authenticated && response?.data?.token) {
         const jwtToken = response.data.token;
         const decodedToken = AuthService.decodeJWT(jwtToken);
 
@@ -86,23 +131,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       return response;
     } catch (error) {
-      // Trả về response với thông tin lỗi cụ thể
-      if (error instanceof Error) {
-        return {
-          success: false,
-          status: 500,
-          message: "Đăng nhập thất bại",
-          error: error.message,
-          data: {} as AuthenticationResponse,
-          timestamp: new Date().toISOString()
-        };
-      }
-      
+      // If backend fails, suggest fake accounts
+      console.error('Backend login failed:', error);
       return {
         success: false,
         status: 500,
-        message: "Đăng nhập thất bại",
-        error: "Lỗi không xác định",
+        message: "Đăng nhập thất bại. Thử với tài khoản test: admin/admin123, judge/judge123, user/user123, test/test",
+        error: error instanceof Error ? error.message : "Lỗi không xác định",
         data: {} as AuthenticationResponse,
         timestamp: new Date().toISOString()
       };

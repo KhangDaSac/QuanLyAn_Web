@@ -134,16 +134,37 @@ export class AuthService {
   }
 
   static decodeJWT(token: string): JWTPayload | null {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-    return JSON.parse(jsonPayload) as JWTPayload;
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      
+      // Handle fake tokens for UI testing
+      if (token.includes('fake-signature')) {
+        const payload = JSON.parse(atob(base64));
+        return {
+          sub: payload.sub,
+          jti: payload.jti,
+          username: payload.username,
+          scope: payload.scope,
+          exp: payload.exp,
+          iat: payload.iat || Math.floor(Date.now() / 1000),
+          iss: payload.iss || 'fake-system'
+        } as JWTPayload;
+      }
+      
+      // Handle real JWT tokens
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join('')
+      );
+      return JSON.parse(jsonPayload) as JWTPayload;
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+      return null;
+    }
   }
 }

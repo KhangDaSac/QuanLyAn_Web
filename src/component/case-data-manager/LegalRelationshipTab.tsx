@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { type LegalRelationshipResponse } from "../../types/response/legal-relationship/LegalRelationshipResponse";
 import { type LegalRelationshipRequest } from "../../types/request/legal-relationship/LegalRelationshipRequest";
 import { type LegalRelationshipSearchRequest } from "../../types/request/legal-relationship/LegalRelationshipSearchRequest";
-import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
 import { type LegalRelationshipGroupResponse } from "../../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
 import { LegalRelationshipService } from "../../services/LegalRelationshipService";
 import { TypeOfLegalCaseService } from "../../services/TypeOfLegalCaseService";
@@ -12,6 +11,7 @@ import LegalRelationshipCard from "./LegalRelationshipCard";
 import { useToast, ToastContainer } from "../basic-component/Toast";
 import ConfirmModal from "../basic-component/ConfirmModal";
 import type { Option } from "../basic-component/ComboboxSearchForm";
+import ComboboxSearch from "../basic-component/ComboboxSearch";
 
 const LegalRelationshipTab = () => {
   const [relationships, setRelationships] = useState<
@@ -323,33 +323,21 @@ const LegalRelationshipTab = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Loại vụ án</label>
-                  <select
+                  <ComboboxSearch
+                    options={typeOfLegalCases}
                     value={searchCriteria.typeOfLegalCaseId || ''}
-                    onChange={(e) => setSearchCriteria(prev => ({ ...prev, typeOfLegalCaseId: e.target.value }))}
-                    className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-                  >
-                    <option value="">Chọn loại vụ án</option>
-                    {typeOfLegalCases.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(value) => setSearchCriteria(prev => ({ ...prev, typeOfLegalCaseId: value }))}
+                    placeholder="loại vụ án"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Nhóm quan hệ pháp luật</label>
-                  <select
+                  <ComboboxSearch
+                    options={groups.map(g => ({ value: g.legalRelationshipGroupId, label: g.legalRelationshipGroupName }))}
                     value={searchCriteria.legalRelationshipGroupId || ''}
-                    onChange={(e) => setSearchCriteria(prev => ({ ...prev, legalRelationshipGroupId: e.target.value }))}
-                    className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-                  >
-                    <option value="">Chọn nhóm quan hệ pháp luật</option>
-                    {groups.map((group) => (
-                      <option key={group.legalRelationshipGroupId} value={group.legalRelationshipGroupId}>
-                        {group.legalRelationshipGroupName}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(value) => setSearchCriteria(prev => ({ ...prev, legalRelationshipGroupId: value }))}
+                    placeholder="Nhóm quan hệ pháp luật"
+                  />
                 </div>
                 <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
                   <button

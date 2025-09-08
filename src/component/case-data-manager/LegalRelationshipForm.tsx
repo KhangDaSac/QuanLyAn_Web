@@ -186,7 +186,7 @@ const LegalRelationshipForm = ({
                 onChange={(value) =>
                   handleInputChange("typeOfLegalCaseId", value)
                 }
-                placeholder="Chọn loại vụ án"
+                placeholder="loại vụ án"
               />
               {errors.typeOfLegalCaseId && (
                 <p className="text-red-500 text-xs mt-1">
@@ -199,25 +199,14 @@ const LegalRelationshipForm = ({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nhóm quan hệ pháp luật <span className="text-red-500">*</span>
               </label>
-              <select
-                value={formData.legalRelationshipGroupId}
-                onChange={(e) =>
-                  handleInputChange("legalRelationshipGroupId", e.target.value)
+              <ComboboxSearchForm
+                options={groups.map(g => ({ value: g.legalRelationshipGroupId, label: g.legalRelationshipGroupName }))}
+                value={formData.legalRelationshipGroupId || ''}
+                onChange={(value) =>
+                  handleInputChange("legalRelationshipGroupId", value)
                 }
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                  errors.legalRelationshipGroupId
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}>
-                <option value="">Chọn nhóm quan hệ pháp luật</option>
-                {groups.map((group) => (
-                  <option
-                    key={group.legalRelationshipGroupId}
-                    value={group.legalRelationshipGroupId}>
-                    {group.legalRelationshipGroupName}
-                  </option>
-                ))}
-              </select>
+                placeholder="Nhóm quan hệ pháp luật"
+              />
               {errors.legalRelationshipGroupId && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.legalRelationshipGroupId}
