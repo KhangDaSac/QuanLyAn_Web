@@ -298,7 +298,7 @@ const LegalRelationshipTab = () => {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                Thêm quan hệ pháp luật
+                Thêm
               </button>
             </div>
           </div>

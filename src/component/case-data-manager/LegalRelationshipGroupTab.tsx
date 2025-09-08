@@ -250,7 +250,7 @@ const LegalRelationshipGroupTab = () => {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            Thêm nhóm quan hệ
+            Thêm
           </button>
         </div>
       </div>
