@@ -1,6 +1,5 @@
 import { type ApiResponse } from "../types/ApiResponse";
-// const server_url = "http://192.168.2.131:8080";
-const server_url = "http://localhost:8080";
+const server_url = "http://192.168.2.131:8080";
 
 export class Connect {
     static async request<T>(

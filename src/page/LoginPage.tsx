@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext/useAuth';
+import ForgotPasswordPage from './ForgotPasswordPage';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -8,11 +9,17 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated, isLoading } = useAuth();
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  // Hiển thị trang quên mật khẩu
+  if (showForgotPassword) {
+    return <ForgotPasswordPage onBackToLogin={() => setShowForgotPassword(false)} />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -155,9 +162,13 @@ const LoginPage = () => {
                     Hiển thị mật khẩu
                   </label>
                 </div>
-                <a href="/forgot-password" className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors duration-200">
+                <button 
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors duration-200"
+                >
                   Quên mật khẩu?
-                </a>
+                </button>
               </div>
 
               {/* Submit Button */}
