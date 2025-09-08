@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { type LegalRelationshipRequest } from "../../types/request/legal-relationship/LegalRelationshipRequest";
 import { type LegalRelationshipResponse } from "../../types/response/legal-relationship/LegalRelationshipResponse";
+import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
 import { type LegalRelationshipGroupResponse } from "../../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
 import { useToast, ToastContainer } from "../basic-component/Toast";
-import ComboboxSearchForm, { type Option } from "../basic-component/ComboboxSearchForm";
+import ComboboxSearchForm from "../basic-component/ComboboxSearchForm";
 
 interface LegalRelationshipFormProps {
   isOpen: boolean;
   initialData?: LegalRelationshipResponse | null;
-  typeOfLegalCases: Option[];
+  typeOfLegalCases: TypeOfLegalCaseResponse[];
   groups: LegalRelationshipGroupResponse[];
   onSubmit: (data: LegalRelationshipRequest) => void;
   onCancel: () => void;
@@ -181,12 +182,12 @@ const LegalRelationshipForm = ({
                 Loại vụ án <span className="text-red-500">*</span>
               </label>
               <ComboboxSearchForm
-                options={typeOfLegalCases}
+                options={typeOfLegalCases.map(type => ({ value: type.typeOfLegalCaseId, label: type.typeOfLegalCaseName }))}
                 value={formData.typeOfLegalCaseId}
-                onChange={(value) =>
+                onChange={(value: string) =>
                   handleInputChange("typeOfLegalCaseId", value)
                 }
-                placeholder="loại vụ án"
+                placeholder="Chọn loại vụ án"
               />
               {errors.typeOfLegalCaseId && (
                 <p className="text-red-500 text-xs mt-1">
@@ -202,10 +203,10 @@ const LegalRelationshipForm = ({
               <ComboboxSearchForm
                 options={groups.map(g => ({ value: g.legalRelationshipGroupId, label: g.legalRelationshipGroupName }))}
                 value={formData.legalRelationshipGroupId || ''}
-                onChange={(value) =>
+                onChange={(value: string) =>
                   handleInputChange("legalRelationshipGroupId", value)
                 }
-                placeholder="Nhóm quan hệ pháp luật"
+                placeholder="Chọn nhóm quan hệ pháp luật"
               />
               {errors.legalRelationshipGroupId && (
                 <p className="text-red-500 text-xs mt-1">

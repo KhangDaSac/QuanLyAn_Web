@@ -3,6 +3,7 @@ import { type LegalRelationshipResponse } from "../../types/response/legal-relat
 import { type LegalRelationshipRequest } from "../../types/request/legal-relationship/LegalRelationshipRequest";
 import { type LegalRelationshipSearchRequest } from "../../types/request/legal-relationship/LegalRelationshipSearchRequest";
 import { type LegalRelationshipGroupResponse } from "../../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
+import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
 import { LegalRelationshipService } from "../../services/LegalRelationshipService";
 import { TypeOfLegalCaseService } from "../../services/TypeOfLegalCaseService";
 import { LegalRelationshipGroupService } from "../../services/LegalRelationshipGroupService";
@@ -10,7 +11,6 @@ import LegalRelationshipForm from "./LegalRelationshipForm";
 import LegalRelationshipCard from "./LegalRelationshipCard";
 import { useToast, ToastContainer } from "../basic-component/Toast";
 import ConfirmModal from "../basic-component/ConfirmModal";
-import type { Option } from "../basic-component/ComboboxSearchForm";
 import ComboboxSearch from "../basic-component/ComboboxSearch";
 
 const LegalRelationshipTab = () => {
@@ -21,7 +21,7 @@ const LegalRelationshipTab = () => {
     []
   );
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<
-    Option[]
+    TypeOfLegalCaseResponse[]
   >([]);
   const [groups, setGroups] = useState<LegalRelationshipGroupResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,10 +87,7 @@ const LegalRelationshipTab = () => {
     try {
       const response = await TypeOfLegalCaseService.top50();
       if (response.success && response.data) {
-        setTypeOfLegalCases(response.data.map((item) => ({
-          value: item.typeOfLegalCaseId,
-          label: item.typeOfLegalCaseName,
-        })));
+        setTypeOfLegalCases(response.data);
       } else {
         setTypeOfLegalCases([]);
       }
@@ -288,7 +285,7 @@ const LegalRelationshipTab = () => {
               </button>
               <button
                 onClick={() => setShowForm(true)}
-                className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg">
                 <svg
                   className="w-4 h-4 mr-2"
                   fill="none"
@@ -324,10 +321,10 @@ const LegalRelationshipTab = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Loại vụ án</label>
                   <ComboboxSearch
-                    options={typeOfLegalCases}
+                    options={typeOfLegalCases.map(type => ({ value: type.typeOfLegalCaseId, label: type.typeOfLegalCaseName }))}
                     value={searchCriteria.typeOfLegalCaseId || ''}
                     onChange={(value) => setSearchCriteria(prev => ({ ...prev, typeOfLegalCaseId: value }))}
-                    placeholder="loại vụ án"
+                    placeholder="Chọn loại vụ án"
                   />
                 </div>
                 <div>
