@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
-import { StatusOfJudge } from '../../types/enum/StatusOfJudge';
+import { StatusOfJudge } from '../../types/enum/StatusOfOfficer';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 
 interface JudgeFormProps {

@@ -7,7 +7,7 @@ import { JudgeService } from '../services/JudgeService';
 import type { JudgeResponse } from '../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../types/request/judge/JudgeSearchRequest';
 import type { JudgeRequest } from '../types/request/judge/JudgeRequest';
-import { StatusOfJudge } from '../types/enum/StatusOfJudge';
+import { StatusOfJudge } from '../types/enum/StatusOfOfficer';
 import ComboboxSearch from '../component/basic-component/ComboboxSearch';
 
 const JudgeManager = () => {

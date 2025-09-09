@@ -1,5 +1,5 @@
 import { type JudgeResponse } from "../../types/response/judge/JudgeResponse";
-import { StatusOfJudge } from "../../types/enum/StatusOfJudge";
+import { StatusOfJudge } from "../../types/enum/StatusOfOfficer";
 
 interface JudgeCardProps {
     judge: JudgeResponse;
