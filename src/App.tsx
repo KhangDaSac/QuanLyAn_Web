@@ -8,6 +8,7 @@ import JudgeManager from './page/OfficerManager';
 import RandomAssignment from './page/RandomAssignment';
 import ProtectedRoute from './component/auth/ProtectedRoute';
 import CaseDataManager from './page/CaseDataManager';
+import AccountManagement from './page/AccountManagement';
 import './App.css';
 
 const App = () => {
@@ -61,6 +62,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <RandomAssignment />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account-management"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <AccountManagement />
               </MainLayout>
             </ProtectedRoute>
           }
