@@ -1,273 +1,312 @@
-import { useState, useEffect } from 'react';
-import type { AccountResponse } from '../../types/response/auth/AccountResponse';
-import type { CreateAccountRequest } from '../../types/request/auth/CreateAccountRequest';
-import type { UpdateAccountRequest } from '../../types/request/auth/UpdateAccountRequest';
-import { Role } from '../../types/enum/Role';
+import { useState, useEffect } from "react";
+import type { AccountResponse } from "../../types/response/auth/AccountResponse";
+import type { CreateAccountRequest } from "../../types/request/auth/CreateAccountRequest";
+import type { UpdateAccountRequest } from "../../types/request/auth/UpdateAccountRequest";
+import { Role } from "../../types/enum/Role";
+import ComboboxSearchForm, {
+  type Option,
+} from "../basic-component/ComboboxSearchForm";
 
 interface AccountFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: CreateAccountRequest | UpdateAccountRequest) => void;
   account?: AccountResponse | null;
-  onSubmit: (data: CreateAccountRequest | UpdateAccountRequest) => Promise<void>;
-  onCancel: () => void;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-const AccountForm = ({ account, onSubmit, onCancel, isLoading }: AccountFormProps) => {
+const AccountForm = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  account,
+  isLoading = false,
+}: AccountFormProps) => {
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    email: '',
+    username: "",
+    password: "",
+    email: "",
     role: Role.JUDGE.toString(),
-    displayName: '',
-    isActive: true
   });
 
+  const roles: Option[] = [
+    { value: "", label: "Tất cả vai trò" },
+    ...Object.entries(Role).map(([key, value]) => ({
+      value: key,
+      label: value,
+    })),
+  ];
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Ngăn cuộn trang khi modal mở
+  useEffect(() => {
+    if (isOpen) {
+      // Lưu trạng thái scroll hiện tại
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    } else {
+      // Khôi phục trạng thái scroll
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
+    }
+
+    // Cleanup khi component unmount
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (account) {
       setFormData({
         username: account.username,
-        password: '',
+        password: "",
         email: account.email,
         role: account.role.toString(),
-        displayName: account.displayName || '',
-        isActive: account.isActive
       });
     } else {
       setFormData({
-        username: '',
-        password: '',
-        email: '',
+        username: "",
+        password: "",
+        email: "",
         role: Role.JUDGE.toString(),
-        displayName: '',
-        isActive: true
       });
     }
+    setErrors({});
   }, [account]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.username.trim()) {
-      newErrors.username = 'Tên đăng nhập là bắt buộc';
+      newErrors.username = "Tên đăng nhập là bắt buộc";
     } else if (formData.username.length < 3) {
-      newErrors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự';
+      newErrors.username = "Tên đăng nhập phải có ít nhất 3 ký tự";
     }
 
     if (!account && !formData.password.trim()) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
+      newErrors.password = "Mật khẩu là bắt buộc";
     } else if (!account && formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = "Email là bắt buộc";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = "Email không hợp lệ";
     }
 
     if (!formData.role) {
-      newErrors.role = 'Vai trò là bắt buộc';
+      newErrors.role = "Vai trò là bắt buộc";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
-    try {
-      if (account) {
-        // Update existing account
-        const updateData: UpdateAccountRequest = {
-          accountId: account.accountId,
-          email: formData.email,
-          role: formData.role,
-          displayName: formData.displayName || undefined,
-          isActive: formData.isActive
-        };
-        await onSubmit(updateData);
-      } else {
-        // Create new account
-        const createData: CreateAccountRequest = {
-          username: formData.username,
-          password: formData.password,
-          email: formData.email,
-          role: formData.role,
-          displayName: formData.displayName || undefined
-        };
-        await onSubmit(createData);
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
+    if (account) {
+      // Update existing account
+      const updateData: UpdateAccountRequest = {
+        accountId: account.accountId,
+        email: formData.email,
+        role: formData.role,
+      };
+      onSubmit(updateData);
+    } else {
+      // Create new account
+      const createData: CreateAccountRequest = {
+        username: formData.username,
+        password: formData.password,
+        email: formData.email,
+        role: formData.role,
+      };
+      onSubmit(createData);
     }
   };
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]"
+      style={{
+        margin: 0,
+        padding: "1rem",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: "100vw",
+        height: "100vh",
+      }}>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto overflow-hidden">
+        <div className="overflow-y-auto max-h-[90vh] p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {account ? 'Chỉnh sửa tài khoản' : 'Tạo tài khoản mới'}
+              {account ? "Cập nhật tài khoản" : "Thêm tài khoản mới"}
             </h2>
             <button
-              onClick={onCancel}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Tên đăng nhập *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tên đăng nhập <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                id="username"
                 value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                disabled={!!account} // Disable editing username for existing accounts
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
-                } ${account ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                onChange={(e) => handleInputChange("username", e.target.value)}
+                disabled={!!account}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                  errors.username ? "border-red-500" : "border-gray-300"
+                } ${account ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 placeholder="Nhập tên đăng nhập"
               />
               {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.username}</p>
               )}
             </div>
 
-            {/* Password - only for new accounts */}
+            {/* Password - chỉ hiện khi thêm mới */}
             {!account && (
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Mật khẩu *
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mật khẩu <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="password"
-                  id="password"
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                    errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Nhập mật khẩu"
                 />
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
                 )}
               </div>
             )}
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
-                id="email"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                  errors.email ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Nhập email"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
               )}
-            </div>
-
-            {/* Display Name */}
-            <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-2">
-                Tên hiển thị
-              </label>
-              <input
-                type="text"
-                id="displayName"
-                value={formData.displayName}
-                onChange={(e) => handleInputChange('displayName', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Nhập tên hiển thị (tùy chọn)"
-              />
             </div>
 
             {/* Role */}
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                Vai trò *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Vai trò <span className="text-red-500">*</span>
               </label>
-              <select
-                id="role"
+              <ComboboxSearchForm
+                options={roles}
                 value={formData.role}
-                onChange={(e) => handleInputChange('role', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                  errors.role ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Chọn vai trò</option>
-                <option value={Role.JUDGE.toString()}>{Role.JUDGE}</option>
-                <option value={Role.MANAGER.toString()}>{Role.MANAGER}</option>
-                <option value={Role.ADMIN.toString()}>{Role.ADMIN}</option>
-              </select>
-              {errors.role && (
-                <p className="mt-1 text-sm text-red-600">{errors.role}</p>
-              )}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, role: value }))
+                }
+                placeholder="Chọn quyền"
+              />
             </div>
 
-            {/* Active Status - only for editing */}
-            {account && (
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive}
-                  onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
-                  Tài khoản đang hoạt động
-                </label>
-              </div>
-            )}
-
             {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-6">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Hủy
-              </button>
+            <div className="flex flex-col sm:flex-row gap-3 pt-6">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isLoading ? 'Đang xử lý...' : (account ? 'Cập nhật' : 'Tạo mới')}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Đang xử lý...
+                  </span>
+                ) : account ? (
+                  "Cập nhật"
+                ) : (
+                  "Thêm mới"
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isLoading}
+                className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50">
+                Hủy
               </button>
             </div>
           </form>

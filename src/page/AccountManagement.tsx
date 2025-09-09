@@ -511,17 +511,16 @@ const AccountManagement = () => {
       </div>
 
       {/* Account Form Modal */}
-      {showForm && (
-        <AccountForm
-          account={editingAccount}
-          onSubmit={handleFormSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingAccount(null);
-          }}
-          isLoading={isSubmitting}
-        />
-      )}
+      <AccountForm
+        isOpen={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingAccount(null);
+        }}
+        onSubmit={handleFormSubmit}
+        account={editingAccount}
+        isLoading={isSubmitting}
+      />
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
