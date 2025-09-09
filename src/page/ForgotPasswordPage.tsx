@@ -113,7 +113,7 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
         localStorage.setItem('token', result?.data?.token || "")
         setStep('resetPassword');
       } else {
-        toast.error('Lỗi', result.message || "");
+        toast.error('Lỗi', result.error || "");
       }
     } catch (error) {
       toast.error('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại');
@@ -132,9 +132,9 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
 
       if (result.success) {
         toast.success('Thành công', result.message || "");
-        setResendCooldown(60); // Reset cooldown
+        setResendCooldown(120); // Reset cooldown
       } else {
-        toast.error('Lỗi', result.message || "");
+        toast.error('Lỗi', result.error || "");
       }
     } catch (error) {
       toast.error('Lỗi', 'Có lỗi xảy ra khi gửi lại OTP');
@@ -181,7 +181,7 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
         toast.success('Thành công', result.message || "Mật khẩu đã được đặt lại thành công");
         setStep('success');
       } else {
-        toast.error('Lỗi', result.message || "Có lỗi xảy ra khi đặt lại mật khẩu");
+        toast.error('Lỗi', result.error || "Có lỗi xảy ra khi đặt lại mật khẩu");
       }
     } catch (error) {
       toast.error('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại');
