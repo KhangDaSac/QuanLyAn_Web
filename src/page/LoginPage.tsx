@@ -194,11 +194,8 @@ const LoginPage = () => {
           {/* Footer */}
           <div className="mt-8 text-center space-y-4">
             <div className="flex justify-center space-x-6 text-sm">
-              <a href="/privacy" className="text-gray-600 hover:text-red-600 transition-colors duration-200">
-                Chính sách bảo mật
-              </a>
-              <a href="/terms" className="text-gray-600 hover:text-red-600 transition-colors duration-200">
-                Điều khoản sử dụng
+              <a href="/term-policies" className="text-gray-600 hover:text-red-600 transition-colors duration-200">
+                Chính sách & Điều khoản sử dụng
               </a>
               <a href="/help" className="text-gray-600 hover:text-red-600 transition-colors duration-200">
                 Trợ giúp

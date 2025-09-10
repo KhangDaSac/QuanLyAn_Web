@@ -1,15 +1,16 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/authContext/AuthContext';
-import MainLayout from './component/layout/MainLayout';
-import LoginPage from './page/LoginPage';
-import HomePage from './page/HomePage';
-import LegalCaseManager from './page/LegalCaseManager';
-import JudgeManager from './page/OfficerManager';
-import RandomAssignment from './page/RandomAssignment';
-import ProtectedRoute from './component/auth/ProtectedRoute';
-import CaseDataManager from './page/CaseDataManager';
-import AccountManagement from './page/AccountManagement';
-import './App.css';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/authContext/AuthContext";
+import MainLayout from "./component/layout/MainLayout";
+import LoginPage from "./page/LoginPage";
+import HomePage from "./page/HomePage";
+import LegalCaseManager from "./page/LegalCaseManager";
+import JudgeManager from "./page/OfficerManager";
+import RandomAssignment from "./page/RandomAssignment";
+import ProtectedRoute from "./component/auth/ProtectedRoute";
+import CaseDataManager from "./page/CaseDataManager";
+import AccountManagement from "./page/AccountManagement";
+import TermsPrivacyPage from "./page/TermsPrivacyPage";
+import "./App.css";
 
 const App = () => {
   return (
@@ -76,6 +77,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/term-policies" element={<TermsPrivacyPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </AuthProvider>
