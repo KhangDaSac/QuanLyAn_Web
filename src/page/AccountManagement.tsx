@@ -19,8 +19,9 @@ const AccountManagement = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [searchCriteria, setSearchCriteria] = useState<{ email: string }>({
+  const [searchCriteria, setSearchCriteria] = useState<{ email: string; role: string }>({
     email: "",
+    role: "",
   });
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -39,16 +40,11 @@ const AccountManagement = () => {
   const toast = useToast();
 
   const roles: Option[] = [
-    { value: "", label: "Tất cả vai trò" },
     ...Object.entries(Role).map(([key, value]) => ({
       value: key,
       label: value,
     })),
   ];
-
-  const [rolesFilters, setRolesFilters] = useState({
-    roleId: "",
-  });
 
   useEffect(() => {
     loadAccounts();
@@ -75,7 +71,6 @@ const AccountManagement = () => {
       const response = await AccountService.getAllAccounts();
       if (response.success && response.data) {
         setAccounts(response.data);
-        console.log("Loaded accounts:", response.data);
       } else {
         toast.error("Lỗi", "Không thể tải danh sách tài khoản");
       }
@@ -135,8 +130,7 @@ const AccountManagement = () => {
   };
 
   const resetSearch = () => {
-    setSearchCriteria({ email: "" });
-    setRolesFilters({ roleId: "" });
+    setSearchCriteria({ email: "" , role: ""});
   };
 
   const handleDeleteConfirm = async () => {
@@ -199,8 +193,8 @@ const AccountManagement = () => {
     const matchesSearch =
       account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (account.officerResponse &&
-        account.officerResponse.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+      (account.officer &&
+        account.officer.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesRole =
       !selectedRole || account.role.toString() === selectedRole;
@@ -321,7 +315,7 @@ const AccountManagement = () => {
                 </label>
                 <ComboboxSearch
                   options={roles}
-                  value={rolesFilters.roleId || ""}
+                  value={searchCriteria.role || ""}
                   onChange={(value) =>
                     setSearchCriteria((prev) => ({ ...prev, role: value }))
                   }
@@ -488,7 +482,7 @@ const AccountManagement = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {filteredAccounts.map((account) => (
               <AccountCard
                 key={account.accountId}

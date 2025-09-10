@@ -7,6 +7,6 @@ export interface AccountResponse {
     email: string;
     username: string;
     role: Role;
-    officerResponse: OfficerResponse;
+    officer: OfficerResponse;
     statusOfAccount: StatusOfAccount;
 }

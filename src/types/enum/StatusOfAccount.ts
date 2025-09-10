@@ -1,4 +1,4 @@
 export enum StatusOfAccount {
-    ACTIVE,
-    BLOCKED,
+    ACTIVE = "Đang hoạt động",
+    BLOCKED = "Bị khóa",
 }

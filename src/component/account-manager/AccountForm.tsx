@@ -30,7 +30,7 @@ const AccountForm = ({
   });
 
   const roles: Option[] = [
-    { value: "", label: "Tất cả vai trò" },
+    // { value: "", label: "Tất cả vai trò" },
     ...Object.entries(Role).map(([key, value]) => ({
       value: key,
       label: value,
@@ -67,7 +67,7 @@ const AccountForm = ({
   useEffect(() => {
     if (account) {
       setFormData({
-        username: account.email.split('@')[0] || "", // Extract username from email
+        username: account.username || "", // Extract username from email
         password: "",
         email: account.email,
         role: account.role.toString(),
@@ -126,7 +126,7 @@ const AccountForm = ({
         password: formData.password,
         email: formData.email,
         role: formData.role as Role,
-        statusOfAccount: StatusOfAccount.ACTIVE, // Default value for update
+        statusOfAccount: "ACTIVE" as StatusOfAccount, // Default value for update
       };
       onSubmit(updateData);
     } else {
@@ -136,7 +136,7 @@ const AccountForm = ({
         password: formData.password,
         email: formData.email,
         role: formData.role as Role,
-        statusOfAccount: StatusOfAccount.ACTIVE, // Default value for new account
+        statusOfAccount: "ACTIVE" as StatusOfAccount, // Default value for new account
       };
       onSubmit(createData);
     }
@@ -196,17 +196,14 @@ const AccountForm = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="text-sm font-medium text-gray-700 mb-2">
                 Tên đăng nhập <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.username}
                 onChange={(e) => handleInputChange("username", e.target.value)}
-                disabled={!!account}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                  errors.username ? "border-red-500" : "border-gray-300"
-                } ${account ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                className={`w-full px-3 py-2 border rounded-lg`}
                 placeholder="Nhập tên đăng nhập"
               />
               {errors.username && (
