@@ -1,13 +1,11 @@
-import type { Role } from "../../enum/Role";
+import type { StatusOfAccount } from "../../enum/StatusOfAccount";
+import type { OfficerResponse } from "../officer/OfficerResponse";
 
 export interface AccountResponse {
     accountId: string;
-    username: string;
     email: string;
-    role: Role;
-    displayName?: string | null;
-    judgeId?: string | null;
-    createdAt: string;
-    lastLoginAt?: string | null;
-    isActive: boolean;
+    fullName: string;
+    role: string;
+    officerResponse: OfficerResponse;
+    statusOfAccount: StatusOfAccount;
 }

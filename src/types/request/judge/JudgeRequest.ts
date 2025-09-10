@@ -1,9 +1,5 @@
-import { StatusOfJudge } from "../../enum/StatusOfJudge";
+import type { OfficerRequest } from "../officer/OfficerRequest";
 
-export interface JudgeRequest {
-  firstName: string;
-  lastName: string;
+export interface JudgeRequest extends OfficerRequest {
   maxNumberOfLegalCase: number;
-  statusOfJudge: StatusOfJudge | null;
-  email: string | null;
 }
