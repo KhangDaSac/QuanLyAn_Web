@@ -37,6 +37,7 @@ export class LegalRelationshipService {
   }
 
   static async create(request: LegalRelationshipRequest): Promise<ApiResponse<void>> {
+    console.log(request)
     const token = localStorage.getItem('token');
     return Connect.request<void>(
       `${this.api}/`,

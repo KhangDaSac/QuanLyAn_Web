@@ -137,6 +137,7 @@ const TypeOfLegalCaseTab = () => {
       const result = await TypeOfLegalCaseService.delete(id);
       if (result.success) {
         toast.success('Xóa thành công', 'Loại vụ án đã được xóa khỏi hệ thống!');
+        loadTypeOfLegalCases();
       } else {
         toast.error('Xóa thất bại', `${result.error}`);
       }

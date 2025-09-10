@@ -144,7 +144,11 @@ const LegalRelationshipTab = () => {
 
   const handleSubmit = async (data: LegalRelationshipRequest) => {
     try {
+      console.log('Submitting data:', data);
+      console.log('Is editing:', !!editingItem);
+      
       if (editingItem) {
+        console.log('Updating with ID:', editingItem.legalRelationshipId);
         const result = await LegalRelationshipService.update(
           editingItem.legalRelationshipId,
           data
@@ -155,7 +159,9 @@ const LegalRelationshipTab = () => {
           toast.error("Thất bại", `${result.error}`);
         }
       } else {
+        console.log('Creating new legal relationship');
         const result = await LegalRelationshipService.create(data);
+        console.log('Create result:', result);
         if (result.success) {
           toast.success("Thành công", "Thêm mới quan hệ pháp luật thành công");
         } else {
