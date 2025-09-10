@@ -39,6 +39,16 @@ export class LegalCaseService {
     );
   }
 
+  static async getById(id: string): Promise<ApiResponse<LegalCaseResponse>> {
+    const token = localStorage.getItem('token');
+    return Connect.request<LegalCaseResponse>(
+      `${this.api}/${id}`,
+      'GET',
+      null,
+      token
+    );
+  }
+
   static async update(id: string, updateRequest: LegalCaseRequest): Promise<ApiResponse<void>> {
     const token = localStorage.getItem('token');
     return Connect.request<void>(
