@@ -1,6 +1,7 @@
 import { Connect } from "../connect/Connect";
 import type { ApiResponse } from "../types/ApiResponse";
 import type { MediatorSearchRequest } from "../types/request/mediator/MediatorSearchRequest";
+import type { MediatorRequest } from "../types/request/mediator/MediatorRequest";
 import type { MediatorResponse } from "../types/response/mediator/MediatorResponse";
 
 export class MediatorService {
@@ -34,7 +35,7 @@ export class MediatorService {
       )
     }
 
-    static async create(request: MediatorResponse): Promise<ApiResponse<void>> {
+    static async create(request: MediatorRequest): Promise<ApiResponse<void>> {
       const token = localStorage.getItem('token');
       return Connect.request<void>(
         `${this.api}/`,
@@ -44,7 +45,7 @@ export class MediatorService {
       );
     }
 
-    static async update(id: string, request: MediatorResponse): Promise<ApiResponse<void>> {
+    static async update(id: string, request: MediatorRequest): Promise<ApiResponse<void>> {
       const token = localStorage.getItem('token');
       return Connect.request<void>(
         `${this.api}/${id}`,

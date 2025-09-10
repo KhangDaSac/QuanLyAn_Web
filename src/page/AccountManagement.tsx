@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { AccountService } from "../services/AccountService";
 import type { AccountResponse } from "../types/response/auth/AccountResponse";
-import type { CreateAccountRequest } from "../types/request/auth/CreateAccountRequest";
-import type { UpdateAccountRequest } from "../types/request/auth/UpdateAccountRequest";
+import type AccountRequest from "../types/request/auth/AccountRequest";
+import { StatusOfAccount } from "../types/enum/StatusOfAccount";
 import AccountCard from "../component/account-manager/AccountCard";
 import AccountForm from "../component/account-manager/AccountForm";
 import ConfirmModal from "../component/basic-component/ConfirmModal";
@@ -75,6 +75,7 @@ const AccountManagement = () => {
       const response = await AccountService.getAllAccounts();
       if (response.success && response.data) {
         setAccounts(response.data);
+        console.log("Loaded accounts:", response.data);
       } else {
         toast.error("Lỗi", "Không thể tải danh sách tài khoản");
       }
@@ -97,15 +98,15 @@ const AccountManagement = () => {
   };
 
   const handleFormSubmit = async (
-    data: CreateAccountRequest | UpdateAccountRequest
+    data: AccountRequest
   ) => {
     try {
       setIsSubmitting(true);
       let response;
 
-      if ("accountId" in data) {
+      if (editingAccount) {
         // Update existing account
-        response = await AccountService.updateAccount(data);
+        response = await AccountService.updateAccount(editingAccount.accountId, data);
       } else {
         // Create new account
         response = await AccountService.createAccount(data);
@@ -196,18 +197,18 @@ const AccountManagement = () => {
   // Filter accounts based on search and filters
   const filteredAccounts = accounts.filter((account) => {
     const matchesSearch =
-      account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (account.displayName &&
-        account.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+      account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (account.officerResponse &&
+        account.officerResponse.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesRole =
       !selectedRole || account.role.toString() === selectedRole;
 
     const matchesStatus =
       !selectedStatus ||
-      (selectedStatus === "active" && account.isActive) ||
-      (selectedStatus === "inactive" && !account.isActive);
+      (selectedStatus === "active" && account.statusOfAccount === StatusOfAccount.ACTIVE) ||
+      (selectedStatus === "inactive" && account.statusOfAccount === StatusOfAccount.BLOCKED);
 
     return matchesSearch && matchesRole && matchesStatus;
   });
@@ -397,7 +398,7 @@ const AccountManagement = () => {
                   Đang hoạt động
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {accounts.filter((acc) => acc.isActive).length}
+                  {accounts.filter((acc) => acc.statusOfAccount === StatusOfAccount.ACTIVE).length}
                 </p>
               </div>
             </div>
@@ -426,7 +427,7 @@ const AccountManagement = () => {
                   Không hoạt động
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {accounts.filter((acc) => !acc.isActive).length}
+                  {accounts.filter((acc) => acc.statusOfAccount === StatusOfAccount.BLOCKED).length}
                 </p>
               </div>
             </div>
@@ -494,13 +495,13 @@ const AccountManagement = () => {
                 account={account}
                 onEdit={handleEditAccount}
                 onDelete={(id) =>
-                  handleDeleteClick(id, account.displayName || account.username)
+                  handleDeleteClick(id, account.username || account.email)
                 }
                 onToggleStatus={(id) =>
                   handleToggleStatusClick(
                     id,
-                    account.displayName || account.username,
-                    account.isActive
+                    account.username || account.email,
+                    account.statusOfAccount === StatusOfAccount.ACTIVE
                   )
                 }
               />
@@ -518,7 +519,7 @@ const AccountManagement = () => {
         }}
         onSubmit={handleFormSubmit}
         account={editingAccount}
-        isLoading={isSubmitting}
+        isSubmitting={isSubmitting}
       />
 
       {/* Delete Confirmation Modal */}

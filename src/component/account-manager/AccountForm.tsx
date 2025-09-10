@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import type { AccountResponse } from "../../types/response/auth/AccountResponse";
-import type { CreateAccountRequest } from "../../types/request/auth/CreateAccountRequest";
-import type { UpdateAccountRequest } from "../../types/request/auth/UpdateAccountRequest";
+import type AccountRequest from "../../types/request/auth/AccountRequest";
 import { Role } from "../../types/enum/Role";
+import { StatusOfAccount } from "../../types/enum/StatusOfAccount";
 import ComboboxSearchForm, {
   type Option,
 } from "../basic-component/ComboboxSearchForm";
@@ -10,9 +10,9 @@ import ComboboxSearchForm, {
 interface AccountFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateAccountRequest | UpdateAccountRequest) => void;
+  onSubmit: (data: AccountRequest) => void;
   account?: AccountResponse | null;
-  isLoading?: boolean;
+  isSubmitting?: boolean;
 }
 
 const AccountForm = ({
@@ -20,7 +20,7 @@ const AccountForm = ({
   onClose,
   onSubmit,
   account,
-  isLoading = false,
+  isSubmitting = false,
 }: AccountFormProps) => {
   const [formData, setFormData] = useState({
     username: "",
@@ -67,7 +67,7 @@ const AccountForm = ({
   useEffect(() => {
     if (account) {
       setFormData({
-        username: account.username,
+        username: account.email.split('@')[0] || "", // Extract username from email
         password: "",
         email: account.email,
         role: account.role.toString(),
@@ -121,19 +121,22 @@ const AccountForm = ({
 
     if (account) {
       // Update existing account
-      const updateData: UpdateAccountRequest = {
-        accountId: account.accountId,
+      const updateData: AccountRequest = {
+        username: formData.username,
+        password: formData.password,
         email: formData.email,
-        role: formData.role,
+        role: formData.role as Role,
+        statusOfAccount: StatusOfAccount.ACTIVE, // Default value for update
       };
       onSubmit(updateData);
     } else {
       // Create new account
-      const createData: CreateAccountRequest = {
+      const createData: AccountRequest = {
         username: formData.username,
         password: formData.password,
         email: formData.email,
-        role: formData.role,
+        role: formData.role as Role,
+        statusOfAccount: StatusOfAccount.ACTIVE, // Default value for new account
       };
       onSubmit(createData);
     }
@@ -272,9 +275,9 @@ const AccountForm = ({
             <div className="flex flex-col sm:flex-row gap-3 pt-6">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting}
                 className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                {isLoading ? (
+                {isSubmitting ? (
                   <span className="flex items-center justify-center">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -304,7 +307,7 @@ const AccountForm = ({
               <button
                 type="button"
                 onClick={onClose}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50">
                 Hủy
               </button>

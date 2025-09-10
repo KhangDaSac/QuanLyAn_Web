@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
-import { StatusOfJudge } from '../../types/enum/StatusOfJudge';
+import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 
 interface JudgeFormProps {
@@ -23,18 +23,18 @@ const JudgeForm = ({
         firstName: '',
         lastName: '',
         maxNumberOfLegalCase: 0,
-        statusOfJudge: null,
+        statusOfOfficer: null,
         email: null
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const statusOptions = [
-        { value: StatusOfJudge.WORKING, label: StatusOfJudge.WORKING },
-        { value: StatusOfJudge.NOT_WORKING, label: StatusOfJudge.NOT_WORKING },
-        { value: StatusOfJudge.ON_BUSINESS_TRIP, label: StatusOfJudge.ON_BUSINESS_TRIP },
-        { value: StatusOfJudge.ON_LEAVE, label: StatusOfJudge.ON_LEAVE },
-        { value: StatusOfJudge.DISCIPLINED, label: StatusOfJudge.DISCIPLINED }
+        { value: StatusOfOfficer.WORKING, label: StatusOfOfficer.WORKING },
+        { value: StatusOfOfficer.NOT_WORKING, label: StatusOfOfficer.NOT_WORKING },
+        { value: StatusOfOfficer.ON_BUSINESS_TRIP, label: StatusOfOfficer.ON_BUSINESS_TRIP },
+        { value: StatusOfOfficer.ON_LEAVE, label: StatusOfOfficer.ON_LEAVE },
+        { value: StatusOfOfficer.DISCIPLINED, label: StatusOfOfficer.DISCIPLINED }
     ];
 
     const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
@@ -79,7 +79,7 @@ const JudgeForm = ({
                 firstName: judge.firstName,
                 lastName: judge.lastName,
                 maxNumberOfLegalCase: judge.maxNumberOfLegalCase,
-                statusOfJudge: judge.statusOfJudge,
+                statusOfOfficer: judge.statusOfOfficer,
                 email: judge.email
             });
         } else {
@@ -88,7 +88,7 @@ const JudgeForm = ({
                 firstName: '',
                 lastName: '',
                 maxNumberOfLegalCase: 0,
-                statusOfJudge: null,
+                statusOfOfficer: null,
                 email: null
             });
         }
@@ -135,7 +135,7 @@ const JudgeForm = ({
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
-                statusOfJudge: formData.statusOfJudge,
+                statusOfOfficer: formData.statusOfOfficer,
                 email: null
             };
             onSubmit(updateData);
@@ -145,7 +145,7 @@ const JudgeForm = ({
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
-                statusOfJudge: null,
+                statusOfOfficer: null,
                 email: formData.email
             };
             onSubmit(createData);
@@ -326,12 +326,12 @@ const JudgeForm = ({
                                 </label>
                                 <ComboboxSearchForm
                                     options={statusOptionsForCombobox}
-                                    value={formData.statusOfJudge || StatusOfJudge.WORKING}
-                                    onChange={(value) => handleInputChange('statusOfJudge', value)}
+                                    value={formData.statusOfOfficer || StatusOfOfficer.WORKING}
+                                    onChange={(value) => handleInputChange('statusOfOfficer', value)}
                                     placeholder="Chọn trạng thái thẩm phán"
                                 />
-                                {errors.statusOfJudge && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.statusOfJudge}</p>
+                                {errors.statusOfOfficer && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.statusOfOfficer}</p>
                                 )}
                             </div>
                         )}

@@ -1,5 +1,5 @@
 import { type JudgeResponse } from "../../types/response/judge/JudgeResponse";
-import { StatusOfJudge } from "../../types/enum/StatusOfJudge";
+import { StatusOfOfficer } from "../../types/enum/StatusOfOfficer";
 
 interface JudgeCardProps {
     judge: JudgeResponse;
@@ -26,7 +26,7 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
     };
 
     const getStatusText = (status: string) => {
-        return StatusOfJudge[status as keyof typeof StatusOfJudge] || status;
+        return StatusOfOfficer[status as keyof typeof StatusOfOfficer] || status;
     };
 
     return (
@@ -42,12 +42,12 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                     <h3 className="text-xl font-bold text-gray-900 mb-1">
                         {judge.fullName}
                     </h3>
-                    <p className="text-sm text-gray-500">ID: {judge.judgeId}</p>
+                    <p className="text-sm text-gray-500">ID: {judge.officerId}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-sm px-4 py-2 rounded-full font-medium border ${getStatusColor(judge.statusOfJudge)}`}>
-                        {getStatusText(judge.statusOfJudge)}
+                    <span className={`text-sm px-4 py-2 rounded-full font-medium border ${getStatusColor(judge.statusOfOfficer)}`}>
+                        {getStatusText(judge.statusOfOfficer)}
                     </span>
                 </div>
             </div>
@@ -152,7 +152,7 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                         <button
                             onClick={() => {
                                 if (window.confirm(`Bạn có chắc chắn muốn xóa thẩm phán "${judge.fullName}"?`)) {
-                                    onDelete(judge.judgeId);
+                                    onDelete(judge.officerId);
                                 }
                             }}
                             className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"

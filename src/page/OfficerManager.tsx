@@ -7,7 +7,7 @@ import { JudgeService } from '../services/JudgeService';
 import type { JudgeResponse } from '../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../types/request/judge/JudgeSearchRequest';
 import type { JudgeRequest } from '../types/request/judge/JudgeRequest';
-import { StatusOfJudge } from '../types/enum/StatusOfJudge';
+import { StatusOfOfficer } from '../types/enum/StatusOfOfficer';
 import ComboboxSearch from '../component/basic-component/ComboboxSearch';
 
 const JudgeManager = () => {
@@ -15,18 +15,18 @@ const JudgeManager = () => {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [judgeSearch, setJudgeSearch] = useState<JudgeSearchRequest>({
-    judgeId: null,
+    officerId: null,
     fullName: null,
-    statusOfJudge: null
+    statusOfOfficer: null
   });
 
-  const [statusOfJudgeFilters, setStatusOfJudgeFilters] = useState({
-    statusOfJudge: "",
+  const [statusOfOfficerFilters, setStatusOfOfficerFilters] = useState({
+    statusOfOfficer: "",
   });
 
-  const statusOfJudges = [
+  const statusOfOfficers = [
     { value: "", label: "Tất cả trạng thái" },
-    ...Object.entries(StatusOfJudge).map(([key, value]) => ({
+    ...Object.entries(StatusOfOfficer).map(([key, value]) => ({
       value: key,
       label: value
     }))
@@ -89,11 +89,11 @@ const JudgeManager = () => {
 
   const handleClearFilters = () => {
     setJudgeSearch({
-      judgeId: null,
+      officerId: null,
       fullName: null,
-      statusOfJudge: null
+      statusOfOfficer: null
     });
-    setStatusOfJudgeFilters({ statusOfJudge: "" });
+    setStatusOfOfficerFilters({ statusOfOfficer: "" });
     fetchJudges();
   };
 
@@ -114,8 +114,8 @@ const JudgeManager = () => {
     toast.info('Bắt đầu chỉnh sửa', `Đang mở form chỉnh sửa thẩm phán "${judge.fullName}"`);
   };
 
-  const handleDelete = async (judgeId: string) => {
-    const judge = judges.find(j => j.judgeId === judgeId);
+  const handleDelete = async (officerId: string) => {
+    const judge = judges.find(j => j.officerId === officerId);
     if (!judge) return;
 
     setConfirmModal({
@@ -123,16 +123,16 @@ const JudgeManager = () => {
       title: 'Xác nhận xóa thẩm phán',
       message: `Bạn có chắc chắn muốn xóa thẩm phán "${judge.fullName}"? Hành động này không thể hoàn tác.`,
       type: 'danger',
-      onConfirm: () => confirmDelete(judgeId),
+      onConfirm: () => confirmDelete(officerId),
     });
   };
 
-  const confirmDelete = async (judgeId: string) => {
+  const confirmDelete = async (officerId: string) => {
     try {
       setConfirmModal(prev => ({ ...prev, isOpen: false }));
       setLoading(true);
-      await JudgeService.delete(judgeId);
-      setJudges(prev => prev.filter(j => j.judgeId !== judgeId));
+      await JudgeService.delete(officerId);
+      setJudges(prev => prev.filter(j => j.officerId !== officerId));
       toast.success('Xóa thành công', 'Thẩm phán đã được xóa khỏi hệ thống!');
     } catch (error) {
       console.error('Error deleting judge:', error);
@@ -148,7 +148,7 @@ const JudgeManager = () => {
 
       if (editingJudge) {
         // Cập nhật thẩm phán
-        await JudgeService.update(editingJudge.judgeId, data);
+        await JudgeService.update(editingJudge.officerId, data);
         toast.success('Cập nhật thành công', 'Thông tin thẩm phán đã được cập nhật thành công!');
       } else {
         // Thêm thẩm phán mới
@@ -217,8 +217,8 @@ const JudgeManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">ID Thẩm phán</label>
               <input
                 type="text"
-                value={judgeSearch.judgeId || ''}
-                onChange={(e) => setJudgeSearch(prev => ({ ...prev, judgeId: e.target.value || null }))}
+                value={judgeSearch.officerId || ''}
+                onChange={(e) => setJudgeSearch(prev => ({ ...prev, officerId: e.target.value || null }))}
                 placeholder="Nhập ID thẩm phán"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
@@ -240,16 +240,16 @@ const JudgeManager = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
               <ComboboxSearch
-                options={statusOfJudges}
-                value={statusOfJudgeFilters.statusOfJudge}
+                options={statusOfOfficers}
+                value={statusOfOfficerFilters.statusOfOfficer}
                 onChange={(val) => {
-                  setStatusOfJudgeFilters((prev) => ({
+                  setStatusOfOfficerFilters((prev) => ({
                     ...prev,
-                    statusOfJudge: val,
+                    statusOfOfficer: val,
                   }))
                   setJudgeSearch({
                     ...judgeSearch,
-                    statusOfJudge: val != '' ? val as StatusOfJudge : null
+                    statusOfOfficer: val != '' ? val as StatusOfOfficer : null
                   })
                 }}
                 placeholder="Chọn trạng quan hệ pháp luật"
@@ -289,7 +289,7 @@ const JudgeManager = () => {
         <div className="space-y-4 md:space-y-6">
           {judges.map((judge) => (
             <JudgeCard
-              key={judge.judgeId}
+              key={judge.officerId}
               judge={judge}
               onEdit={handleEdit}
               onDelete={handleDelete}

@@ -73,7 +73,7 @@ const ForgotPasswordPage = ({ onBackToLogin }: ForgotPasswordPageProps) => {
         toast.error('Lỗi', result.message || "");
       }
     } catch (error) {
-      toast.error('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại');
+      toast.error('Lỗi', error instanceof Error ? error.message : "Có lỗi xảy ra. Vui lòng thử lại");
     } finally {
       setIsLoading(false);
     }
