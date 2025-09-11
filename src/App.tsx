@@ -48,7 +48,7 @@ const App = () => {
           }
         />
         <Route
-          path="/judge"
+          path="/officer-management"
           element={
             <ProtectedRoute>
               <MainLayout>
