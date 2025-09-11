@@ -102,6 +102,7 @@ export class LegalCaseService {
   }
 
     static async getAssignmentList(request: AssignmentListRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+    console.log("Requesting assignment list with request:", request);
     const token = localStorage.getItem("token");
     return Connect.request<LegalCaseResponse[]>(
       `${this.api}/assignment-list`,
