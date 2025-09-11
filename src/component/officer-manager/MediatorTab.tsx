@@ -163,7 +163,7 @@ const MediatorTab = () => {
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Thêm Hòa giải viên
+            Thêm
           </button>
         </div>
       </div>
@@ -259,7 +259,7 @@ const MediatorTab = () => {
           ) : (
             <div className="text-center py-8 md:py-12">
               <svg className="w-16 h-16 md:w-24 md:h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">Không có hòa giải viên nào</h3>
               <p className="text-sm md:text-base text-gray-600 px-4">Hiện tại chưa có hòa giải viên nào trong hệ thống hoặc không có kết quả tìm kiếm phù hợp.</p>
