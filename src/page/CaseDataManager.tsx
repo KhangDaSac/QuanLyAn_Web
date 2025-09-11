@@ -51,62 +51,40 @@ const CaseDataManager = () => {
     }
   };
 
-  const getActiveTabInfo = () => {
-    return tabs.find(tab => tab.id === activeTab);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-red-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-6 md:mb-8 overflow-hidden">
-          <div className='p-6'>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý thông tin án</h1>
-              <p className="text-gray-600 mt-1 text-sm md:text-base">Quản lý các thông tin về loại vụ án, quan hệ pháp luật và nhóm quan hệ pháp luật</p>
-            </div>
+    <div className="space-y-4 md:space-y-6 p-4 md:p-0">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý thông tin án</h1>
+          <p className="text-gray-600 mt-1 text-sm md:text-base">Quản lý các thông tin về loại vụ án, quan hệ pháp luật và nhóm quan hệ pháp luật</p>
         </div>
-        {/* Tab Navigation */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-6 md:mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Danh mục quản lý</h3>
-          </div>
-          <div className="p-2">
-            <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 p-4 inline-flex items-center justify-center space-x-3 rounded-lg font-medium ${activeTab === tab.id
-                      ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 border border-gray-200'
-                    }`}
-                >
-                  <div className={`${activeTab === tab.id ? 'text-white' : 'text-gray-500'}`}>
-                    {tab.icon}
-                  </div>
-                  <div className="text-center">
-                    <span className="block">{tab.label}</span>
-                  </div>
-                </button>
-              ))}
-            </nav>
-          </div>
+      </div>
+
+      {/* Tabs Navigation */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  activeTab === tab.id
+                    ? 'border-red-500 text-red-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="text-red-600">
-                {getActiveTabInfo()?.icon}
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{getActiveTabInfo()?.label}</h3>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            {renderTabContent()}
-          </div>
+        <div className="p-6">
+          {renderTabContent()}
         </div>
       </div>
     </div>

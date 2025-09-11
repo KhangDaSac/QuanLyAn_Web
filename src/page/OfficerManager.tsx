@@ -1,20 +1,23 @@
-import { useState, useEffect } from 'react';
-import JudgeCard from '../component/judge-manager/JudgeCard';
-import JudgeForm from '../component/judge-manager/JudgeForm';
-import MediatorCard from '../component/mediator-manager/MediatorCard';
-import MediatorForm from '../component/mediator-manager/MediatorForm';
-import ConfirmModal from '../component/basic-component/ConfirmModal';
-import { ToastContainer, useToast } from '../component/basic-component/Toast';
-import { JudgeService } from '../services/JudgeService';
-import { MediatorService } from '../services/MediatorService';
+import { useState } from 'react';
+import { useToast } from '../component/basic-component/Toast';
 import type { JudgeResponse } from '../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../types/request/judge/JudgeSearchRequest';
-import type { JudgeRequest } from '../types/request/judge/JudgeRequest';
 import type { MediatorResponse } from '../types/response/mediator/MediatorResponse';
 import type { MediatorSearchRequest } from '../types/request/mediator/MediatorSearchRequest';
-import type { MediatorRequest } from '../types/request/mediator/MediatorRequest';
 import { StatusOfOfficer } from '../types/enum/StatusOfOfficer';
+import { useEffect } from 'react';
+import { ToastContainer } from '../component/basic-component/Toast';
+import { JudgeService } from '../services/JudgeService';
+import { MediatorService } from '../services/MediatorService';
+import { type JudgeRequest } from '../types/request/judge/JudgeRequest';
+import { type MediatorRequest } from '../types/request/mediator/MediatorRequest';
 import ComboboxSearch from '../component/basic-component/ComboboxSearch';
+import JudgeCard from '../component/judge-manager/JudgeCard';
+import MediatorCard from '../component/mediator-manager/MediatorCard';
+import ConfirmModal from '../component/basic-component/ConfirmModal';
+import JudgeForm from '../component/judge-manager/JudgeForm';
+import MediatorForm from '../component/mediator-manager/MediatorForm';
+
 
 type ActiveTab = 'judges' | 'mediators';
 
