@@ -76,15 +76,17 @@ const MediatorCard = ({ mediator, onEdit, onDelete }: MediatorCardProps) => {
         </div>
       </div>
 
-      {/* Án hiện tại */}
-      <div className="bg-green-50 rounded-lg p-2 sm:p-3 text-center">
-        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-1">
-          {mediator.numberOfLegalCases}
-        </p>
-        <p className="text-xs text-green-700 font-medium leading-tight">
-          Án hiện tại
-        </p>
+      {/* Thống kê án */}
+      <div className="grid grid-cols-1 gap-2 sm:gap-3">
+        {/* Án hiện tại */}
+        <div className="bg-green-50 rounded-lg p-2 sm:p-3 text-center">
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-1">
+            {mediator.numberOfLegalCases}
+          </p>
+          <p className="text-xs text-green-700 font-medium leading-tight">Án hiện tại</p>
+        </div>
       </div>
+      
       {/* Actions - Always at bottom */}
       {(onEdit || onDelete) && (
         <div className="flex flex-wrap items-center gap-2 pt-4 mt-4 border-t border-gray-100">
