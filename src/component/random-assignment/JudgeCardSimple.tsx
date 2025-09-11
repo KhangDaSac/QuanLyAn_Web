@@ -18,7 +18,7 @@ const JudgeCardSimple = ({ judge }: JudgeCardSimpleProps) => {
           <h3 className="text-xl font-bold text-gray-900 mb-1">
             {judge.fullName}
           </h3>
-          <p className="text-sm text-gray-500">ID: {judge.judgeId}</p>
+          <p className="text-sm text-gray-500">ID: {judge.officerId}</p>
         </div>
       </div>
 

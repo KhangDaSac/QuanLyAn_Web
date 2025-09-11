@@ -149,7 +149,7 @@ const RandomAssignment = () => {
         try {
           const request = {
               legalCaseIds: selectedCases,
-              judgeIds: assignableJudges.map(judge => judge.judgeId)
+              judgeIds: assignableJudges.map(judge => judge.officerId)
           };
             const response = await LegalCaseService.randomAssignment(request);
             if (response.success && response.data) {
@@ -246,7 +246,6 @@ const RandomAssignment = () => {
                                 placeholder="Chọn nhóm quan hệ pháp luật"
                             />
                         </div>
-
                         <button
                             onClick={searchPendingCases}
                             disabled={searchLoading || !selectedGroupId}
@@ -372,7 +371,7 @@ const RandomAssignment = () => {
                         <div className="flex flex-col gap-4">
                             {assignableJudges.map((judge) => (
                                 <JudgeCardSimple
-                                    key={judge.judgeId}
+                                    key={judge.officerId}
                                     judge={judge}
                                 />
                             ))}

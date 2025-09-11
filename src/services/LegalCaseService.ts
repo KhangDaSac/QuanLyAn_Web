@@ -6,104 +6,106 @@ import { type AssignAssignmentRequest } from "../types/request/legal-case/Assign
 import { Connect } from "../connect/Connect";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
 import type { RandomAssignmentRequest } from "../types/request/legal-case/RandomAssignmentRequest";
+import type { AssignmentListRequest } from "../types/request/legal-case/AssignmentListReques";
 
 export class LegalCaseService {
-  static api: string = '/legal-case';
+  static api: string = "/legal-case";
   static async top50(): Promise<ApiResponse<LegalCaseResponse[]>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     return Connect.request<LegalCaseResponse[]>(
       `${this.api}/limit-50`,
-      'GET',
+      "GET",
       null,
       token
     );
   }
 
-  static async search(request: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
-    const token = localStorage.getItem('token');
+  static async search(
+    request: LegalCaseSearchRequest
+  ): Promise<ApiResponse<LegalCaseResponse[]>> {
+    const token = localStorage.getItem("token");
     return Connect.request<LegalCaseResponse[]>(
       `${this.api}/search`,
-      'POST',
+      "POST",
       request,
       token
     );
   }
 
   static async create(request: LegalCaseRequest): Promise<ApiResponse<void>> {
-    const token = localStorage.getItem('token');
-    return Connect.request<void>(
-      `${this.api}/`,
-      'POST',
-      request,
-      token
-    );
+    const token = localStorage.getItem("token");
+    return Connect.request<void>(`${this.api}/`, "POST", request, token);
   }
 
   static async getById(id: string): Promise<ApiResponse<LegalCaseResponse>> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     return Connect.request<LegalCaseResponse>(
       `${this.api}/${id}`,
-      'GET',
+      "GET",
       null,
       token
     );
   }
 
-  static async update(id: string, updateRequest: LegalCaseRequest): Promise<ApiResponse<void>> {
-    const token = localStorage.getItem('token');
+  static async update(
+    id: string,
+    updateRequest: LegalCaseRequest
+  ): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem("token");
     return Connect.request<void>(
       `${this.api}/${id}`,
-      'PUT',
+      "PUT",
       updateRequest,
       token
     );
   }
 
   static async delete(id: string): Promise<ApiResponse<void>> {
-    const token = localStorage.getItem('token');
-    return Connect.request<void>(
-      `${this.api}/${id}`,
-      'DELETE',
-      null,
-      token
-    );
+    const token = localStorage.getItem("token");
+    return Connect.request<void>(`${this.api}/${id}`, "DELETE", null, token);
   }
 
-  static async importFromExcel(request: LegalCasesRequest): Promise<ApiResponse<void>> {
-    const token = localStorage.getItem('token');
+  static async importFromExcel(
+    request: LegalCasesRequest
+  ): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem("token");
     return Connect.request<void>(
       `${this.api}/import-excel`,
-      'POST',
+      "POST",
       request,
       token
     );
   }
 
-  static async assignAssignment(request: AssignAssignmentRequest): Promise<ApiResponse<any>> {
-    const token = localStorage.getItem('token');
+  static async assignAssignment(
+    request: AssignAssignmentRequest
+  ): Promise<ApiResponse<any>> {
+    const token = localStorage.getItem("token");
     return Connect.request<void>(
       `${this.api}/assign-assignment`,
-      'POST',
+      "POST",
       request,
       token
     );
   }
 
-  static async getAssignAssignmentByLegalRelationshipGroup(request: LegalCaseSearchRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
-    const token = localStorage.getItem('token');
-    return Connect.request<LegalCaseResponse[]>(
-      `${this.api}/list-waiting-for-assignment`,
-      'POST',
-      request,
-      token
-    );
-  }
-
-  static async randomAssignment(request: RandomAssignmentRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
-    const token = localStorage.getItem('token');
+  static async randomAssignment(
+    request: RandomAssignmentRequest
+  ): Promise<ApiResponse<LegalCaseResponse[]>> {
+    const token = localStorage.getItem("token");
     return Connect.request<LegalCaseResponse[]>(
       `${this.api}/random-assignment`,
-      'POST',
+      "POST",
+      request,
+      token
+    );
+  }
+
+    static async getAssignmentList(request: AssignmentListRequest): Promise<ApiResponse<LegalCaseResponse[]>> {
+    const token = localStorage.getItem("token");
+    return Connect.request<LegalCaseResponse[]>(
+      `${this.api}/assignment-list`,
+      "POST",
       request,
       token
     );
