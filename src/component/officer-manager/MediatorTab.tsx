@@ -246,7 +246,7 @@ const MediatorTab = () => {
       {!loading && (
         <>
           {mediators.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:gap-6">
               {mediators.map((mediator) => (
                 <MediatorCard
                   key={mediator.officerId}
