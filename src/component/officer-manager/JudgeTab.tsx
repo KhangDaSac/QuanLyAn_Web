@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import JudgeCard from '../judge-manager/JudgeCard';
-import JudgeForm from '../judge-manager/JudgeForm';
+import JudgeCard from './JudgeCard';
+import JudgeForm from './JudgeForm';
 import ConfirmModal from '../basic-component/ConfirmModal';
 import { ToastContainer, useToast } from '../basic-component/Toast';
 import { JudgeService } from '../../services/JudgeService';

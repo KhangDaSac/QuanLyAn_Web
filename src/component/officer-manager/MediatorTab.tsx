@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import MediatorCard from '../mediator-manager/MediatorCard';
-import MediatorForm from '../mediator-manager/MediatorForm';
+import MediatorCard from './MediatorCard';
+import MediatorForm from './MediatorForm';
 import ConfirmModal from '../basic-component/ConfirmModal';
 import { ToastContainer, useToast } from '../basic-component/Toast';
 import { MediatorService } from '../../services/MediatorService';
