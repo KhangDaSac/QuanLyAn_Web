@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LegalCaseService } from '../services/LegalCaseService';
 import { DecisionService } from '../services/DecisionService';
 import { LegalRelationshipService } from '../services/LegalRelationshipService';
-import { StatusOfLegalCase } from '../types/enum/StatusOfLegalCase';
 import type { LegalCaseResponse } from '../types/response/legal-case/LegalCaseResponse';
 import type { Option } from '../component/basic-component/ComboboxSearch';
 import JudgeAssignmentModal from '../component/legal-case-manager/JudgeAssignmentModal';
@@ -19,6 +18,27 @@ const formatDate = (dateString: string) => {
         month: '2-digit',
         year: 'numeric'
     });
+};
+
+const getStatusDisplayInfo = (status: string) => {
+    switch (status) {
+        case 'WAITING_FOR_ASSIGNMENT':
+            return { text: 'Chờ phân công', color: 'bg-yellow-100 text-yellow-800' };
+        case 'IN_PROCESS':
+            return { text: 'Đang giải quyết', color: 'bg-purple-100 text-purple-800' };
+        case 'SOLVED':
+            return { text: 'Đã giải quyết', color: 'bg-green-100 text-green-800' };
+        case 'TEMPORARY_SUSPENSION':
+            return { text: 'Tạm đình chỉ', color: 'bg-red-100 text-red-800' };
+        case 'OVERDUE':
+            return { text: 'Quá hạn', color: 'bg-orange-100 text-orange-800' };
+        case 'CANCELED':
+            return { text: 'Đã hủy', color: 'bg-gray-100 text-gray-800' };
+        case 'EDITED':
+            return { text: 'Đã sửa', color: 'bg-blue-100 text-blue-800' };
+        default:
+            return { text: 'Không xác định', color: 'bg-gray-100 text-gray-800' };
+    }
 };
 
 const LegalCaseDetailsPage = () => {
@@ -187,6 +207,9 @@ const LegalCaseDetailsPage = () => {
         );
     }
 
+    console.log('Legal Case Data:', legalCase);
+    console.log('Status:', legalCase.statusOfLegalCase);
+    console.log('Status Type:', typeof legalCase.statusOfLegalCase);
     return (
         <div className="space-y-6 p-4 md:p-0">
             {/* Header */}
@@ -257,25 +280,14 @@ const LegalCaseDetailsPage = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Trạng thái</label>
-                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                                    legalCase.statusOfLegalCase === StatusOfLegalCase.WAITING_FOR_ASSIGNMENT
-                                        ? 'bg-yellow-100 text-yellow-800'
-                                        : legalCase.statusOfLegalCase === StatusOfLegalCase.IN_PROCESS
-                                        ? 'bg-purple-100 text-purple-800'
-                                        : legalCase.statusOfLegalCase === StatusOfLegalCase.SOLVED
-                                        ? 'bg-green-100 text-green-800'
-                                        : legalCase.statusOfLegalCase === StatusOfLegalCase.TEMPORARY_SUSPENSION
-                                        ? 'bg-red-100 text-red-800'
-                                        : 'bg-gray-100 text-gray-800'
-                                }`}>
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.WAITING_FOR_ASSIGNMENT && 'Chờ phân công'}
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.IN_PROCESS && 'Đang xử lý'}
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.SOLVED && 'Đã giải quyết'}
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.TEMPORARY_SUSPENSION && 'Tạm đình chỉ'}
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.OVERDUE && 'Quá hạn'}
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.CANCELED && 'Đã hủy'}
-                                    {legalCase.statusOfLegalCase === StatusOfLegalCase.EDITED && 'Đã sửa'}
-                                </span>
+                                {(() => {
+                                    const statusInfo = getStatusDisplayInfo(legalCase.statusOfLegalCase as string);
+                                    return (
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusInfo.color}`}>
+                                            {statusInfo.text}
+                                        </span>
+                                    );
+                                })()}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Ngày nhập kho</label>
