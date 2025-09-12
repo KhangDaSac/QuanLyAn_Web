@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LegalCaseCard from '../component/legal-case-manager/LegalCaseCard';
 import LegalCaseForm from '../component/legal-case-manager/LegalCaseForm';
 import JudgeAssignmentModal from '../component/legal-case-manager/JudgeAssignmentModal';
@@ -20,6 +21,7 @@ import type { LegalCasesRequest } from '../types/request/legal-case/LegalCasesRe
 import { StatusOfLegalCase } from '../types/enum/StatusOfLegalCase';
 
 const LegalCaseManager = () => {
+  const navigate = useNavigate();
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -227,6 +229,7 @@ const LegalCaseManager = () => {
     fetchLegalCases();
   };
 
+  /*
   const handleEdit = (legalCase: LegalCaseResponse) => {
     setConfirmModal({
       isOpen: true,
@@ -276,6 +279,11 @@ const LegalCaseManager = () => {
     setAssigningCase(legalCase);
     setShowAssignmentModal(true);
     toast.info('Phân công thẩm phán', `Đang mở form phân công cho án "${legalCase.acceptanceNumber}"`);
+  };
+  */
+
+  const handleViewDetails = (legalCase: LegalCaseResponse) => {
+    navigate(`/legal-case-details/${legalCase.legalCaseId}`);
   };
 
   const handleAssignSubmit = async (judgeId: string) => {
@@ -812,9 +820,7 @@ const LegalCaseManager = () => {
             <LegalCaseCard
               key={legalCase.legalCaseId}
               legalCase={legalCase}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onAssign={handleAssign}
+              onViewDetails={handleViewDetails}
             />
           ))}
         </div>

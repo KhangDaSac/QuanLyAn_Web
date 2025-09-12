@@ -4,6 +4,7 @@ import MainLayout from "./component/layout/MainLayout";
 import LoginPage from "./page/LoginPage";
 import HomePage from "./page/HomePage";
 import LegalCaseManager from "./page/LegalCaseManager";
+import LegalCaseDetailsPage from "./page/LegalCaseDetailsPage";
 import JudgeManager from "./page/OfficerManager";
 import RandomAssignment from "./page/RandomAssignment";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
@@ -33,6 +34,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <LegalCaseManager />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/legal-case-details/:legalCaseId"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <LegalCaseDetailsPage />
               </MainLayout>
             </ProtectedRoute>
           }
