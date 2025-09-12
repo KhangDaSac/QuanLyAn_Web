@@ -3,6 +3,7 @@ import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../../types/request/judge/JudgeSearchRequest';
 import { JudgeService } from '../../services/JudgeService';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
+import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
 
 interface JudgeAssignmentModalProps {
     isOpen: boolean;
@@ -11,6 +12,11 @@ interface JudgeAssignmentModalProps {
     legalCase: LegalCaseResponse | null;
     isLoading?: boolean;
 }
+
+const isOfficerWorking = (status: string | StatusOfOfficer): boolean => {
+    // Kiểm tra cả key và value của enum
+    return status === 'WORKING' || status === StatusOfOfficer.WORKING || status === 'Đang làm việc';
+};
 
 const JudgeAssignmentModal = ({
     isOpen,
@@ -22,9 +28,9 @@ const JudgeAssignmentModal = ({
     const [judges, setJudges] = useState<JudgeResponse[]>([]);
     const [selectedJudge, setSelectedJudge] = useState<JudgeResponse | null>(null);
     const [searchParams, setSearchParams] = useState<JudgeSearchRequest>({
-        judgeId: null,
+        officerId: null,
         fullName: null,
-        statusOfJudge: null
+        statusOfOfficer: null
     });
     const [isSearching, setIsSearching] = useState(false);
 
@@ -48,9 +54,12 @@ const JudgeAssignmentModal = ({
         try {
             const response = await JudgeService.search(searchParams);
             if (response.success && response.data) {
+                console.log('Judge data:', response.data[0]); // Debug log
+                console.log('Status of first judge:', response.data[0]?.statusOfOfficer);
+                console.log('Status type:', typeof response.data[0]?.statusOfOfficer);
                 // Chỉ hiển thị thẩm phán đang hoạt động và còn khả năng nhận án
                 const availableJudges = response.data.filter(judge => 
-                    judge.statusOfJudge === 'WORKING' && 
+                    isOfficerWorking(judge.statusOfOfficer as any) && 
                     (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCases < judge.maxNumberOfLegalCase)
                 );
                 setJudges(availableJudges);
@@ -68,7 +77,7 @@ const JudgeAssignmentModal = ({
 
     const handleAssign = () => {
         if (selectedJudge) {
-            onAssign(selectedJudge.judgeId);
+            onAssign(selectedJudge.officerId);
         }
     };
 
@@ -130,8 +139,8 @@ const JudgeAssignmentModal = ({
                                 </label>
                                 <input
                                     type="text"
-                                    value={searchParams.judgeId || ''}
-                                    onChange={(e) => handleInputChange('judgeId', e.target.value)}
+                                    value={searchParams.officerId || ''}
+                                    onChange={(e) => handleInputChange('officerId', e.target.value)}
                                     placeholder="Nhập mã thẩm phán"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
                                 />
@@ -179,10 +188,10 @@ const JudgeAssignmentModal = ({
                             <div className="space-y-3">
                                 {judges.map((judge) => (
                                     <div
-                                        key={judge.judgeId}
+                                        key={judge.officerId}
                                         onClick={() => setSelectedJudge(judge)}
                                         className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                                            selectedJudge?.judgeId === judge.judgeId
+                                            selectedJudge?.officerId === judge.officerId
                                                 ? 'border-red-500 bg-red-50 ring-2 ring-red-200'
                                                 : 'border-gray-200 hover:border-red-300 hover:bg-gray-50'
                                         }`}
@@ -197,7 +206,7 @@ const JudgeAssignmentModal = ({
                                                     </div>
                                                     <div>
                                                         <h4 className="font-semibold text-gray-900">{judge.fullName}</h4>
-                                                        <p className="text-sm text-gray-500">Mã: {judge.judgeId}</p>
+                                                        <p className="text-sm text-gray-500">Mã: {judge.officerId}</p>
                                                         <p className="text-sm text-gray-500">Email: {judge.email}</p>
                                                     </div>
                                                 </div>
@@ -231,7 +240,7 @@ const JudgeAssignmentModal = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            {selectedJudge?.judgeId === judge.judgeId && (
+                                            {selectedJudge?.officerId === judge.officerId && (
                                                 <div className="ml-2">
                                                     <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
