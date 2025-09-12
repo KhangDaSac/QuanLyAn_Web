@@ -24,7 +24,7 @@ const MainLayout = ({
 
   const menuItems = [
     {
-      name: "Trang Chủ",
+      name: "Trang chủ",
       icon: (
         <svg
           className="w-5 h-5"
@@ -252,7 +252,7 @@ const MainLayout = ({
                     />
                   </svg>
                 </button>
-                <h1 className="text-2xl font-bold text-red-700">Quản Lý Án</h1>
+                <h1 className="text-2xl font-bold text-red-700">Quản lý án</h1>
               </div>
 
               <div className="flex items-center space-x-4">

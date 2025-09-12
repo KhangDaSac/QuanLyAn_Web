@@ -207,7 +207,7 @@ const RandomAssignment = () => {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                                Phân Công Án Ngẫu Nhiên
+                                Phân công án ngẫu nhiên
                             </h1>
                             <p className="text-gray-600">
                                 Tìm kiếm và phân công án chờ phân công cho thẩm phán một cách ngẫu nhiên

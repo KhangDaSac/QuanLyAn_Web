@@ -470,7 +470,7 @@ const LegalCaseManager = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Án</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý án</h1>
           <p className="text-gray-600 mt-1 text-sm md:text-base">Quản lý và theo dõi các vụ án trong hệ thống</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
