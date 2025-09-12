@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import LegalCaseCardSimple from '../component/random-assignment/LegalCaseCardSimple';
 import JudgeCardSimple from '../component/random-assignment/JudgeCardSimple';
+import AssignedCaseCard from '../component/random-assignment/AssignedCaseCard';
 import { LegalCaseService } from "../services/LegalCaseService";
 import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
@@ -433,38 +434,27 @@ const RandomAssignment = () => {
                 {/* Kết quả phân công */}
                 {assignedCases.length > 0 && (
                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                            Kết quả phân công ({assignedCases.length} án)
-                        </h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 className="text-xl font-semibold text-gray-900">
+                                    Kết quả phân công
+                                </h2>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Đã phân công thành công {assignedCases.length} vụ án
+                                </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span className="text-sm text-green-600 font-medium">Hoàn tất</span>
+                            </div>
+                        </div>
 
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                             {assignedCases.map((legalCase) => (
-                                <div
+                                <AssignedCaseCard
                                     key={legalCase.legalCaseId}
-                                    className="border border-green-200 rounded-lg p-4 bg-green-50"
-                                >
-                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-900">
-                                                {legalCase.acceptanceNumber}
-                                            </h3>
-                                            <p className="text-sm text-gray-600">
-                                                Nguyên đơn: {legalCase.plaintiff}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Bị đơn: {legalCase.defendant}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-medium text-green-800">
-                                                Thẩm phán: {legalCase.judge?.fullName}
-                                            </p>
-                                            <p className="text-sm text-green-600">
-                                                Email: {legalCase.judge?.email}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                    legalCase={legalCase}
+                                />
                             ))}
                         </div>
                     </div>
