@@ -251,11 +251,6 @@ const LegalCaseDetailsPage = () => {
             </div>
         );
     }
-
-    console.log('Legal Case Data:', legalCase);
-    console.log('Status:', legalCase.statusOfLegalCase);
-    console.log('Status Type:', typeof legalCase.statusOfLegalCase);
-    
     return (
         <div className="space-y-6 p-4 md:p-0">
             {/* Header */}
@@ -265,7 +260,7 @@ const LegalCaseDetailsPage = () => {
                         onClick={() => navigate('/legal-case')}
                         className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white"
                     >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
