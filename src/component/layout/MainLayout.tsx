@@ -96,7 +96,7 @@ const MainLayout = ({
       href: "/legal-case-data",
     },
     {
-      name: "Quản lý loại quyết định",
+      name: "Quản lý loại QĐ",
       icon: (
         <svg
           className="w-5 h-5"

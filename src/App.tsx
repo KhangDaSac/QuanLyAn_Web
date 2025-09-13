@@ -7,6 +7,7 @@ import LegalCaseManager from "./page/LegalCaseManager";
 import LegalCaseDetailsPage from "./page/LegalCaseDetailsPage";
 import JudgeManager from "./page/OfficerManager";
 import RandomAssignment from "./page/RandomAssignment";
+import TypeOfDecisionManager from "./page/TypeOfDecisionManager";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
 import CaseDataManager from "./page/CaseDataManager";
 import AccountManagement from "./page/AccountManagement";
@@ -54,6 +55,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <CaseDataManager />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/decision-type"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <TypeOfDecisionManager />
               </MainLayout>
             </ProtectedRoute>
           }
