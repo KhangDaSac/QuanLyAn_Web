@@ -3,12 +3,14 @@ import { AuthService } from '../../services/AuthService';
 import { createContext } from 'react';
 import type { ApiResponse } from '../../types/ApiResponse';
 import type { AuthenticationResponse } from '../../types/response/auth/AuthenticationResponse';
+import { getUserRole, getUserPermissions, hasPermission, isTokenExpired, UserRole, Permission } from '../../utils/authUtils';
 
 interface User {
   id: string;
   username: string;
   email?: string;
-  scope?: string;
+  role?: UserRole;
+  permissions: Permission[];
 }
 
 interface AuthContextType {
@@ -16,6 +18,8 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  hasPermission: (permission: Permission) => boolean;
+  hasAnyPermission: (permissions: Permission[]) => boolean;
   login: (username: string, password: string) => Promise<ApiResponse<AuthenticationResponse>>;
   logout: () => void;
 }
@@ -37,15 +41,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     if (storedToken && storedUser) {
       try {
-        const userData = JSON.parse(storedUser);
-
-        // Check if token is still valid
-        const decodedToken = AuthService.decodeJWT(storedToken);
-        const currentTime = Date.now() / 1000;
-
-        if (decodedToken && decodedToken.exp && decodedToken.exp > currentTime) {
+        // Check if token is still valid using new utility
+        if (!isTokenExpired(storedToken)) {
+          const userData = JSON.parse(storedUser);
+          const role = getUserRole(storedToken);
+          const permissions = getUserPermissions(storedToken);
+          
           setToken(storedToken);
-          setUser(userData);
+          setUser({
+            ...userData,
+            role: role || undefined,
+            permissions
+          });
         } else {
           // Token expired, clear storage
           localStorage.removeItem('token');
@@ -74,20 +81,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
       );
 
       if (fakeAccount) {
-        // Create fake JWT token
+        // Create fake JWT token with ADMIN role for testing
         const fakeToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify({
           sub: `fake-${fakeAccount.username}-id`,
           username: fakeAccount.username,
-          scope: fakeAccount.role,
+          scope: 'ADMIN', // Default to ADMIN for testing
           exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
           jti: `fake-token-${Date.now()}`
         }))}.fake-signature`;
 
+        const role = getUserRole(fakeToken);
+        const permissions = getUserPermissions(fakeToken);
+
         const newUser: User = {
           id: `fake-${fakeAccount.username}-id`,
           username: fakeAccount.username,
-          scope: fakeAccount.role,
-          email: `${fakeAccount.username}@company.com`
+          email: `${fakeAccount.username}@company.com`,
+          role: role || undefined,
+          permissions
         };
 
         setUser(newUser);
@@ -101,8 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           message: "Đăng nhập thành công (Fake Account)",
           data: {
             authenticated: true,
-            token: fakeToken,
-            user: newUser
+            token: fakeToken
           } as AuthenticationResponse,
           timestamp: new Date().toISOString()
         };
@@ -113,13 +123,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (response.success && response?.data?.authenticated && response?.data?.token) {
         const jwtToken = response.data.token;
         const decodedToken = AuthService.decodeJWT(jwtToken);
+        const role = getUserRole(jwtToken);
+        const permissions = getUserPermissions(jwtToken);
 
         if (decodedToken) {
           const newUser: User = {
             id: decodedToken.sub || decodedToken.jti || 'unknown',
             username: decodedToken.username || identifier,
-            scope: decodedToken.scope,
-            email: `${decodedToken.username || identifier}@company.com`
+            email: `${identifier}@company.com`,
+            role: role || undefined,
+            permissions
           };
 
           setUser(newUser);
@@ -159,11 +172,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const hasPermissionCheck = (permission: Permission): boolean => {
+    return token ? hasPermission(token, permission) : false;
+  };
+
+  const hasAnyPermissionCheck = (permissions: Permission[]): boolean => {
+    return token ? permissions.some(permission => hasPermission(token, permission)) : false;
+  };
+
   const value: AuthContextType = {
     user,
     token,
     isAuthenticated: !!user && !!token,
     isLoading,
+    hasPermission: hasPermissionCheck,
+    hasAnyPermission: hasAnyPermissionCheck,
     login,
     logout
   };

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/authContext/useAuth";
+import { Permission } from "../../utils/authUtils";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,7 +15,7 @@ const MainLayout = ({
   className = "",
 }: MainLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { logout } = useAuth();
+  const { logout, hasPermission } = useAuth();
   const location = useLocation();
 
   const handleLogout = async (e: React.FormEvent) => {
@@ -40,6 +41,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/",
+      requiredPermissions: [] as Permission[], // No permissions needed for home
     },
     {
       name: "PC án ngẫu nhiên",
@@ -58,6 +60,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/random-assignment",
+      requiredPermissions: [Permission.VIEW_RANDOM_ASSIGNMENT] as Permission[],
     },
     {
       name: "Quản lý án",
@@ -76,6 +79,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/legal-case",
+      requiredPermissions: [Permission.VIEW_LEGAL_CASE] as Permission[],
     },
     {
       name: "Quản lý thông tin án",
@@ -94,6 +98,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/legal-case-data",
+      requiredPermissions: [Permission.VIEW_CASE_DATA_MANAGER] as Permission[],
     },
     {
       name: "Quản lý loại QĐ",
@@ -112,6 +117,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/decision-type",
+      requiredPermissions: [Permission.VIEW_DECISION_TYPE] as Permission[],
     },
     {
       name: "Quản lý nhân viên",
@@ -130,6 +136,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/officer-management",
+      requiredPermissions: [Permission.VIEW_OFFICER_MANAGER] as Permission[],
     },
     {
       name: "Quản lý tài khoản",
@@ -148,6 +155,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/account-management",
+      requiredPermissions: [Permission.VIEW_ACCOUNT_MANAGER] as Permission[],
     },
     {
       name: "Báo cáo, thống kê",
@@ -166,6 +174,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/reports",
+      requiredPermissions: [Permission.VIEW_REPORTS] as Permission[],
     },
   ];
 
@@ -193,7 +202,12 @@ const MainLayout = ({
         </div>
 
         <nav className="mt-8 px-4 space-y-2 ">
-          {menuItems.map((item, index) => {
+          {menuItems
+            .filter(item => 
+              !item.requiredPermissions?.length || 
+              item.requiredPermissions.some(permission => hasPermission(permission))
+            )
+            .map((item, index) => {
             const isActive = location.pathname === item.href;
             return (
               <Link
