@@ -82,11 +82,6 @@ const AccountManagement = () => {
     }
   };
 
-  const handleCreateAccount = () => {
-    setEditingAccount(null);
-    setShowForm(true);
-  };
-
   const handleEditAccount = (account: AccountResponse) => {
     setEditingAccount(account);
     setShowForm(true);
@@ -240,7 +235,7 @@ const AccountManagement = () => {
               Danh sách tài khoản
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Quản lý các tài khoản trong hệ thống
+              Quản lý các tài khoản trong hệ thống ({filteredAccounts.length} tài khoản)
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -285,7 +280,6 @@ const AccountManagement = () => {
           </div>
         </div>
 
-        {/* Filters */}
         {showFilters && (
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -338,126 +332,7 @@ const AccountManagement = () => {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
-                  Tổng tài khoản
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {accounts.length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
-                  Đang hoạt động
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {accounts.filter((acc) => acc.statusOfAccount === StatusOfAccount.ACTIVE).length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">
-                  Không hoạt động
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {accounts.filter((acc) => acc.statusOfAccount === StatusOfAccount.BLOCKED).length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Thẩm phán</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {
-                    accounts.filter(
-                      (acc) => acc.role.toString() === "Thẩm phán"
-                    ).length
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Accounts Grid */}
         {filteredAccounts.length === 0 ? (
