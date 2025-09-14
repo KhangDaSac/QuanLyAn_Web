@@ -46,7 +46,6 @@ export const isTokenExpired = (token: string): boolean => {
 export enum UserRole {
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
-  LEGAL_CASE_MANAGER = 'LEGAL_CASE_MANAGER',
   JUDGE = 'JUDGE',
   MEDIATOR = 'MEDIATOR'
 }
@@ -106,27 +105,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_REPORTS,
     Permission.CREATE_LEGAL_CASE,
     Permission.EDIT_LEGAL_CASE,
-    Permission.DELETE_LEGAL_CASE,
-    Permission.ASSIGN_LEGAL_CASE
-  ],
-  
-  [UserRole.LEGAL_CASE_MANAGER]: [
-    // Legal case manager không được xóa án
-    Permission.VIEW_HOME,
-    Permission.VIEW_RANDOM_ASSIGNMENT,
-    Permission.VIEW_LEGAL_CASE,
-    Permission.VIEW_CASE_DATA_MANAGER,
-    Permission.VIEW_DECISION_TYPE,
-    Permission.VIEW_OFFICER_MANAGER,
-    Permission.VIEW_ACCOUNT_MANAGER,
-    Permission.VIEW_REPORTS,
-    Permission.CREATE_LEGAL_CASE,
-    Permission.EDIT_LEGAL_CASE,
     Permission.ASSIGN_LEGAL_CASE,
-    Permission.MANAGE_OFFICERS,
-    Permission.MANAGE_ACCOUNTS,
-    Permission.MANAGE_DECISION_TYPES,
-    Permission.MANAGE_CASE_DATA
   ],
   
   [UserRole.JUDGE]: [

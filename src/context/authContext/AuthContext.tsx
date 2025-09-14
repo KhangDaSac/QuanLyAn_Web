@@ -73,7 +73,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       {/* Fake account for UI testing when backend is not available */}
       const fakeAccounts = [
-        { username: 'test', password: 'test', role: 'Administrator' }
+        { username: 'admin', password: 'admin123', role: 'ADMIN' },
+        { username: 'manager', password: 'manager123', role: 'MANAGER' },
+        { username: 'judge', password: 'judge123', role: 'JUDGE' },
+        { username: 'mediator', password: 'mediator123', role: 'MEDIATOR' },
+        { username: 'test', password: 'test', role: 'ADMIN' } // Keep old test account for backward compatibility
       ];
 
       const fakeAccount = fakeAccounts.find(acc => 
@@ -81,11 +85,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       );
 
       if (fakeAccount) {
-        // Create fake JWT token with ADMIN role for testing
+        // Create fake JWT token with specific role for testing
         const fakeToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify({
           sub: `fake-${fakeAccount.username}-id`,
           username: fakeAccount.username,
-          scope: 'ADMIN', // Default to ADMIN for testing
+          scope: fakeAccount.role, // Use role from fake account
           exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
           jti: `fake-token-${Date.now()}`
         }))}.fake-signature`;
@@ -109,7 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return {
           success: true,
           status: 200,
-          message: "Đăng nhập thành công (Fake Account)",
+          message: `Đăng nhập thành công với role ${fakeAccount.role} (Fake Account)`,
           data: {
             authenticated: true,
             token: fakeToken
@@ -149,7 +153,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return {
         success: false,
         status: 500,
-        message: "Đăng nhập thất bại. Thử với tài khoản test: admin/admin123, judge/judge123, user/user123, test/test",
+        message: "Đăng nhập thất bại. Thử với tài khoản test:\n• admin/admin123 (ADMIN)\n• manager/manager123 (MANAGER)\n• casemgr/case123 (LEGAL_CASE_MANAGER)\n• judge/judge123 (JUDGE)\n• mediator/mediator123 (MEDIATOR)",
         error: error instanceof Error ? error.message : "Lỗi không xác định",
         data: {} as AuthenticationResponse,
         timestamp: new Date().toISOString()
