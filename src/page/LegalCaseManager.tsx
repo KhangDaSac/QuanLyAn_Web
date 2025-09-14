@@ -103,6 +103,9 @@ const LegalCaseManager = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showBatchForm, setShowBatchForm] = useState(false);
 
+  // Export Excel
+  const [exportLoading, setExportLoading] = useState(false);
+
   // Toast và Confirm Modal
   const toast = useToast();
   const [confirmModal, setConfirmModal] = useState<{
@@ -501,6 +504,78 @@ const LegalCaseManager = () => {
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setExportLoading(true);
+
+      // Tạo workbook và worksheet mới
+      const workbook = XLSX.utils.book_new();
+
+      // Chuẩn bị dữ liệu xuất - tạo header
+      const headers = [
+        'STT',
+        'Số thụ lý',
+        'Ngày thụ lý',
+        'Nguyên đơn/Bị cáo',
+        'Địa chỉ nguyên đơn',
+        'Bị đơn',
+        'Địa chỉ bị đơn',
+        'Loại vụ án',
+        'Quan hệ pháp luật',
+        'Thẩm phán',
+      ];
+
+      // Chuẩn bị dữ liệu rows
+      const rows = legalCases.map((legalCase, index) => [
+        index + 1, // STT
+        legalCase.acceptanceNumber || '',
+        legalCase.acceptanceDate || '',
+        legalCase.plaintiff || '',
+        legalCase.plaintiffAddress || '',
+        legalCase.defendant || '',
+        legalCase.defendantAddress || '',
+        legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || '',
+        legalCase.legalRelationship?.legalRelationshipName || '',
+        legalCase.judge?.fullName || '',
+      ]);
+
+      // Tạo data array với header và rows
+      const data = [headers, ...rows];
+
+      // Tạo worksheet từ data
+      const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+      // Tự động điều chỉnh độ rộng cột
+      const colWidths = headers.map((header, index) => {
+        const maxLength = Math.max(
+          header.length,
+          ...rows.map(row => (row[index]?.toString() || '').length)
+        );
+        return { wch: Math.min(maxLength + 2, 50) }; // Giới hạn tối đa 50 ký tự
+      });
+      worksheet['!cols'] = colWidths;
+
+      // Thêm worksheet vào workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách vụ án');
+
+      // Tạo tên file với timestamp
+      const now = new Date();
+      const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '');
+      const fileName = `danh_sach_vu_an_${timestamp}.xlsx`;
+
+      // Xuất file
+      XLSX.writeFile(workbook, fileName);
+
+      toast.success('Xuất Excel thành công', `File "${fileName}" đã được tải về!`);
+
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      toast.error('Xuất Excel thất bại', 'Có lỗi xảy ra khi xuất file Excel');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-4 md:space-y-6 p-4 md:p-0">
       {/* Header */}
@@ -594,6 +669,51 @@ const LegalCaseManager = () => {
               </>
             )}
           </button>
+          )}
+          {auth?.hasPermission(Permission.VIEW_LEGAL_CASE) && (
+            <button
+              onClick={handleExportExcel}
+              disabled={exportLoading}
+              className="inline-flex items-center px-4 py-2 border border-green-300 bg-green-50 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {exportLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-green-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Đang xuất...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  Xuất file Excel
+                </>
+              )}
+            </button>
           )}
         </div>
       </div>
