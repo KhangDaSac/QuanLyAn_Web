@@ -15,9 +15,6 @@ import { ToastContainer, useToast } from "../component/basic-component/Toast";
 const AccountManagement = () => {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [searchCriteria, setSearchCriteria] = useState<{ email: string; role: string }>({
     email: "",
@@ -186,20 +183,16 @@ const AccountManagement = () => {
   // Filter accounts based on search and filters
   const filteredAccounts = accounts.filter((account) => {
     const matchesSearch =
-      account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      !searchCriteria.email ||
+      account.email.toLowerCase().includes(searchCriteria.email.toLowerCase()) ||
+      account.username.toLowerCase().includes(searchCriteria.email.toLowerCase()) ||
       (account.officer &&
-        account.officer.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+        account.officer.fullName.toLowerCase().includes(searchCriteria.email.toLowerCase()));
 
     const matchesRole =
-      !selectedRole || account.role.toString() === selectedRole;
+      !searchCriteria.role || account.role.toString() === searchCriteria.role;
 
-    const matchesStatus =
-      !selectedStatus ||
-      (selectedStatus === "active" && account.statusOfAccount === StatusOfAccount.ACTIVE) ||
-      (selectedStatus === "inactive" && account.statusOfAccount === StatusOfAccount.BLOCKED);
-
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch && matchesRole;
   });
 
   if (loading) {

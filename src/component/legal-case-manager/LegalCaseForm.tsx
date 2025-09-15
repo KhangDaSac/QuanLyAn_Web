@@ -265,7 +265,6 @@ const LegalCaseForm = ({
                                 value={formData.legalRelationshipId}
                                 onChange={(value) => handleInputChange('legalRelationshipId', value)}
                                 placeholder="Chọn quan hệ pháp luật"
-                                forceDirection="down"
                             />
                             {errors.legalRelationshipId && (
                                 <p className="text-red-500 text-xs mt-1">{errors.legalRelationshipId}</p>
