@@ -7,17 +7,6 @@ interface TypeOfDecisionCardProps {
   onDelete?: (typeOfDecision: TypeOfDecisionResponse) => void;
 }
 
-const getCourtIssuedText = (courtIssued: CourtIssued) => {
-  switch (courtIssued) {
-    case "Tòa án hiện tại":
-      return 'Tòa án hiện tại';
-    case "Tòa án cấp trên":
-      return 'Tòa án cấp trên';
-    default:
-      return 'Không xác định';
-  }
-};
-
 const getCourtIssuedColor = (courtIssued: CourtIssued) => {
   switch (courtIssued) {
     case CourtIssued.CURRENT_COURT:
