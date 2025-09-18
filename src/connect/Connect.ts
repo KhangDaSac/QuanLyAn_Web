@@ -1,5 +1,5 @@
 import { type ApiResponse } from "../types/ApiResponse";
-const server_url = "https://quanlyan-server.onrender.com";
+const server_url = import.meta.env.SERVER_URL || "http://localhost:8080";
 // const server_url = "http://localhost:8080";
 
 export class Connect {
