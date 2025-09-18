@@ -1,5 +1,5 @@
 import { type ApiResponse } from "../types/ApiResponse";
-const server_url = "http://192.168.2.131:8080";
+const server_url = "https://quanlyan-server.onrender.com";
 // const server_url = "http://localhost:8080";
 
 export class Connect {
@@ -35,7 +35,7 @@ export class Connect {
             //         timestamp: responseData.timestamp || new Date().toISOString()
             //     };
             // }
-
+            // console.log("API Response:", responseData);
             return responseData as ApiResponse<T>;
         } catch (error: unknown) {
             // Xử lý lỗi network hoặc lỗi khác

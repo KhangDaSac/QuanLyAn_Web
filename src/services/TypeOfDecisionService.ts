@@ -5,7 +5,7 @@ import type TypeOfDecisionSearchRequest from "../types/request/type-of-decision/
 import type TypeOfDecisionResponse from "../types/response/type-of-decision/TypeOfDecisionResponse";
 
 export class TypeOfDecisionService {
-    static api = '/type-of-decisions';
+    static api = '/type-of-decision';
     static async getAll(): Promise<ApiResponse<TypeOfDecisionResponse[]>> {
         const token = localStorage.getItem("token");
         return Connect.request<TypeOfDecisionResponse[]>(

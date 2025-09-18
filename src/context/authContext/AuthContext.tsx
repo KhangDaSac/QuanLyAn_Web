@@ -71,57 +71,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
 
-      {/* Fake account for UI testing when backend is not available */}
-      const fakeAccounts = [
-        { username: 'admin', password: 'admin123', role: 'ADMIN' },
-        { username: 'manager', password: 'manager123', role: 'MANAGER' },
-        { username: 'judge', password: 'judge123', role: 'JUDGE' },
-        { username: 'mediator', password: 'mediator123', role: 'MEDIATOR' },
-        { username: 'test', password: 'test', role: 'ADMIN' } // Keep old test account for backward compatibility
-      ];
-
-      const fakeAccount = fakeAccounts.find(acc => 
-        acc.username === identifier && acc.password === password
-      );
-
-      if (fakeAccount) {
-        // Create fake JWT token with specific role for testing
-        const fakeToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify({
-          sub: `fake-${fakeAccount.username}-id`,
-          username: fakeAccount.username,
-          scope: fakeAccount.role, // Use role from fake account
-          exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
-          jti: `fake-token-${Date.now()}`
-        }))}.fake-signature`;
-
-        const role = getUserRole(fakeToken);
-        const permissions = getUserPermissions(fakeToken);
-
-        const newUser: User = {
-          id: `fake-${fakeAccount.username}-id`,
-          username: fakeAccount.username,
-          email: `${fakeAccount.username}@company.com`,
-          role: role || undefined,
-          permissions
-        };
-
-        setUser(newUser);
-        setToken(fakeToken);
-        localStorage.setItem('user', JSON.stringify(newUser));
-        localStorage.setItem('token', fakeToken);
-        setIsLoading(false);
-        return {
-          success: true,
-          status: 200,
-          message: `Đăng nhập thành công với role ${fakeAccount.role} (Fake Account)`,
-          data: {
-            authenticated: true,
-            token: fakeToken
-          } as AuthenticationResponse,
-          timestamp: new Date().toISOString()
-        };
-      }
-
       // Try real backend if fake account doesn't match
       const response = await AuthService.login({ identifier, password });
       if (response.success && response?.data?.authenticated && response?.data?.token) {
