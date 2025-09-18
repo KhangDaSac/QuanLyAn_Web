@@ -1,5 +1,6 @@
 import { type ApiResponse } from "../types/ApiResponse";
-const server_url = "http://127.0.0.1:8080";
+const server_url = "https://quanlyan-server.onrender.com";
+// const server_url = "http://localhost:8080";
 
 export class Connect {
     static async request<T>(
@@ -9,8 +10,8 @@ export class Connect {
         token?: string | null
     ): Promise<ApiResponse<T>> {
         try {
+          console.log("Connect.request called with:", { body });
             const accessToken = token ?? localStorage.getItem("token");
-            console.log(body)
             const response = await fetch(`${server_url}${endpoint}`, {
                 method,
                 headers: {
@@ -23,18 +24,18 @@ export class Connect {
             // Xử lý response cho cả trường hợp thành công và thất bại
             const responseData = await response.json().catch(() => ({}));
             
-            if (!response.ok) {
-                // Trả về response với thông tin lỗi thay vì ném exception
-                return {
-                    success: false,
-                    status: response.status,
-                    message: responseData.message || `HTTP Error ${response.status}`,
-                    error: responseData.error || responseData.message || `Lỗi ${response.status}: ${response.statusText}`,
-                    data: {} as T,
-                    timestamp: responseData.timestamp || new Date().toISOString()
-                };
-            }
-
+            // if (!response.ok) {
+            //     // Trả về response với thông tin lỗi thay vì ném exception
+            //     return {
+            //         success: false,
+            //         status: response.status,
+            //         message: responseData.message || `HTTP Error ${response.status}`,
+            //         error: responseData.error || responseData.message || `Lỗi ${response.status}: ${response.statusText}`,
+            //         data: {} as T,
+            //         timestamp: responseData.timestamp || new Date().toISOString()
+            //     };
+            // }
+            // console.log("API Response:", responseData);
             return responseData as ApiResponse<T>;
         } catch (error: unknown) {
             // Xử lý lỗi network hoặc lỗi khác
@@ -54,9 +55,8 @@ export class Connect {
                 status: 500,
                 message: "Lỗi kết nối",
                 error: errorMessage,
-                data: {} as T,
                 timestamp: new Date().toISOString()
-            };
+            } as ApiResponse<T>;
         }
     }
 }

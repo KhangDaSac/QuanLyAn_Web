@@ -1,14 +1,18 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/authContext/AuthContext';
-import MainLayout from './component/layout/MainLayout';
-import LoginPage from './page/LoginPage';
-import HomePage from './page/HomePage';
-import LegalCaseManager from './page/LegalCaseManager';
-import JudgeManager from './page/JudgeManager';
-import RandomAssignment from './page/RandomAssignment';
-import ProtectedRoute from './component/auth/ProtectedRoute';
-import CaseDataManager from './page/CaseDataManager';
-import './App.css';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/authContext/AuthContext";
+import MainLayout from "./component/layout/MainLayout";
+import LoginPage from "./page/LoginPage";
+import HomePage from "./page/HomePage";
+import LegalCaseManager from "./page/LegalCaseManager";
+import LegalCaseDetailsPage from "./page/LegalCaseDetailsPage";
+import JudgeManager from "./page/OfficerManager";
+import RandomAssignment from "./page/RandomAssignment";
+import TypeOfDecisionManager from "./page/TypeOfDecisionManager";
+import ProtectedRoute from "./component/auth/ProtectedRoute";
+import CaseDataManager from "./page/CaseDataManager";
+import AccountManagement from "./page/AccountManagement";
+import TermsPrivacyPage from "./page/TermsPrivacyPage";
+import "./App.css";
 
 const App = () => {
   return (
@@ -36,6 +40,16 @@ const App = () => {
           }
         />
         <Route
+          path="/legal-case-details/:legalCaseId"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <LegalCaseDetailsPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/legal-case-data"
           element={
             <ProtectedRoute>
@@ -46,7 +60,17 @@ const App = () => {
           }
         />
         <Route
-          path="/judge"
+          path="/decision-type"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <TypeOfDecisionManager />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/officer-management"
           element={
             <ProtectedRoute>
               <MainLayout>
@@ -65,6 +89,17 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/account-management"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <AccountManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/term-policies" element={<TermsPrivacyPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </AuthProvider>

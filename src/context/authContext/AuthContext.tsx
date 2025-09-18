@@ -3,12 +3,14 @@ import { AuthService } from '../../services/AuthService';
 import { createContext } from 'react';
 import type { ApiResponse } from '../../types/ApiResponse';
 import type { AuthenticationResponse } from '../../types/response/auth/AuthenticationResponse';
+import { getUserRole, getUserPermissions, hasPermission, isTokenExpired, UserRole, Permission } from '../../utils/authUtils';
 
 interface User {
   id: string;
   username: string;
   email?: string;
-  scope?: string;
+  role?: UserRole;
+  permissions: Permission[];
 }
 
 interface AuthContextType {
@@ -16,6 +18,8 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  hasPermission: (permission: Permission) => boolean;
+  hasAnyPermission: (permissions: Permission[]) => boolean;
   login: (username: string, password: string) => Promise<ApiResponse<AuthenticationResponse>>;
   logout: () => void;
 }
@@ -37,15 +41,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     if (storedToken && storedUser) {
       try {
-        const userData = JSON.parse(storedUser);
-
-        // Check if token is still valid
-        const decodedToken = AuthService.decodeJWT(storedToken);
-        const currentTime = Date.now() / 1000;
-
-        if (decodedToken && decodedToken.exp && decodedToken.exp > currentTime) {
+        // Check if token is still valid using new utility
+        if (!isTokenExpired(storedToken)) {
+          const userData = JSON.parse(storedUser);
+          const role = getUserRole(storedToken);
+          const permissions = getUserPermissions(storedToken);
+          
           setToken(storedToken);
-          setUser(userData);
+          setUser({
+            ...userData,
+            role: role || undefined,
+            permissions
+          });
         } else {
           // Token expired, clear storage
           localStorage.removeItem('token');
@@ -63,18 +70,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (identifier: string, password: string): Promise<ApiResponse<AuthenticationResponse>> => {
     try {
       setIsLoading(true);
+
+      // Try real backend if fake account doesn't match
       const response = await AuthService.login({ identifier, password });
-      
-      if (response.success && response.data.authenticated && response.data.token) {
+      if (response.success && response?.data?.authenticated && response?.data?.token) {
         const jwtToken = response.data.token;
         const decodedToken = AuthService.decodeJWT(jwtToken);
+        const role = getUserRole(jwtToken);
+        const permissions = getUserPermissions(jwtToken);
 
         if (decodedToken) {
           const newUser: User = {
             id: decodedToken.sub || decodedToken.jti || 'unknown',
             username: decodedToken.username || identifier,
-            scope: decodedToken.scope,
-            email: `${decodedToken.username || identifier}@company.com`
+            email: `${identifier}@company.com`,
+            role: role || undefined,
+            permissions
           };
 
           setUser(newUser);
@@ -86,23 +97,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       return response;
     } catch (error) {
-      // Trả về response với thông tin lỗi cụ thể
-      if (error instanceof Error) {
-        return {
-          success: false,
-          status: 500,
-          message: "Đăng nhập thất bại",
-          error: error.message,
-          data: {} as AuthenticationResponse,
-          timestamp: new Date().toISOString()
-        };
-      }
-      
+      // If backend fails, suggest fake accounts
+      console.error('Backend login failed:', error);
       return {
         success: false,
         status: 500,
-        message: "Đăng nhập thất bại",
-        error: "Lỗi không xác định",
+        message: "Đăng nhập thất bại. Thử với tài khoản test:\n• admin/admin123 (ADMIN)\n• manager/manager123 (MANAGER)\n• casemgr/case123 (LEGAL_CASE_MANAGER)\n• judge/judge123 (JUDGE)\n• mediator/mediator123 (MEDIATOR)",
+        error: error instanceof Error ? error.message : "Lỗi không xác định",
         data: {} as AuthenticationResponse,
         timestamp: new Date().toISOString()
       };
@@ -124,11 +125,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const hasPermissionCheck = (permission: Permission): boolean => {
+    return token ? hasPermission(token, permission) : false;
+  };
+
+  const hasAnyPermissionCheck = (permissions: Permission[]): boolean => {
+    return token ? permissions.some(permission => hasPermission(token, permission)) : false;
+  };
+
   const value: AuthContextType = {
     user,
     token,
     isAuthenticated: !!user && !!token,
     isLoading,
+    hasPermission: hasPermissionCheck,
+    hasAnyPermission: hasAnyPermissionCheck,
     login,
     logout
   };

@@ -2,18 +2,21 @@ import { useState, useEffect } from "react";
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import LegalCaseCardSimple from '../component/random-assignment/LegalCaseCardSimple';
 import JudgeCardSimple from '../component/random-assignment/JudgeCardSimple';
+import AssignedCaseCard from '../component/random-assignment/AssignedCaseCard';
 import { LegalCaseService } from "../services/LegalCaseService";
 import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import type { JudgeResponse } from "../types/response/judge/JudgeResponse";
-import type { LegalRelationshipGroupResponse } from "../types/response/legal-case/LegalRelationshipGroup";
+import type { LegalRelationshipGroupResponse } from "../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
+import type { AssignmentListRequest } from "../types/request/legal-case/AssignmentListReques";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 
 const RandomAssignment = () => {
     const { toasts, addToast, removeToast } = useToast();
     const [legalRelationshipGroupOptions, setLegalRelationshipGroupOptions] = useState<Option[]>([]);
     const [selectedGroupId, setSelectedGroupId] = useState<string>("");
+    const [hasMediator, setHasMediator] = useState<boolean>(false);
     const [pendingCases, setPendingCases] = useState<LegalCaseResponse[]>([]);
     const [selectedCases, setSelectedCases] = useState<string[]>([]);
     const [assignableJudges, setAssignableJudges] = useState<JudgeResponse[]>([]);
@@ -49,10 +52,20 @@ const RandomAssignment = () => {
     };
 
     const searchPendingCases = async () => {
-        if (!selectedGroupId) {
+        // Validate input theo quy tắc: có mediator HOẶC có legalRelationshipGroupId
+        if (hasMediator && selectedGroupId) {
             addToast({
                 title: "Thông báo",
-                message: "Vui lòng chọn nhóm quan hệ pháp luật",
+                message: "Chỉ có thể chọn một trong hai: có mediator hoặc nhóm quan hệ pháp luật",
+                type: "warning"
+            });
+            return;
+        }
+
+        if (!hasMediator && !selectedGroupId) {
+            addToast({
+                title: "Thông báo",
+                message: "Vui lòng chọn có mediator hoặc chọn nhóm quan hệ pháp luật",
                 type: "warning"
             });
             return;
@@ -60,24 +73,11 @@ const RandomAssignment = () => {
 
         setSearchLoading(true);
         try {
-            const searchRequest = {
-                acceptanceNumber: null,
-                startAcceptanceDate: null,
-                endAcceptanceDate: null,
-                plaintiff: null,
-                plaintiffAddress: null,
-                defendant: null,
-                defendantAddress: null,
-                typeOfLegalCaseId: null,
-                legalRelationshipId: null,
-                legalRelationshipGroupId: selectedGroupId,
-                statusOfLegalCase: null,
-                judgeName: null,
-                batchId: null,
-                storageDate: null
+            const searchRequest: AssignmentListRequest = {
+                isMediator: hasMediator,
+                legalRelationshipGroupId: hasMediator ? undefined : selectedGroupId
             };
-
-            const response = await LegalCaseService.getAssignAssignmentByLegalRelationshipGroup(searchRequest);
+            const response = await LegalCaseService.getAssignmentList(searchRequest);
             if (response.success && response.data) {
                 setPendingCases(response.data);
                 setSelectedCases([]);
@@ -147,7 +147,11 @@ const RandomAssignment = () => {
 
         setLoading(true);
         try {
-            const response = await LegalCaseService.assignRandomly(selectedCases);
+          const request = {
+              legalCaseIds: selectedCases,
+              judgeIds: assignableJudges.map(judge => judge.officerId)
+          };
+            const response = await LegalCaseService.randomAssignment(request);
             if (response.success && response.data) {
                 setAssignedCases(response.data);
                 addToast({
@@ -203,7 +207,7 @@ const RandomAssignment = () => {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                                Phân Công Án Ngẫu Nhiên
+                                Phân công án ngẫu nhiên
                             </h1>
                             <p className="text-gray-600">
                                 Tìm kiếm và phân công án chờ phân công cho thẩm phán một cách ngẫu nhiên
@@ -230,22 +234,72 @@ const RandomAssignment = () => {
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h3>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
-                        <div className="lg:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Nhóm quan hệ pháp luật <span className="text-red-500">*</span>
+                    <div className="space-y-4">
+                        {/* Radio buttons cho loại tìm kiếm */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                Loại tìm kiếm <span className="text-red-500">*</span>
                             </label>
-                            <ComboboxSearch
-                                options={legalRelationshipGroupOptions}
-                                value={selectedGroupId}
-                                onChange={setSelectedGroupId}
-                                placeholder="Chọn nhóm quan hệ pháp luật"
-                            />
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <label className="flex items-center space-x-3 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="searchType"
+                                        checked={!hasMediator}
+                                        onChange={() => {
+                                            setHasMediator(false);
+                                            setSelectedGroupId("");
+                                        }}
+                                        className="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Theo nhóm quan hệ pháp luật
+                                    </span>
+                                </label>
+                                <label className="flex items-center space-x-3 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="searchType"
+                                        checked={hasMediator}
+                                        onChange={() => {
+                                            setHasMediator(true);
+                                            setSelectedGroupId("");
+                                        }}
+                                        className="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Có hòa giải viên
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
-                        <button
-                            onClick={searchPendingCases}
-                            disabled={searchLoading || !selectedGroupId}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
+                            <div className="lg:col-span-2">
+                                {!hasMediator && (
+                                    <>
+                                        <ComboboxSearch
+                                            options={legalRelationshipGroupOptions}
+                                            value={selectedGroupId}
+                                            onChange={setSelectedGroupId}
+                                            placeholder="Chọn nhóm quan hệ pháp luật"
+                                        />
+                                    </>
+                                )}
+                                {hasMediator && (
+                                    <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                        <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="text-sm text-blue-800">
+                                            Sẽ tìm kiếm tất cả án có hòa giải viên
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <button
+                                onClick={searchPendingCases}
+                                disabled={searchLoading || (!hasMediator && !selectedGroupId)}
                             className="w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
                         >
                             {searchLoading ? (
@@ -262,6 +316,7 @@ const RandomAssignment = () => {
                                 </>
                             )}
                         </button>
+                        </div>
                     </div>
                 </div>
 
@@ -368,7 +423,7 @@ const RandomAssignment = () => {
                         <div className="flex flex-col gap-4">
                             {assignableJudges.map((judge) => (
                                 <JudgeCardSimple
-                                    key={judge.judgeId}
+                                    key={judge.officerId}
                                     judge={judge}
                                 />
                             ))}
@@ -379,38 +434,27 @@ const RandomAssignment = () => {
                 {/* Kết quả phân công */}
                 {assignedCases.length > 0 && (
                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                            Kết quả phân công ({assignedCases.length} án)
-                        </h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 className="text-xl font-semibold text-gray-900">
+                                    Kết quả phân công
+                                </h2>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Đã phân công thành công {assignedCases.length} vụ án
+                                </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span className="text-sm text-green-600 font-medium">Hoàn tất</span>
+                            </div>
+                        </div>
 
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                             {assignedCases.map((legalCase) => (
-                                <div
+                                <AssignedCaseCard
                                     key={legalCase.legalCaseId}
-                                    className="border border-green-200 rounded-lg p-4 bg-green-50"
-                                >
-                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-900">
-                                                {legalCase.acceptanceNumber}
-                                            </h3>
-                                            <p className="text-sm text-gray-600">
-                                                Nguyên đơn: {legalCase.plaintiff}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                Bị đơn: {legalCase.defendant}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-medium text-green-800">
-                                                Thẩm phán: {legalCase.judge?.fullName}
-                                            </p>
-                                            <p className="text-sm text-green-600">
-                                                Email: {legalCase.judge?.email}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                    legalCase={legalCase}
+                                />
                             ))}
                         </div>
                     </div>
