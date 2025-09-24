@@ -37,6 +37,7 @@ const LegalCaseManager = () => {
     page: 0,
     size: 10,
     totalElements: 0,
+    totalPages: 1,
     hasNext: false,
     hasPrevious: false,
     isFirst: true,
@@ -169,7 +170,8 @@ const LegalCaseManager = () => {
           setPagination({
             page: data.number,
             size: data.size,
-            totalElements: data.numberOfElement,
+            totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+            totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
             hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
@@ -225,8 +227,7 @@ const LegalCaseManager = () => {
         case 'End':
           event.preventDefault();
           if (!pagination.isLast) {
-            const totalPages = Math.ceil(pagination.totalElements / pagination.size);
-            handlePageChange(totalPages - 1);
+            handlePageChange(pagination.totalPages - 1);
           }
           break;
       }
@@ -320,7 +321,8 @@ const LegalCaseManager = () => {
         setPagination({
           page: data.number,
           size: data.size,
-          totalElements: data.numberOfElement,
+          totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
           hasNext: data.hasNext,
           hasPrevious: data.hasPrevious,
           isFirst: data.isFirst,
@@ -365,8 +367,9 @@ const LegalCaseManager = () => {
           setPagination({
             page: data.number,
             size: data.size,
-            totalElements: data.numberOfElement,
-            hasNext: data.hasNext,
+            totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+          hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -395,8 +398,9 @@ const LegalCaseManager = () => {
           setPagination({
             page: data.number,
             size: data.size,
-            totalElements: data.numberOfElement,
-            hasNext: data.hasNext,
+            totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+          hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -425,8 +429,9 @@ const LegalCaseManager = () => {
           setPagination({
             page: data.number,
             size: data.size,
-            totalElements: data.numberOfElement,
-            hasNext: data.hasNext,
+            totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+          hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -455,8 +460,9 @@ const LegalCaseManager = () => {
           setPagination({
             page: data.number,
             size: data.size,
-            totalElements: data.numberOfElement,
-            hasNext: data.hasNext,
+            totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+          hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -1358,12 +1364,6 @@ const LegalCaseManager = () => {
 
           {/* Pagination Info and Navigation */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="text-sm text-gray-700 text-center sm:text-left">
-              <div>Trang {pagination.page + 1} / {Math.ceil(pagination.totalElements / pagination.size)}</div>
-              <div className="text-xs text-gray-500 mt-1">
-                {pagination.totalElements} kết quả • Dùng ←→ để chuyển trang
-              </div>
-            </div>
             
             <div className="flex items-center space-x-1">
               {/* Nút trang đầu */}
@@ -1392,26 +1392,44 @@ const LegalCaseManager = () => {
 
               {/* Dãy số trang */}
               {(() => {
-                const totalPages = Math.ceil(pagination.totalElements / pagination.size);
+                const totalPages = pagination.totalPages; // Sử dụng totalPages từ backend
                 const currentPage = pagination.page;
+                
+                // Debug log để kiểm tra
+                console.log("Pagination debug:", { 
+                  totalElements: pagination.totalElements, 
+                  size: pagination.size, 
+                  totalPages, 
+                  currentPage 
+                });
+                
+                // Đảm bảo luôn hiển thị ít nhất 5 trang (hoặc ít hơn nếu không đủ)
+                const maxPagesToShow = 5;
                 const pageNumbers = [];
                 
-                // Tính toán trang bắt đầu và kết thúc
-                let startPage = Math.max(0, currentPage - 2);
-                let endPage = Math.min(totalPages - 1, currentPage + 2);
-                
-                // Điều chỉnh để luôn hiển thị 5 số (nếu có đủ)
-                if (endPage - startPage < 4) {
-                  if (startPage === 0) {
-                    endPage = Math.min(totalPages - 1, startPage + 4);
-                  } else if (endPage === totalPages - 1) {
-                    startPage = Math.max(0, endPage - 4);
+                if (totalPages <= maxPagesToShow) {
+                  // Nếu tổng số trang <= 5, hiển thị tất cả
+                  for (let i = 0; i < totalPages; i++) {
+                    pageNumbers.push(i);
+                  }
+                } else {
+                  // Tính toán để hiển thị 5 trang xung quanh trang hiện tại
+                  let startPage = Math.max(0, currentPage - 2);
+                  let endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
+                  
+                  // Điều chỉnh startPage nếu không đủ 5 trang ở cuối
+                  if (endPage - startPage < maxPagesToShow - 1) {
+                    startPage = Math.max(0, endPage - maxPagesToShow + 1);
+                  }
+                  
+                  for (let i = startPage; i <= endPage; i++) {
+                    pageNumbers.push(i);
                   }
                 }
                 
-                // Tạo mảng các số trang
-                for (let i = startPage; i <= endPage; i++) {
-                  pageNumbers.push(i);
+                // Nếu không có trang nào, hiển thị ít nhất trang 1
+                if (pageNumbers.length === 0) {
+                  pageNumbers.push(0);
                 }
                 
                 return pageNumbers.map((pageNum) => (
@@ -1444,7 +1462,7 @@ const LegalCaseManager = () => {
 
               {/* Nút trang cuối */}
               <button
-                onClick={() => handlePageChange(Math.ceil(pagination.totalElements / pagination.size) - 1)}
+                onClick={() => handlePageChange(pagination.totalPages - 1)}
                 disabled={pagination.isLast}
                 className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
                 title="Trang cuối (End)"
