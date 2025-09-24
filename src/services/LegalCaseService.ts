@@ -1,5 +1,6 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
+import { type LegalCasesResponse } from "../types/response/legal-case/LegalCasesResponse";
 import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import { type AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
@@ -21,11 +22,24 @@ export class LegalCaseService {
   }
 
   static async search(
-    request: LegalCaseSearchRequest
-  ): Promise<ApiResponse<LegalCaseResponse[]>> {
+    request: LegalCaseSearchRequest,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = "acceptanceDate"
+  ): Promise<ApiResponse<LegalCasesResponse>> {
     const token = localStorage.getItem("token");
-    return Connect.request<LegalCaseResponse[]>(
-      `${this.api}/search`,
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+      sortBy: sortBy
+    });
+    
+    const url = `${this.api}/search?${queryParams.toString()}`;
+    
+    return Connect.request<LegalCasesResponse>(
+      url,
       "POST",
       request,
       token

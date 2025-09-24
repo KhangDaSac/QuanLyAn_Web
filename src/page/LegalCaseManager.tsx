@@ -9,6 +9,7 @@ import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import { LegalCaseService } from "../services/LegalCaseService";
 import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
+import type { LegalCasesResponse } from "../types/response/legal-case/LegalCasesResponse";
 import type { LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import type { AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
@@ -30,6 +31,21 @@ const LegalCaseManager = () => {
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    hasNext: false,
+    hasPrevious: false,
+    isFirst: true,
+    isLast: false,
+  });
+
+  // Separate state for sort criteria
+  const [sortBy, setSortBy] = useState("acceptanceDate");
+
   const [legalCaseSearch, setLegalCaseSearch] =
     useState<LegalCaseSearchRequest>({
       acceptanceNumber: null,
@@ -47,6 +63,24 @@ const LegalCaseManager = () => {
       batchId: null,
       storageDate: null,
     });
+
+  // Page size options
+  const pageSizeOptions: Option[] = [
+    { value: "5", label: "5" },
+    { value: "10", label: "10" },
+    { value: "20", label: "20" },
+    { value: "50", label: "50" },
+    { value: "100", label: "100" },
+  ];
+
+  // Sort by options
+  const sortByOptions: Option[] = [
+    { value: "acceptanceDate", label: "Ngày tiếp nhận" },
+    { value: "acceptanceNumber", label: "Số tiếp nhận" },
+    { value: "plaintiff", label: "Nguyên đơn" },
+    { value: "defendant", label: "Bị đơn" },
+    { value: "storageDate", label: "Ngày lưu trữ" },
+  ];
 
   const [statusOfLegalCaseFilters, setStatusOfLegalCaseFilters] = useState({
     statusOfLegalCase: "",
@@ -123,25 +157,91 @@ const LegalCaseManager = () => {
   });
 
   useEffect(() => {
-    fetchLegalCases();
+    // Only run on initial mount, not when handleSearch changes
+    const initialSearch = async () => {
+      setLoading(true);
+      try {
+        console.log("Initial search request body:", legalCaseSearch); // Debug log
+        console.log("Initial search pagination params:", { page: pagination.page, size: pagination.size, sortBy }); // Debug log
+        const { data } = await LegalCaseService.search(legalCaseSearch, pagination.page, pagination.size, sortBy);
+        if (data) {
+          setLegalCases(data.legalCases);
+          setPagination({
+            page: data.number,
+            size: data.size,
+            totalElements: data.numberOfElement,
+            hasNext: data.hasNext,
+            hasPrevious: data.hasPrevious,
+            isFirst: data.isFirst,
+            isLast: data.isLast,
+          });
+        }
+        console.log("Initial search response:", data); // Debug log
+      } catch (error) {
+        console.error("Error searching legal cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    initialSearch();
     fetchTypeOfLegalCases();
     fetchLegalRelationships();
     fetchLegalRelationshipGroups();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array for initial load only
+
+  // Keyboard navigation for pagination
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle arrow keys when not typing in input fields
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        event.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          if (pagination.hasPrevious) {
+            handlePageChange(pagination.page - 1);
+          }
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          if (pagination.hasNext) {
+            handlePageChange(pagination.page + 1);
+          }
+          break;
+        case 'Home':
+          event.preventDefault();
+          if (!pagination.isFirst) {
+            handlePageChange(0);
+          }
+          break;
+        case 'End':
+          event.preventDefault();
+          if (!pagination.isLast) {
+            const totalPages = Math.ceil(pagination.totalElements / pagination.size);
+            handlePageChange(totalPages - 1);
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [pagination.page, pagination.hasNext, pagination.hasPrevious, pagination.isFirst, pagination.isLast, pagination.totalElements, pagination.size]);
 
   const fetchLegalCases = async () => {
-    setLoading(true);
-    try {
-      const { data } = await LegalCaseService.top50();
-      if (data) {
-        setLegalCases(data);
-      }
-    } catch (error) {
-      console.error("Error fetching legal cases:", error);
-    } finally {
-      setLoading(false);
-    }
+    // This function is no longer needed as we use handleSearch
+    await handleSearch();
   };
+
+  // Helper function is no longer needed since we separate pagination params
 
   const fetchTypeOfLegalCases = async () => {
     setLoading(true);
@@ -212,11 +312,22 @@ const LegalCaseManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const { data } = await LegalCaseService.search(legalCaseSearch);
+      console.log("Search request body:", legalCaseSearch); // Debug log
+      console.log("Search pagination params:", { page: pagination.page, size: pagination.size, sortBy }); // Debug log
+      const { data } = await LegalCaseService.search(legalCaseSearch, pagination.page, pagination.size, sortBy);
       if (data) {
-        setLegalCases(data);
+        setLegalCases(data.legalCases);
+        setPagination({
+          page: data.number,
+          size: data.size,
+          totalElements: data.numberOfElement,
+          hasNext: data.hasNext,
+          hasPrevious: data.hasPrevious,
+          isFirst: data.isFirst,
+          isLast: data.isLast,
+        });
       }
-      console.log(data);
+      console.log("Search response:", data); // Debug log
     } catch (error) {
       console.error("Error searching legal cases:", error);
     } finally {
@@ -225,7 +336,7 @@ const LegalCaseManager = () => {
   };
 
   const handleClearFilters = () => {
-    setLegalCaseSearch({
+    const clearedSearch = {
       acceptanceNumber: null,
       startAcceptanceDate: null,
       endAcceptanceDate: null,
@@ -240,8 +351,124 @@ const LegalCaseManager = () => {
       judgeName: null,
       batchId: null,
       storageDate: null,
-    });
-    fetchLegalCases();
+    };
+    setLegalCaseSearch(clearedSearch);
+    // Reset pagination to first page but keep size and sortBy
+    setPagination(prev => ({ ...prev, page: 0 }));
+    // Perform search with cleared filters
+    const searchWithCleared = async () => {
+      setLoading(true);
+      try {
+        const { data } = await LegalCaseService.search(clearedSearch, 0, pagination.size, sortBy);
+        if (data) {
+          setLegalCases(data.legalCases);
+          setPagination({
+            page: data.number,
+            size: data.size,
+            totalElements: data.numberOfElement,
+            hasNext: data.hasNext,
+            hasPrevious: data.hasPrevious,
+            isFirst: data.isFirst,
+            isLast: data.isLast,
+          });
+        }
+      } catch (error) {
+        console.error("Error searching legal cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithCleared();
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, page }));
+    // Perform search with new page
+    const searchWithNewPage = async () => {
+      setLoading(true);
+      try {
+        console.log("Page change request:", { page, size: pagination.size, sortBy }); // Debug log
+        const { data } = await LegalCaseService.search(legalCaseSearch, page, pagination.size, sortBy);
+        if (data) {
+          setLegalCases(data.legalCases);
+          setPagination({
+            page: data.number,
+            size: data.size,
+            totalElements: data.numberOfElement,
+            hasNext: data.hasNext,
+            hasPrevious: data.hasPrevious,
+            isFirst: data.isFirst,
+            isLast: data.isLast,
+          });
+        }
+      } catch (error) {
+        console.error("Error searching legal cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithNewPage();
+  };
+
+  const handlePageSizeChange = (size: string) => {
+    const newSize = parseInt(size);
+    setPagination(prev => ({ ...prev, page: 0, size: newSize }));
+    // Perform search with new page size
+    const searchWithNewSize = async () => {
+      setLoading(true);
+      try {
+        console.log("Page size change request:", { page: 0, size: newSize, sortBy }); // Debug log
+        const { data } = await LegalCaseService.search(legalCaseSearch, 0, newSize, sortBy);
+        if (data) {
+          setLegalCases(data.legalCases);
+          setPagination({
+            page: data.number,
+            size: data.size,
+            totalElements: data.numberOfElement,
+            hasNext: data.hasNext,
+            hasPrevious: data.hasPrevious,
+            isFirst: data.isFirst,
+            isLast: data.isLast,
+          });
+        }
+      } catch (error) {
+        console.error("Error searching legal cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithNewSize();
+  };
+
+  const handleSortByChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    setPagination(prev => ({ ...prev, page: 0 }));
+    // Perform search with new sort
+    const searchWithNewSort = async () => {
+      setLoading(true);
+      try {
+        console.log("Sort change request:", { page: 0, size: pagination.size, sortBy: newSortBy }); // Debug log
+        const { data } = await LegalCaseService.search(legalCaseSearch, 0, pagination.size, newSortBy);
+        if (data) {
+          setLegalCases(data.legalCases);
+          setPagination({
+            page: data.number,
+            size: data.size,
+            totalElements: data.numberOfElement,
+            hasNext: data.hasNext,
+            hasPrevious: data.hasPrevious,
+            isFirst: data.isFirst,
+            isLast: data.isLast,
+          });
+        }
+      } catch (error) {
+        console.error("Error searching legal cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithNewSort();
   };
 
   /*
@@ -1095,6 +1322,141 @@ const LegalCaseManager = () => {
           </div>
         </div>
       </div> */}
+
+      {/* Pagination Controls */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Page Size and Sort Controls */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">
+                Hiển thị:
+              </label>
+              <ComboboxSearch
+                options={pageSizeOptions}
+                value={pagination.size.toString()}
+                onChange={handlePageSizeChange}
+                placeholder="Chọn số lượng"
+                className="w-24"
+              />
+              <span className="text-sm text-gray-500">mục/trang</span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">
+                Sắp xếp theo:
+              </label>
+              <ComboboxSearch
+                options={sortByOptions}
+                value={sortBy}
+                onChange={handleSortByChange}
+                placeholder="Chọn tiêu chí sắp xếp"
+                className="w-48"
+              />
+            </div>
+          </div>
+
+          {/* Pagination Info and Navigation */}
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="text-sm text-gray-700 text-center sm:text-left">
+              <div>Trang {pagination.page + 1} / {Math.ceil(pagination.totalElements / pagination.size)}</div>
+              <div className="text-xs text-gray-500 mt-1">
+                {pagination.totalElements} kết quả • Dùng ←→ để chuyển trang
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-1">
+              {/* Nút trang đầu */}
+              <button
+                onClick={() => handlePageChange(0)}
+                disabled={pagination.isFirst}
+                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
+                title="Trang đầu (Home)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M21 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              {/* Nút trang trước */}
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={!pagination.hasPrevious}
+                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
+                title="Trang trước (←)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Dãy số trang */}
+              {(() => {
+                const totalPages = Math.ceil(pagination.totalElements / pagination.size);
+                const currentPage = pagination.page;
+                const pageNumbers = [];
+                
+                // Tính toán trang bắt đầu và kết thúc
+                let startPage = Math.max(0, currentPage - 2);
+                let endPage = Math.min(totalPages - 1, currentPage + 2);
+                
+                // Điều chỉnh để luôn hiển thị 5 số (nếu có đủ)
+                if (endPage - startPage < 4) {
+                  if (startPage === 0) {
+                    endPage = Math.min(totalPages - 1, startPage + 4);
+                  } else if (endPage === totalPages - 1) {
+                    startPage = Math.max(0, endPage - 4);
+                  }
+                }
+                
+                // Tạo mảng các số trang
+                for (let i = startPage; i <= endPage; i++) {
+                  pageNumbers.push(i);
+                }
+                
+                return pageNumbers.map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`min-w-[40px] px-3 py-2 text-sm font-medium border rounded-lg transition-all duration-200 ${
+                      pageNum === currentPage
+                        ? 'bg-red-600 text-white border-red-600 shadow-lg transform scale-105'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md'
+                    }`}
+                    title={`Trang ${pageNum + 1}`}
+                  >
+                    {pageNum + 1}
+                  </button>
+                ));
+              })()}
+
+              {/* Nút trang sau */}
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={!pagination.hasNext}
+                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
+                title="Trang sau (→)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Nút trang cuối */}
+              <button
+                onClick={() => handlePageChange(Math.ceil(pagination.totalElements / pagination.size) - 1)}
+                disabled={pagination.isLast}
+                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
+                title="Trang cuối (End)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7m-8 0l7-7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Legal Cases List */}
       {loading ? (
