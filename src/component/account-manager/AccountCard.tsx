@@ -20,12 +20,7 @@ const AccountCard = ({
 
   const isActiveStatus = (status: any) => {
     return (
-      status === StatusOfAccount.ACTIVE ||
-      status === "ACTIVE" ||
-      status === "active" ||
-      status === "Đang hoạt động" ||
-      status === true ||
-      status === 1
+      status === StatusOfAccount.ACTIVE
     );
   };
 
@@ -40,6 +35,20 @@ const AccountCard = ({
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const getStatusAccountText = (status: string) => {
+    if (Object.values(StatusOfAccount).includes(status as StatusOfAccount)) {
+      return status;
+    }
+    return (StatusOfAccount as any)[status] || status;
+  };
+
+  const getStatusOfficerText = (status: string) => {
+    if (Object.values(StatusOfOfficer).includes(status as StatusOfOfficer)) {
+      return status;
+    }
+    return (StatusOfOfficer as any)[status] || status;
   };
 
   // const formatDate = (dateString: string) => {
@@ -83,9 +92,7 @@ const AccountCard = ({
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
                 }`}>
-                {isActiveStatus(account.statusOfAccount)
-                  ? "Hoạt động"
-                  : "Bị khóa"}
+                {getStatusAccountText(account.statusOfAccount)}
               </span>
             </div>
             <p className="text-sm text-gray-600 truncate" title={account.email}>
@@ -123,7 +130,7 @@ const AccountCard = ({
                       ? "bg-green-100 text-green-800"
                       : "bg-orange-100 text-orange-800"
                   }`}>
-                  {account.officer.statusOfOfficer}
+                  {getStatusOfficerText(account.officer.statusOfOfficer)}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-xs text-gray-600">
@@ -183,7 +190,7 @@ const AccountCard = ({
               />
             </svg>
             <span>
-              {isActiveStatus(account.statusOfAccount) ? "Khóa" : "Mở khóa"}
+              {getStatusAccountText(account.statusOfAccount)}
             </span>
           </button>
 
@@ -244,7 +251,7 @@ const AccountCard = ({
                 ? "bg-green-100 text-green-800"
                 : "bg-red-100 text-red-800"
             }`}>
-            {isActiveStatus(account.statusOfAccount) ? "Hoạt động" : "Bị khóa"}
+            {getStatusAccountText(account.statusOfAccount)}
           </span>
         </div>
 
@@ -277,7 +284,7 @@ const AccountCard = ({
                     ? "bg-green-100 text-green-800"
                     : "bg-orange-100 text-orange-800"
                 }`}>
-                {account.officer.statusOfOfficer}
+                {getStatusOfficerText(account.officer.statusOfOfficer)}
               </span>
             </div>
             <div className="mt-1 text-xs text-gray-600">
@@ -330,7 +337,7 @@ const AccountCard = ({
               />
             </svg>
             <span>
-              {isActiveStatus(account.statusOfAccount) ? "Khóa" : "Mở khóa"}
+              {getStatusAccountText(account.statusOfAccount) === "Đang hoạt động" ? "Khóa" : "Mở khóa"}
             </span>
           </button>
 

@@ -19,11 +19,9 @@ const formatDate = (dateString: string) => {
 };
 
 const getStatusText = (status: string) => {
-  // Nếu status đã là tiếng Việt thì trả về luôn
   if (Object.values(StatusOfLegalCase).includes(status as StatusOfLegalCase)) {
     return status;
   }
-  // Nếu status là key tiếng Anh thì chuyển sang tiếng Việt
   return (StatusOfLegalCase as any)[status] || status;
 };
 
