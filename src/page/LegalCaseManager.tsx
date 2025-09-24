@@ -9,7 +9,6 @@ import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import { LegalCaseService } from "../services/LegalCaseService";
 import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
-import type { LegalCasesResponse } from "../types/response/legal-case/LegalCasesResponse";
 import type { LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import type { AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
@@ -1344,6 +1343,7 @@ const LegalCaseManager = () => {
                 onChange={handlePageSizeChange}
                 placeholder="Chọn số lượng"
                 className="w-24"
+                isSearch={false}
               />
               <span className="text-sm text-gray-500">mục/trang</span>
             </div>
@@ -1358,6 +1358,7 @@ const LegalCaseManager = () => {
                 onChange={handleSortByChange}
                 placeholder="Chọn tiêu chí sắp xếp"
                 className="w-48"
+                isSearch={false}
               />
             </div>
           </div>

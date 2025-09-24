@@ -11,6 +11,7 @@ interface ComboboxSearchProps {
   onChange: (value: string) => void; // Callback khi chọn option mới
   placeholder?: string;
   className?: string;
+  isSearch?: boolean; // Hiển thị thanh tìm kiếm, mặc định là true
 }
 
 const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
@@ -19,6 +20,7 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
   onChange,
   placeholder = "Chọn...",
   className = "",
+  isSearch = true, // Mặc định là true
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -27,10 +29,10 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
   // Tìm option được chọn
   const selectedOption = options.find((opt) => opt.value === value);
 
-  // Lọc danh sách theo từ khoá tìm kiếm
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(query.toLowerCase())
-  );
+  // Lọc danh sách theo từ khoá tìm kiếm - chỉ khi isSearch = true
+  const filteredOptions = isSearch 
+    ? options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase()))
+    : options;
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -85,16 +87,18 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
       {/* Dropdown */}
       {isOpen && (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
-          {/* Thanh tìm kiếm nằm trong dropdown */}
-          <div className="p-2 border-b border-gray-200">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm kiếm..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500"
-            />
-          </div>
+          {/* Thanh tìm kiếm nằm trong dropdown - chỉ hiển thị khi isSearch = true */}
+          {isSearch && (
+            <div className="p-2 border-b border-gray-200">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Tìm kiếm..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+          )}
 
           {/* Danh sách option */}
           <ul className="max-h-48 overflow-y-auto">
