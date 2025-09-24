@@ -1,6 +1,6 @@
 import { type ApiResponse } from "../types/ApiResponse";
-const server_url = "https://quanlyan-server.onrender.com";
-// const server_url = "http://localhost:8080";
+const server_url = "http://192.168.222.189:8081";
+// const server_url = "https://quanlyan-server.onrender.com";
 
 export class Connect {
     static async request<T>(

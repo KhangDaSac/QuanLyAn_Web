@@ -16,12 +16,9 @@ const AccountCard = ({
   onDelete,
   onToggleStatus,
 }: AccountCardProps) => {
-  // Debug log để kiểm tra giá trị statusOfAccount từ API
-  console.log(account);
+  console.log(account);``
 
-  // Helper function để kiểm tra trạng thái active
   const isActiveStatus = (status: any) => {
-    // Kiểm tra tất cả các dạng có thể có từ API
     return (
       status === StatusOfAccount.ACTIVE ||
       status === "ACTIVE" ||
