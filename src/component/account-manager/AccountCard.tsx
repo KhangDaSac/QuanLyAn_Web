@@ -51,6 +51,13 @@ const AccountCard = ({
     return (StatusOfOfficer as any)[status] || status;
   };
 
+  const getRoleText = (role: string) => {
+    if (Object.values(Role).includes(role as Role)) {
+      return role;
+    }
+    return (Role as any)[role] || role;
+  };
+
   // const formatDate = (dateString: string) => {
   //   return new Date(dateString).toLocaleDateString('vi-VN', {
   //     year: 'numeric',
@@ -84,7 +91,7 @@ const AccountCard = ({
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(
                   account.role
                 )}`}>
-                {account.role}
+                {getRoleText(account.role)}
               </span>
               <span
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
@@ -100,7 +107,7 @@ const AccountCard = ({
             </p>
           </div>
         </div>
-
+        
         {/* Middle Section - Officer Info */}
         {account.officer && (
           <div className="flex items-center space-x-4 flex-1 min-w-0 px-4">
@@ -183,14 +190,14 @@ const AccountCard = ({
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d={
-                  isActiveStatus(account.statusOfAccount)
+                  account.statusOfAccount.toString() == "ACTIVE"
                     ? "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
                     : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 }
               />
             </svg>
             <span>
-              {getStatusAccountText(account.statusOfAccount)}
+              {account.statusOfAccount.toString() == "ACTIVE" ? "Khóa" : "Mở khóa"}
             </span>
           </button>
 
@@ -294,7 +301,7 @@ const AccountCard = ({
         )}
 
         {/* Bottom Row - Actions */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        {/* <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => onEdit(account)}
             className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200">
@@ -337,7 +344,7 @@ const AccountCard = ({
               />
             </svg>
             <span>
-              {getStatusAccountText(account.statusOfAccount) === "Đang hoạt động" ? "Khóa" : "Mở khóa"}
+              {account.statusOfAccount === StatusOfAccount.ACTIVE ? "Khóa" : "Mở khóa"}
             </span>
           </button>
 
@@ -358,7 +365,7 @@ const AccountCard = ({
             </svg>
             <span>Xóa</span>
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
