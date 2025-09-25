@@ -60,7 +60,11 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
       {/* Nút hiển thị combobox */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white cursor-pointer focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm flex justify-between items-center"
+        className="w-full px-3 border border-gray-300 rounded-lg bg-white cursor-pointer focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm flex justify-between items-center"
+        style={{
+          height: "40px", // Chiều cao cố định thay vì minHeight
+          minWidth: "120px", // Đảm bảo chiều rộng tối thiểu
+        }}
       >
         <span
           className={`flex-1 ${!displayText ? "text-gray-400" : ""}`}
@@ -68,14 +72,21 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
+            lineHeight: "24px", // Line height cố định để text luôn căn giữa
+            height: "24px", // Chiều cao cố định cho text
+            display: "flex",
+            alignItems: "center",
           }}
         >
           {displayText || placeholder}
         </span>
         <svg
-          className={`w-4 h-4 ml-2 flex-shrink-0 transform transition-transform ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
+          className="w-4 h-4 ml-2 flex-shrink-0 transform transition-transform"
+          style={{
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            minWidth: "16px", // Đảm bảo icon không bị co lại
+            minHeight: "16px",
+          }}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -95,7 +106,10 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm kiếm..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-3 border border-gray-300 rounded-lg outline-none text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                style={{
+                  height: "32px", // Chiều cao cố định thay vì minHeight
+                }}
               />
             </div>
           )}
@@ -107,19 +121,24 @@ const ComboboxSearch: React.FC<ComboboxSearchProps> = ({
                 <li
                   key={option.value}
                   onClick={() => handleSelect(option)}
-                  className={`px-3 py-2 text-sm cursor-pointer hover:bg-red-100 ${
+                  className={`px-3 text-sm cursor-pointer hover:bg-red-100 transition-colors ${
                     option.value === value ? "bg-red-50 font-medium" : ""
                   }`}
                   style={{
                     whiteSpace: "normal", // Cho phép xuống dòng
                     wordBreak: "break-word", // Ngắt từ nếu quá dài
+                    height: "36px", // Chiều cao cố định thay vì minHeight
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   {option.label}
                 </li>
               ))
             ) : (
-              <li className="px-3 py-2 text-sm text-gray-500">Không tìm thấy</li>
+              <li className="px-3 text-sm text-gray-500" style={{ height: "36px", display: "flex", alignItems: "center" }}>
+                Không tìm thấy
+              </li>
             )}
           </ul>
         </div>
