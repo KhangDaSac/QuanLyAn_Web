@@ -15,7 +15,7 @@ const MainLayout = ({
   className = "",
 }: MainLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { logout, hasPermission } = useAuth();
+  const { logout, hasPermission, user } = useAuth();
   const location = useLocation();
 
   const handleLogout = async (e: React.FormEvent) => {
@@ -41,7 +41,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/",
-      requiredPermissions: [] as Permission[], // No permissions needed for home
+      requiredPermissions: [] as Permission[],
     },
     {
       name: "PC án ngẫu nhiên",
@@ -156,7 +156,7 @@ const MainLayout = ({
       ),
       href: "/account-management",
       requiredPermissions: [Permission.VIEW_ACCOUNT_MANAGER] as Permission[],
-    }
+    },
   ];
 
   return (
@@ -171,12 +171,14 @@ const MainLayout = ({
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-primary-600 font-semibold text-sm">
-                  LW
+                  {user?.username?.slice(0, 2).toUpperCase()}
                 </span>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">Thẩm phán</p>
-                <p className="text-xs text-gray-800">Nguyễn Văn A</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {user?.role}
+                </p>
+                <p className="text-xs text-gray-800">{user?.username}</p>
               </div>
             </div>
           </div>
@@ -184,41 +186,44 @@ const MainLayout = ({
 
         <nav className="mt-8 px-4 space-y-2 ">
           {menuItems
-            .filter(item => 
-              !item.requiredPermissions?.length || 
-              item.requiredPermissions.some(permission => hasPermission(permission))
+            .filter(
+              (item) =>
+                !item.requiredPermissions?.length ||
+                item.requiredPermissions.some((permission) =>
+                  hasPermission(permission)
+                )
             )
             .map((item, index) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link
-                key={index}
-                to={item.href}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg border-2 box-border
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={index}
+                  to={item.href}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg border-2 box-border
           ${
             isActive
               ? "border-red-600 bg-red-50 text-red-600"
               : "border-transparent text-gray-700 hover:bg-blue-100"
           }`}>
-                <span
-                  className={`w-5 h-5 ${
-                    isActive ? "text-red-600" : "text-gray-700"
-                  }`}>
-                  {React.cloneElement(item.icon, {
-                    className: `w-5 h-5 ${
+                  <span
+                    className={`w-5 h-5 ${
                       isActive ? "text-red-600" : "text-gray-700"
-                    }`,
-                  })}
-                </span>
-                <span
-                  className={`font-medium ${
-                    isActive ? "text-red-600" : "text-gray-700"
-                  }`}>
-                  {item.name}
-                </span>
-              </Link>
-            );
-          })}
+                    }`}>
+                    {React.cloneElement(item.icon, {
+                      className: `w-5 h-5 ${
+                        isActive ? "text-red-600" : "text-gray-700"
+                      }`,
+                    })}
+                  </span>
+                  <span
+                    className={`font-medium ${
+                      isActive ? "text-red-600" : "text-gray-700"
+                    }`}>
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            })}
         </nav>
 
         <div className="absolute bottom-4 left-4 right-4">
