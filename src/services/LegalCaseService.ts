@@ -1,6 +1,6 @@
 import { type ApiResponse } from "../types/ApiResponse";
 import { type LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
-import { type LegalCasesResponse } from "../types/response/legal-case/LegalCasesResponse";
+// import { type LegalCasesResponse } from "../types/response/legal-case/LegalCasesResponse";
 import { type LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import { type LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import { type AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
@@ -8,6 +8,7 @@ import { Connect } from "../connect/Connect";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
 import type { RandomAssignmentRequest } from "../types/request/legal-case/RandomAssignmentRequest";
 import type { AssignmentListRequest } from "../types/request/legal-case/AssignmentListReques";
+import type { PageResponse } from "../types/response/PageResponse";
 
 export class LegalCaseService {
   static api: string = "/legal-case";
@@ -26,7 +27,7 @@ export class LegalCaseService {
     page: number = 0,
     size: number = 10,
     sortBy: string = "acceptanceDate"
-  ): Promise<ApiResponse<LegalCasesResponse>> {
+  ): Promise<ApiResponse<PageResponse<LegalCaseResponse>>> {
     const token = localStorage.getItem("token");
     
     // Build query parameters
@@ -38,7 +39,7 @@ export class LegalCaseService {
     
     const url = `${this.api}/search?${queryParams.toString()}`;
     
-    return Connect.request<LegalCasesResponse>(
+    return Connect.request<PageResponse<LegalCaseResponse>>(
       url,
       "POST",
       request,

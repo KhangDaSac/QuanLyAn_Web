@@ -30,7 +30,7 @@ const LegalCaseManager = () => {
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // Pagination state
   const [pagination, setPagination] = useState({
     page: 0,
@@ -162,15 +162,28 @@ const LegalCaseManager = () => {
       setLoading(true);
       try {
         console.log("Initial search request body:", legalCaseSearch); // Debug log
-        console.log("Initial search pagination params:", { page: pagination.page, size: pagination.size, sortBy }); // Debug log
-        const { data } = await LegalCaseService.search(legalCaseSearch, pagination.page, pagination.size, sortBy);
+        console.log("Initial search pagination params:", {
+          page: pagination.page,
+          size: pagination.size,
+          sortBy,
+        }); // Debug log
+        const { data } = await LegalCaseService.search(
+          legalCaseSearch,
+          pagination.page,
+          pagination.size,
+          sortBy
+        );
         if (data) {
-          setLegalCases(data.legalCases);
+          setLegalCases(data.content);
           setPagination({
             page: data.number,
             size: data.size,
             totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
-            totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+            totalPages:
+              data.totalPages ||
+              Math.ceil(
+                (data.totalElements || data.numberOfElement) / data.size
+              ),
             hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
@@ -184,7 +197,7 @@ const LegalCaseManager = () => {
         setLoading(false);
       }
     };
-    
+
     initialSearch();
     fetchTypeOfLegalCases();
     fetchLegalRelationships();
@@ -205,25 +218,25 @@ const LegalCaseManager = () => {
       }
 
       switch (event.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           event.preventDefault();
           if (pagination.hasPrevious) {
             handlePageChange(pagination.page - 1);
           }
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           event.preventDefault();
           if (pagination.hasNext) {
             handlePageChange(pagination.page + 1);
           }
           break;
-        case 'Home':
+        case "Home":
           event.preventDefault();
           if (!pagination.isFirst) {
             handlePageChange(0);
           }
           break;
-        case 'End':
+        case "End":
           event.preventDefault();
           if (!pagination.isLast) {
             handlePageChange(pagination.totalPages - 1);
@@ -232,9 +245,17 @@ const LegalCaseManager = () => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [pagination.page, pagination.hasNext, pagination.hasPrevious, pagination.isFirst, pagination.isLast, pagination.totalElements, pagination.size]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    pagination.page,
+    pagination.hasNext,
+    pagination.hasPrevious,
+    pagination.isFirst,
+    pagination.isLast,
+    pagination.totalElements,
+    pagination.size,
+  ]);
 
   const fetchLegalCases = async () => {
     // This function is no longer needed as we use handleSearch
@@ -313,15 +334,26 @@ const LegalCaseManager = () => {
     setLoading(true);
     try {
       console.log("Search request body:", legalCaseSearch); // Debug log
-      console.log("Search pagination params:", { page: pagination.page, size: pagination.size, sortBy }); // Debug log
-      const { data } = await LegalCaseService.search(legalCaseSearch, pagination.page, pagination.size, sortBy);
+      console.log("Search pagination params:", {
+        page: pagination.page,
+        size: pagination.size,
+        sortBy,
+      }); // Debug log
+      const { data } = await LegalCaseService.search(
+        legalCaseSearch,
+        pagination.page,
+        pagination.size,
+        sortBy
+      );
       if (data) {
-        setLegalCases(data.legalCases);
+        setLegalCases(data.content);
         setPagination({
           page: data.number,
           size: data.size,
           totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
-          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+          totalPages:
+            data.totalPages ||
+            Math.ceil((data.totalElements || data.numberOfElement) / data.size),
           hasNext: data.hasNext,
           hasPrevious: data.hasPrevious,
           isFirst: data.isFirst,
@@ -355,20 +387,29 @@ const LegalCaseManager = () => {
     };
     setLegalCaseSearch(clearedSearch);
     // Reset pagination to first page but keep size and sortBy
-    setPagination(prev => ({ ...prev, page: 0 }));
+    setPagination((prev) => ({ ...prev, page: 0 }));
     // Perform search with cleared filters
     const searchWithCleared = async () => {
       setLoading(true);
       try {
-        const { data } = await LegalCaseService.search(clearedSearch, 0, pagination.size, sortBy);
+        const { data } = await LegalCaseService.search(
+          clearedSearch,
+          0,
+          pagination.size,
+          sortBy
+        );
         if (data) {
-          setLegalCases(data.legalCases);
+          setLegalCases(data.content);
           setPagination({
             page: data.number,
             size: data.size,
             totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
-          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
-          hasNext: data.hasNext,
+            totalPages:
+              data.totalPages ||
+              Math.ceil(
+                (data.totalElements || data.numberOfElement) / data.size
+              ),
+            hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -385,21 +426,34 @@ const LegalCaseManager = () => {
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
     // Perform search with new page
     const searchWithNewPage = async () => {
       setLoading(true);
       try {
-        console.log("Page change request:", { page, size: pagination.size, sortBy }); // Debug log
-        const { data } = await LegalCaseService.search(legalCaseSearch, page, pagination.size, sortBy);
+        console.log("Page change request:", {
+          page,
+          size: pagination.size,
+          sortBy,
+        }); // Debug log
+        const { data } = await LegalCaseService.search(
+          legalCaseSearch,
+          page,
+          pagination.size,
+          sortBy
+        );
         if (data) {
-          setLegalCases(data.legalCases);
+          setLegalCases(data.content);
           setPagination({
             page: data.number,
             size: data.size,
             totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
-          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
-          hasNext: data.hasNext,
+            totalPages:
+              data.totalPages ||
+              Math.ceil(
+                (data.totalElements || data.numberOfElement) / data.size
+              ),
+            hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -416,21 +470,34 @@ const LegalCaseManager = () => {
 
   const handlePageSizeChange = (size: string) => {
     const newSize = parseInt(size);
-    setPagination(prev => ({ ...prev, page: 0, size: newSize }));
+    setPagination((prev) => ({ ...prev, page: 0, size: newSize }));
     // Perform search with new page size
     const searchWithNewSize = async () => {
       setLoading(true);
       try {
-        console.log("Page size change request:", { page: 0, size: newSize, sortBy }); // Debug log
-        const { data } = await LegalCaseService.search(legalCaseSearch, 0, newSize, sortBy);
+        console.log("Page size change request:", {
+          page: 0,
+          size: newSize,
+          sortBy,
+        }); // Debug log
+        const { data } = await LegalCaseService.search(
+          legalCaseSearch,
+          0,
+          newSize,
+          sortBy
+        );
         if (data) {
-          setLegalCases(data.legalCases);
+          setLegalCases(data.content);
           setPagination({
             page: data.number,
             size: data.size,
             totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
-          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
-          hasNext: data.hasNext,
+            totalPages:
+              data.totalPages ||
+              Math.ceil(
+                (data.totalElements || data.numberOfElement) / data.size
+              ),
+            hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -447,21 +514,33 @@ const LegalCaseManager = () => {
 
   const handleSortByChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    setPagination(prev => ({ ...prev, page: 0 }));
-    // Perform search with new sort
+    setPagination((prev) => ({ ...prev, page: 0 }));
     const searchWithNewSort = async () => {
       setLoading(true);
       try {
-        console.log("Sort change request:", { page: 0, size: pagination.size, sortBy: newSortBy }); // Debug log
-        const { data } = await LegalCaseService.search(legalCaseSearch, 0, pagination.size, newSortBy);
+        console.log("Sort change request:", {
+          page: 0,
+          size: pagination.size,
+          sortBy: newSortBy,
+        }); // Debug log
+        const { data } = await LegalCaseService.search(
+          legalCaseSearch,
+          0,
+          pagination.size,
+          newSortBy
+        );
         if (data) {
-          setLegalCases(data.legalCases);
+          setLegalCases(data.content);
           setPagination({
             page: data.number,
             size: data.size,
             totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
-          totalPages: data.totalPages || Math.ceil((data.totalElements || data.numberOfElement) / data.size),
-          hasNext: data.hasNext,
+            totalPages:
+              data.totalPages ||
+              Math.ceil(
+                (data.totalElements || data.numberOfElement) / data.size
+              ),
+            hasNext: data.hasNext,
             hasPrevious: data.hasPrevious,
             isFirst: data.isFirst,
             isLast: data.isLast,
@@ -745,30 +824,30 @@ const LegalCaseManager = () => {
 
       // Chuẩn bị dữ liệu xuất - tạo header
       const headers = [
-        'STT',
-        'Số thụ lý',
-        'Ngày thụ lý',
-        'Nguyên đơn/Bị cáo',
-        'Địa chỉ nguyên đơn',
-        'Bị đơn',
-        'Địa chỉ bị đơn',
-        'Loại vụ án',
-        'Quan hệ pháp luật',
-        'Thẩm phán',
+        "STT",
+        "Số thụ lý",
+        "Ngày thụ lý",
+        "Nguyên đơn/Bị cáo",
+        "Địa chỉ nguyên đơn",
+        "Bị đơn",
+        "Địa chỉ bị đơn",
+        "Loại vụ án",
+        "Quan hệ pháp luật",
+        "Thẩm phán",
       ];
 
       // Chuẩn bị dữ liệu rows
       const rows = legalCases.map((legalCase, index) => [
         index + 1, // STT
-        legalCase.acceptanceNumber || '',
-        legalCase.acceptanceDate || '',
-        legalCase.plaintiff || '',
-        legalCase.plaintiffAddress || '',
-        legalCase.defendant || '',
-        legalCase.defendantAddress || '',
-        legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || '',
-        legalCase.legalRelationship?.legalRelationshipName || '',
-        legalCase.judge?.fullName || '',
+        legalCase.acceptanceNumber || "",
+        legalCase.acceptanceDate || "",
+        legalCase.plaintiff || "",
+        legalCase.plaintiffAddress || "",
+        legalCase.defendant || "",
+        legalCase.defendantAddress || "",
+        legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
+        legalCase.legalRelationship?.legalRelationshipName || "",
+        legalCase.judge?.fullName || "",
       ]);
 
       // Tạo data array với header và rows
@@ -781,28 +860,30 @@ const LegalCaseManager = () => {
       const colWidths = headers.map((header, index) => {
         const maxLength = Math.max(
           header.length,
-          ...rows.map(row => (row[index]?.toString() || '').length)
+          ...rows.map((row) => (row[index]?.toString() || "").length)
         );
         return { wch: Math.min(maxLength + 2, 50) }; // Giới hạn tối đa 50 ký tự
       });
-      worksheet['!cols'] = colWidths;
+      worksheet["!cols"] = colWidths;
 
       // Thêm worksheet vào workbook
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách vụ án');
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách vụ án");
 
       // Tạo tên file với timestamp
       const now = new Date();
-      const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '');
+      const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, "");
       const fileName = `danh_sach_vu_an_${timestamp}.xlsx`;
 
       // Xuất file
       XLSX.writeFile(workbook, fileName);
 
-      toast.success('Xuất Excel thành công', `File "${fileName}" đã được tải về!`);
-
+      toast.success(
+        "Xuất Excel thành công",
+        `File "${fileName}" đã được tải về!`
+      );
     } catch (error) {
-      console.error('Error exporting Excel:', error);
-      toast.error('Xuất Excel thất bại', 'Có lỗi xảy ra khi xuất file Excel');
+      console.error("Error exporting Excel:", error);
+      toast.error("Xuất Excel thất bại", "Có lỗi xảy ra khi xuất file Excel");
     } finally {
       setExportLoading(false);
     }
@@ -859,48 +940,48 @@ const LegalCaseManager = () => {
           )}
           {auth?.hasPermission(Permission.CREATE_LEGAL_CASE) && (
             <button
-            onClick={handleImportExcel}
-            disabled={importLoading}
-            className="inline-flex items-center px-4 py-2 border border-red-300 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            {importLoading ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-600"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
+              onClick={handleImportExcel}
+              disabled={importLoading}
+              className="inline-flex items-center px-4 py-2 border border-red-300 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {importLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Đang import...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Đang import...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                  />
-                </svg>
-                Nhập từ tệp Excel
-              </>
-            )}
-          </button>
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                    />
+                  </svg>
+                  Nhập từ tệp Excel
+                </>
+              )}
+            </button>
           )}
           {auth?.hasPermission(Permission.VIEW_LEGAL_CASE) && (
             <button
@@ -1332,9 +1413,9 @@ const LegalCaseManager = () => {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           {/* Page Size and Sort Controls */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-10 sm:gap-6">
             <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                 Hiển thị:
               </label>
               <ComboboxSearch
@@ -1349,7 +1430,7 @@ const LegalCaseManager = () => {
             </div>
 
             <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                 Sắp xếp theo:
               </label>
               <ComboboxSearch
@@ -1365,29 +1446,44 @@ const LegalCaseManager = () => {
 
           {/* Pagination Info and Navigation */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            
             <div className="flex items-center space-x-1">
               {/* Nút trang đầu */}
               <button
                 onClick={() => handlePageChange(0)}
                 disabled={pagination.isFirst}
                 className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang đầu (Home)"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M21 19l-7-7 7-7" />
+                title="Trang đầu (Home)">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 19l-7-7 7-7M21 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
-              
+
               {/* Nút trang trước */}
               <button
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={!pagination.hasPrevious}
                 className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang trước (←)"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                title="Trang trước (←)">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
 
@@ -1395,19 +1491,19 @@ const LegalCaseManager = () => {
               {(() => {
                 const totalPages = pagination.totalPages; // Sử dụng totalPages từ backend
                 const currentPage = pagination.page;
-                
+
                 // Debug log để kiểm tra
-                console.log("Pagination debug:", { 
-                  totalElements: pagination.totalElements, 
-                  size: pagination.size, 
-                  totalPages, 
-                  currentPage 
+                console.log("Pagination debug:", {
+                  totalElements: pagination.totalElements,
+                  size: pagination.size,
+                  totalPages,
+                  currentPage,
                 });
-                
+
                 // Đảm bảo luôn hiển thị ít nhất 5 trang (hoặc ít hơn nếu không đủ)
                 const maxPagesToShow = 5;
                 const pageNumbers = [];
-                
+
                 if (totalPages <= maxPagesToShow) {
                   // Nếu tổng số trang <= 5, hiển thị tất cả
                   for (let i = 0; i < totalPages; i++) {
@@ -1416,34 +1512,36 @@ const LegalCaseManager = () => {
                 } else {
                   // Tính toán để hiển thị 5 trang xung quanh trang hiện tại
                   let startPage = Math.max(0, currentPage - 2);
-                  let endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
-                  
+                  let endPage = Math.min(
+                    totalPages - 1,
+                    startPage + maxPagesToShow - 1
+                  );
+
                   // Điều chỉnh startPage nếu không đủ 5 trang ở cuối
                   if (endPage - startPage < maxPagesToShow - 1) {
                     startPage = Math.max(0, endPage - maxPagesToShow + 1);
                   }
-                  
+
                   for (let i = startPage; i <= endPage; i++) {
                     pageNumbers.push(i);
                   }
                 }
-                
+
                 // Nếu không có trang nào, hiển thị ít nhất trang 1
                 if (pageNumbers.length === 0) {
                   pageNumbers.push(0);
                 }
-                
+
                 return pageNumbers.map((pageNum) => (
                   <button
                     key={pageNum}
                     onClick={() => handlePageChange(pageNum)}
                     className={`min-w-[40px] px-3 py-2 text-sm font-medium border rounded-lg transition-all duration-200 ${
                       pageNum === currentPage
-                        ? 'bg-red-600 text-white border-red-600 shadow-lg transform scale-105'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md'
+                        ? "bg-red-600 text-white border-red-600 shadow-lg transform scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md"
                     }`}
-                    title={`Trang ${pageNum + 1}`}
-                  >
+                    title={`Trang ${pageNum + 1}`}>
                     {pageNum + 1}
                   </button>
                 ));
@@ -1454,10 +1552,18 @@ const LegalCaseManager = () => {
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={!pagination.hasNext}
                 className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang sau (→)"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                title="Trang sau (→)">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
 
@@ -1466,10 +1572,18 @@ const LegalCaseManager = () => {
                 onClick={() => handlePageChange(pagination.totalPages - 1)}
                 disabled={pagination.isLast}
                 className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang cuối (End)"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7m-8 0l7-7-7-7" />
+                title="Trang cuối (End)">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 5l7 7-7 7m-8 0l7-7-7-7"
+                  />
                 </svg>
               </button>
             </div>
