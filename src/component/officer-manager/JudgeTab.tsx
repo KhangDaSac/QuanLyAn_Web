@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import JudgeCard from './JudgeCard';
 import JudgeForm from './JudgeForm';
 import ConfirmModal from '../basic-component/ConfirmModal';
+import Pagination from '../basic-component/Pagination';
 import { ToastContainer, useToast } from '../basic-component/Toast';
 import { JudgeService } from '../../services/JudgeService';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../../types/request/judge/JudgeSearchRequest';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
 import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
-import ComboboxSearch from '../basic-component/ComboboxSearch';
+import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 const JudgeTab = () => {
   const [judges, setJudges] = useState<JudgeResponse[]>([]);
@@ -22,6 +23,37 @@ const JudgeTab = () => {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+    isFirst: true,
+    isLast: false,
+  });
+
+  // Separate state for sort criteria
+  const [sortBy, setSortBy] = useState("fullName");
+
+  // Page size options
+  const pageSizeOptions: Option[] = [
+    { value: "5", label: "5" },
+    { value: "10", label: "10" },
+    { value: "20", label: "20" },
+    { value: "50", label: "50" },
+    { value: "100", label: "100" },
+  ];
+
+  // Sort by options
+  const sortByOptions: Option[] = [
+    { value: "fullName", label: "Họ và tên" },
+    { value: "officerId", label: "Mã thẩm phán" },
+    { value: "statusOfOfficer", label: "Trạng thái" },
+  ];
 
   const [statusOfOfficerFilters, setStatusOfOfficerFilters] = useState({
     statusOfOfficer: "",
@@ -43,14 +75,39 @@ const JudgeTab = () => {
   }));
 
   useEffect(() => {
-    fetchJudges();
+    loadJudges();
   }, []);
 
-  const fetchJudges = async () => {
+  const loadJudges = async (
+    page: number = 0,
+    size: number = 10,
+    sort: string = "fullName",
+    searchRequest?: JudgeSearchRequest
+  ) => {
     try {
       setLoading(true);
-      const response = await JudgeService.search(judgeSearch);
-      setJudges(response.data || []);
+      const requestToUse = searchRequest || {
+        officerId: null,
+        fullName: null,
+        statusOfOfficer: null
+      };
+      
+      const response = await JudgeService.search(requestToUse, page, size, sort);
+      if (response.success && response.data) {
+        setJudges(response.data.content);
+        setPagination({
+          page: response.data.number,
+          size: response.data.size,
+          totalElements: response.data.totalElements || response.data.numberOfElement,
+          totalPages: response.data.totalPages || Math.ceil((response.data.totalElements || response.data.numberOfElement) / response.data.size),
+          hasNext: response.data.hasNext,
+          hasPrevious: response.data.hasPrevious,
+          isFirst: response.data.isFirst,
+          isLast: response.data.isLast,
+        });
+      } else {
+        toast.error('Lỗi', 'Không thể tải danh sách thẩm phán');
+      }
     } catch (error) {
       console.error('Error fetching judges:', error);
       toast.error('Có lỗi xảy ra', 'Không thể tải danh sách thẩm phán');
@@ -59,18 +116,45 @@ const JudgeTab = () => {
     }
   };
 
-  const handleSearch = () => {
-    fetchJudges();
+  const fetchJudges = async () => {
+    await loadJudges(pagination.page, pagination.size, sortBy, judgeSearch);
   };
 
-  const handleClearFilters = () => {
-    setJudgeSearch({
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      await loadJudges(0, pagination.size, sortBy, judgeSearch);
+    } catch (error) {
+      console.error('Error searching judges:', error);
+      toast.error('Lỗi', 'Không thể tìm kiếm thẩm phán');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    const clearedSearch = {
       officerId: null,
       fullName: null,
       statusOfOfficer: null
-    });
+    };
+    setJudgeSearch(clearedSearch);
     setStatusOfOfficerFilters({ statusOfOfficer: "" });
-    fetchJudges();
+    loadJudges(0, pagination.size, sortBy, clearedSearch);
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    loadJudges(page, pagination.size, sortBy, judgeSearch);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    loadJudges(0, size, sortBy, judgeSearch);
+  };
+
+  const handleSortByChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    loadJudges(0, pagination.size, newSortBy, judgeSearch);
   };
 
   const handleEdit = (judge: JudgeResponse) => {
@@ -221,7 +305,7 @@ const JudgeTab = () => {
                 {loading ? 'Đang tìm...' : 'Tìm kiếm'}
               </button>
               <button
-                onClick={handleClearFilters}
+                onClick={handleReset}
                 disabled={loading}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
@@ -240,6 +324,30 @@ const JudgeTab = () => {
             <p className="text-gray-600">Đang tải dữ liệu...</p>
           </div>
         </div>
+      )}
+
+      {/* Pagination Component */}
+      {!loading && judges.length > 0 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
+          pageSize={pagination.size}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          isFirst={pagination.isFirst}
+          isLast={pagination.isLast}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSortChange={handleSortByChange}
+          pageSizeOptions={pageSizeOptions}
+          sortOptions={sortByOptions}
+          currentSort={sortBy}
+          showPageInfo={true}
+          showPageSizeSelector={true}
+          showSortSelector={true}
+          className="mb-6"
+        />
       )}
 
       {/* Judge Cards */}

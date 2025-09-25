@@ -1,4 +1,5 @@
 import { type ApiResponse } from "../types/ApiResponse";
+import { type PageResponse } from "../types/response/PageResponse";
 import { type JudgeResponse } from "../types/response/judge/JudgeResponse";
 import { type JudgeSearchRequest } from "../types/request/judge/JudgeSearchRequest";
 import { type JudgeRequest } from "../types/request/judge/JudgeRequest";
@@ -27,14 +28,24 @@ export class JudgeService {
   }
 
 
-  static async search(searchData: JudgeSearchRequest): Promise<ApiResponse<JudgeResponse[]>> {
+  static async search(
+    searchData: JudgeSearchRequest,
+    page: number = 0,
+    size: number = 10,
+    sort: string = "fullName"
+  ): Promise<ApiResponse<PageResponse<JudgeResponse>>> {
     const token = localStorage.getItem('token');
-    return Connect.request<JudgeResponse[]>(
-      `${this.api}/search`,
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('size', size.toString());
+    params.append('sort', sort);
+    
+    return Connect.request<PageResponse<JudgeResponse>>(
+      `${this.api}/search?${params.toString()}`,
       'POST',
       searchData,
       token
-    )
+    );
   }
 
   static async create(createRequest: JudgeRequest): Promise<ApiResponse<void>> {

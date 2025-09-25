@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { AccountService } from "../services/AccountService";
 import type { AccountResponse } from "../types/response/auth/AccountResponse";
 import type AccountRequest from "../types/request/auth/AccountRequest";
+import type { AccountSearchRequest } from "../types/request/auth/AccountSearchRequest";
 import { StatusOfAccount } from "../types/enum/StatusOfAccount";
 import AccountCard from "../component/account-manager/AccountCard";
 import AccountForm from "../component/account-manager/AccountForm";
 import ConfirmModal from "../component/basic-component/ConfirmModal";
+import Pagination from "../component/basic-component/Pagination";
 import ComboboxSearch, {
   type Option,
 } from "../component/basic-component/ComboboxSearch";
@@ -16,10 +18,27 @@ const AccountManagement = () => {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchCriteria, setSearchCriteria] = useState<{ email: string; role: string }>({
-    email: "",
-    role: "",
+  const [accountSearch, setAccountSearch] = useState<AccountSearchRequest>({
+    accountId: null,
+    email: null,
+    fullName: null,
+    role: null,
+    statusOfAccount: null
   });
+  
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+    isFirst: true,
+    isLast: false
+  });
+  const [sortBy, setSortBy] = useState<string>('accountId');
+  
   // Form states
   const [showForm, setShowForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<AccountResponse | null>(
@@ -36,6 +55,28 @@ const AccountManagement = () => {
     useState<boolean>(false);
   const toast = useToast();
 
+  // Pagination options
+  const pageSizeOptions: Option[] = [
+    { value: '5', label: '5 bản ghi' },
+    { value: '10', label: '10 bản ghi' },
+    { value: '20', label: '20 bản ghi' },
+    { value: '50', label: '50 bản ghi' }
+  ];
+
+  const sortByOptions: Option[] = [
+    { value: 'accountId', label: 'Mã tài khoản' },
+    { value: 'email', label: 'Email' },
+    { value: 'role', label: 'Quyền' },
+    { value: 'statusOfAccount', label: 'Trạng thái' }
+  ];
+
+  const statusOptions: Option[] = [
+    ...Object.entries(StatusOfAccount).map(([key, value]) => ({
+      value: key,
+      label: value,
+    })),
+  ];
+
   const roles: Option[] = [
     ...Object.entries(Role).map(([key, value]) => ({
       value: key,
@@ -45,38 +86,69 @@ const AccountManagement = () => {
 
   useEffect(() => {
     loadAccounts();
-  }, []);
-
-  const handleSearch = async () => {
-    // setLoading(true);
-    // try {
-    //   const { data } = await LegalCaseService.search(legalCaseSearch);
-    //   if (data) {
-    //     setLegalCases(data);
-    //   }
-    //   console.log(data);
-    // } catch (error) {
-    //   console.error('Error searching legal cases:', error);
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
+  }, [pagination.page, pagination.size, sortBy]);
 
   const loadAccounts = async () => {
     try {
       setLoading(true);
-      const response = await AccountService.getAllAccounts();
+      const response = await AccountService.search(
+        accountSearch,
+        pagination.page,
+        pagination.size,
+        sortBy
+      );
+      
       if (response.success && response.data) {
-        setAccounts(response.data);
+        setAccounts(response.data.content);
+        setPagination({
+          page: response.data.number,
+          size: response.data.size,
+          totalElements: response.data.totalElements,
+          totalPages: response.data.totalPages,
+          hasNext: response.data.hasNext,
+          hasPrevious: response.data.hasPrevious,
+          isFirst: response.data.isFirst,
+          isLast: response.data.isLast
+        });
       } else {
         toast.error("Lỗi", "Không thể tải danh sách tài khoản");
       }
     } catch (error) {
       console.error("Error loading accounts:", error);
-      toast.error("Lỗi", "lỗi khi tải danh sách tài khoản");
+      toast.error("Lỗi", "Lỗi khi tải danh sách tài khoản");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    setPagination(prev => ({ ...prev, page: 0 }));
+    await loadAccounts();
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, page }));
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPagination(prev => ({ ...prev, page: 0, size }));
+  };
+
+  const handleSortByChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    setPagination(prev => ({ ...prev, page: 0 }));
+  };
+
+  const handleReset = () => {
+    setAccountSearch({
+      accountId: null,
+      email: null,
+      fullName: null,
+      role: null,
+      statusOfAccount: null
+    });
+    setPagination(prev => ({ ...prev, page: 0 }));
   };
 
   const handleEditAccount = (account: AccountResponse) => {
@@ -122,7 +194,7 @@ const AccountManagement = () => {
   };
 
   const resetSearch = () => {
-    setSearchCriteria({ email: "" , role: ""});
+    handleReset();
   };
 
   const handleDeleteConfirm = async () => {
@@ -180,20 +252,8 @@ const AccountManagement = () => {
     }
   };
 
-  // Filter accounts based on search and filters
-  const filteredAccounts = accounts.filter((account) => {
-    const matchesSearch =
-      !searchCriteria.email ||
-      account.email.toLowerCase().includes(searchCriteria.email.toLowerCase()) ||
-      account.username.toLowerCase().includes(searchCriteria.email.toLowerCase()) ||
-      (account.officer &&
-        account.officer.fullName.toLowerCase().includes(searchCriteria.email.toLowerCase()));
-
-    const matchesRole =
-      !searchCriteria.role || account.role.toString() === searchCriteria.role;
-
-    return matchesSearch && matchesRole;
-  });
+  // No need for client-side filtering anymore since we use server-side pagination
+  // const filteredAccounts = accounts;
 
   if (loading) {
     return (
@@ -228,7 +288,7 @@ const AccountManagement = () => {
               Danh sách tài khoản
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Quản lý các tài khoản trong hệ thống ({filteredAccounts.length} tài khoản)
+              Quản lý các tài khoản trong hệ thống ({pagination.totalElements} tài khoản)
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -278,21 +338,38 @@ const AccountManagement = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Bộ lọc tìm kiếm
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
+                  Email/Tên đăng nhập
                 </label>
                 <input
                   type="text"
-                  value={searchCriteria.email || ""}
+                  value={accountSearch.email || ""}
                   onChange={(e) =>
-                    setSearchCriteria((prev) => ({
+                    setAccountSearch((prev) => ({
                       ...prev,
-                      email: e.target.value,
+                      email: e.target.value || null,
                     }))
                   }
-                  placeholder="Nhập email"
+                  placeholder="Nhập email hoặc tên đăng nhập"
+                  className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Họ tên
+                </label>
+                <input
+                  type="text"
+                  value={accountSearch.fullName || ""}
+                  onChange={(e) =>
+                    setAccountSearch((prev) => ({
+                      ...prev,
+                      fullName: e.target.value || null,
+                    }))
+                  }
+                  placeholder="Nhập họ tên"
                   className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
                 />
               </div>
@@ -302,14 +379,27 @@ const AccountManagement = () => {
                 </label>
                 <ComboboxSearch
                   options={roles}
-                  value={searchCriteria.role || ""}
+                  value={accountSearch.role || ""}
                   onChange={(value) =>
-                    setSearchCriteria((prev) => ({ ...prev, role: value }))
+                    setAccountSearch((prev) => ({ ...prev, role: (value as Role) || null }))
                   }
                   placeholder="Chọn quyền"
                 />
               </div>
-              <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Trạng thái
+                </label>
+                <ComboboxSearch
+                  options={statusOptions}
+                  value={accountSearch.statusOfAccount || ""}
+                  onChange={(value) =>
+                    setAccountSearch((prev) => ({ ...prev, statusOfAccount: (value as StatusOfAccount) || null }))
+                  }
+                  placeholder="Chọn trạng thái"
+                />
+              </div>
+              <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
                 <button
                   onClick={handleSearch}
                   className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
@@ -327,8 +417,32 @@ const AccountManagement = () => {
 
         
 
+        {/* Pagination Component */}
+        {!loading && accounts.length > 0 && (
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalElements={pagination.totalElements}
+            pageSize={pagination.size}
+            hasNext={pagination.hasNext}
+            hasPrevious={pagination.hasPrevious}
+            isFirst={pagination.isFirst}
+            isLast={pagination.isLast}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            onSortChange={handleSortByChange}
+            pageSizeOptions={pageSizeOptions}
+            sortOptions={sortByOptions}
+            currentSort={sortBy}
+            showPageInfo={true}
+            showPageSizeSelector={true}
+            showSortSelector={true}
+            className="mb-6"
+          />
+        )}
+
         {/* Accounts Grid */}
-        {filteredAccounts.length === 0 ? (
+        {accounts.length === 0 ? (
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
             <svg
               className="w-16 h-16 text-gray-400 mx-auto mb-4"
@@ -351,7 +465,7 @@ const AccountManagement = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {filteredAccounts.map((account) => (
+            {accounts.map((account) => (
               <AccountCard
                 key={account.accountId}
                 account={account}

@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import MediatorCard from './MediatorCard';
 import MediatorForm from './MediatorForm';
 import ConfirmModal from '../basic-component/ConfirmModal';
+import Pagination from '../basic-component/Pagination';
 import { ToastContainer, useToast } from '../basic-component/Toast';
 import { MediatorService } from '../../services/MediatorService';
 import type { MediatorResponse } from '../../types/response/mediator/MediatorResponse';
 import type { MediatorSearchRequest } from '../../types/request/mediator/MediatorSearchRequest';
 import type { MediatorRequest } from '../../types/request/mediator/MediatorRequest';
 import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
-import ComboboxSearch from '../basic-component/ComboboxSearch';
+import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 const MediatorTab = () => {
   const [mediators, setMediators] = useState<MediatorResponse[]>([]);
@@ -22,6 +23,37 @@ const MediatorTab = () => {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+    isFirst: true,
+    isLast: false,
+  });
+
+  // Separate state for sort criteria
+  const [sortBy, setSortBy] = useState("fullName");
+
+  // Page size options
+  const pageSizeOptions: Option[] = [
+    { value: "5", label: "5" },
+    { value: "10", label: "10" },
+    { value: "20", label: "20" },
+    { value: "50", label: "50" },
+    { value: "100", label: "100" },
+  ];
+
+  // Sort by options
+  const sortByOptions: Option[] = [
+    { value: "fullName", label: "Họ và tên" },
+    { value: "officerId", label: "Mã hòa giải viên" },
+    { value: "statusOfOfficer", label: "Trạng thái" },
+  ];
 
   const [statusOfOfficerFilters, setStatusOfOfficerFilters] = useState({
     statusOfOfficer: "",
@@ -43,14 +75,39 @@ const MediatorTab = () => {
   }));
 
   useEffect(() => {
-    fetchMediators();
+    loadMediators();
   }, []);
 
-  const fetchMediators = async () => {
+  const loadMediators = async (
+    page: number = 0,
+    size: number = 10,
+    sort: string = "fullName",
+    searchRequest?: MediatorSearchRequest
+  ) => {
     try {
       setLoading(true);
-      const response = await MediatorService.search(mediatorSearch);
-      setMediators(response.data || []);
+      const requestToUse = searchRequest || {
+        officerId: null,
+        fullName: null,
+        statusOfOfficer: null
+      };
+      
+      const response = await MediatorService.search(requestToUse, page, size, sort);
+      if (response.success && response.data) {
+        setMediators(response.data.content);
+        setPagination({
+          page: response.data.number,
+          size: response.data.size,
+          totalElements: response.data.totalElements || response.data.numberOfElement,
+          totalPages: response.data.totalPages || Math.ceil((response.data.totalElements || response.data.numberOfElement) / response.data.size),
+          hasNext: response.data.hasNext,
+          hasPrevious: response.data.hasPrevious,
+          isFirst: response.data.isFirst,
+          isLast: response.data.isLast,
+        });
+      } else {
+        toast.error('Lỗi', 'Không thể tải danh sách hòa giải viên');
+      }
     } catch (error) {
       console.error('Error fetching mediators:', error);
       toast.error('Có lỗi xảy ra', 'Không thể tải danh sách hòa giải viên');
@@ -59,18 +116,45 @@ const MediatorTab = () => {
     }
   };
 
-  const handleSearch = () => {
-    fetchMediators();
+  const fetchMediators = async () => {
+    await loadMediators(pagination.page, pagination.size, sortBy, mediatorSearch);
   };
 
-  const handleClearFilters = () => {
-    setMediatorSearch({
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      await loadMediators(0, pagination.size, sortBy, mediatorSearch);
+    } catch (error) {
+      console.error('Error searching mediators:', error);
+      toast.error('Lỗi', 'Không thể tìm kiếm hòa giải viên');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    const clearedSearch = {
       officerId: null,
       fullName: null,
       statusOfOfficer: null
-    });
+    };
+    setMediatorSearch(clearedSearch);
     setStatusOfOfficerFilters({ statusOfOfficer: "" });
-    fetchMediators();
+    loadMediators(0, pagination.size, sortBy, clearedSearch);
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    loadMediators(page, pagination.size, sortBy, mediatorSearch);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    loadMediators(0, size, sortBy, mediatorSearch);
+  };
+
+  const handleSortByChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    loadMediators(0, pagination.size, newSortBy, mediatorSearch);
   };
 
   const handleEdit = (mediator: MediatorResponse) => {
@@ -221,7 +305,7 @@ const MediatorTab = () => {
                 {loading ? 'Đang tìm...' : 'Tìm kiếm'}
               </button>
               <button
-                onClick={handleClearFilters}
+                onClick={handleReset}
                 disabled={loading}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
@@ -240,6 +324,30 @@ const MediatorTab = () => {
             <p className="text-gray-600">Đang tải dữ liệu...</p>
           </div>
         </div>
+      )}
+
+      {/* Pagination Component */}
+      {!loading && mediators.length > 0 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
+          pageSize={pagination.size}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          isFirst={pagination.isFirst}
+          isLast={pagination.isLast}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSortChange={handleSortByChange}
+          pageSizeOptions={pageSizeOptions}
+          sortOptions={sortByOptions}
+          currentSort={sortBy}
+          showPageInfo={true}
+          showPageSizeSelector={true}
+          showSortSelector={true}
+          className="mb-6"
+        />
       )}
 
       {/* Mediator Cards */}
