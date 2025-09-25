@@ -8,7 +8,7 @@ import Pagination from '../basic-component/Pagination';
 import { useToast, ToastContainer } from '../basic-component/Toast';
 import type { TypeOfLegalCaseRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseRequest';
 import ConfirmModal from '../basic-component/ConfirmModal';
-import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
+import { type Option } from '../basic-component/ComboboxSearch';
 
 const TypeOfLegalCaseTab = () => {
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<TypeOfLegalCaseResponse[]>([]);

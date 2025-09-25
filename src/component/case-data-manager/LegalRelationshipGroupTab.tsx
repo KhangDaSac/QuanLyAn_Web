@@ -8,7 +8,7 @@ import LegalRelationshipGroupCard from "./LegalRelationshipGroupCard";
 import Pagination from "../basic-component/Pagination";
 import ConfirmModal from "../basic-component/ConfirmModal";
 import { useToast, ToastContainer } from "../basic-component/Toast";
-import ComboboxSearch, { type Option } from "../basic-component/ComboboxSearch";
+import { type Option } from "../basic-component/ComboboxSearch";
 
 const LegalRelationshipGroupTab = () => {
   const [groups, setGroups] = useState<LegalRelationshipGroupResponse[]>([]);

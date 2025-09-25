@@ -32,7 +32,6 @@ interface PaginationProps {
 const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
-  totalElements,
   pageSize,
   hasNext,
   hasPrevious,
@@ -50,7 +49,6 @@ const Pagination: React.FC<PaginationProps> = ({
   ],
   sortOptions = [],
   currentSort = "",
-  showPageInfo = true,
   showPageSizeSelector = true,
   showSortSelector = false,
   className = "",
