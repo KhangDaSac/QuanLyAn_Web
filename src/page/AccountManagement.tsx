@@ -110,12 +110,9 @@ const AccountManagement = () => {
           isFirst: response.data.isFirst,
           isLast: response.data.isLast
         });
-      } else {
-        toast.error("Lỗi", "Không thể tải danh sách tài khoản");
       }
     } catch (error) {
       console.error("Error loading accounts:", error);
-      toast.error("Lỗi", "Lỗi khi tải danh sách tài khoản");
     } finally {
       setLoading(false);
     }

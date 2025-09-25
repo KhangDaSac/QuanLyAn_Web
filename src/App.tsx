@@ -9,6 +9,7 @@ import JudgeManager from "./page/OfficerManager";
 import RandomAssignment from "./page/RandomAssignment";
 import TypeOfDecisionManager from "./page/TypeOfDecisionManager";
 import BatchManagement from "./page/BatchManagement";
+import ProfilePage from "./page/ProfilePage";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
 import CaseDataManager from "./page/CaseDataManager";
 import AccountManagement from "./page/AccountManagement";
@@ -106,6 +107,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <BatchManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ProfilePage />
               </MainLayout>
             </ProtectedRoute>
           }
