@@ -3,6 +3,7 @@ import { Connect } from "../connect/Connect";
 import type { LegalRelationshipGroupResponse } from "../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
 import type { LegalRelationshipGroupRequest } from "../types/request/legal-relationship-group/LegalRelationshipGroupRequest";
 import type { LegalRelationshipGroupSearchRequest } from "../types/request/legal-relationship-group/LegalRelationshipGroupSearchRequest";
+import type { PageResponse } from "../types/response/PageResponse";
 
 export class LegalRelationshipGroupService {
   static api: string = '/legal-relationship-group';
@@ -26,10 +27,24 @@ export class LegalRelationshipGroupService {
     );
   }
 
-  static async search(request: LegalRelationshipGroupSearchRequest): Promise<ApiResponse<LegalRelationshipGroupResponse[]>> {
+  static async search(
+    request: LegalRelationshipGroupSearchRequest,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = "legalRelationshipGroupName"
+  ): Promise<ApiResponse<PageResponse<LegalRelationshipGroupResponse>>> {
     const token = localStorage.getItem('token');
-    return Connect.request<LegalRelationshipGroupResponse[]>(
-      `${this.api}/search`,
+    
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+      sortBy: sortBy
+    });
+    
+    const url = `${this.api}/search?${queryParams.toString()}`;
+    
+    return Connect.request<PageResponse<LegalRelationshipGroupResponse>>(
+      url,
       'POST',
       request,
       token
