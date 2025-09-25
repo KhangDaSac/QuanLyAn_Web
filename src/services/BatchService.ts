@@ -54,4 +54,14 @@ export class BatchService {
             token
         );
     }
+
+    static async create(request: BatchRequest): Promise<ApiResponse<void>> {
+        const token = localStorage.getItem("token");
+        return Connect.request<void>(
+            `${this.api}/`,
+            'POST',
+            request,
+            token
+        );
+    }
 }

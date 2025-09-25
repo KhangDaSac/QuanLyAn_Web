@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 import type { LegalCaseRequest } from '../../types/request/legal-case/LegalCaseRequest';
+import { BatchService } from '../../services/BatchService';
 interface LegalCaseFormProps {
     isOpen: boolean;
     onClose: () => void;
@@ -26,10 +27,12 @@ const LegalCaseForm = ({
         plaintiffAddress: '',
         defendant: '',
         defendantAddress: '',
-        legalRelationshipId: ''
+        legalRelationshipId: '',
+        batchId: '',
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [batches, setBatches] = useState<Option[]>([]);
 
     // Ngăn cuộn trang khi modal mở
     useEffect(() => {
@@ -45,6 +48,28 @@ const LegalCaseForm = ({
         };
     }, [isOpen]);
 
+    // Load batches từ API
+    useEffect(() => {
+        const loadBatches = async () => {
+            try {
+                const response = await BatchService.getAll();
+                if (response.success && response.data) {
+                    const batchOptions: Option[] = response.data.map(batch => ({
+                        value: batch.batchId,
+                        label: batch.batchName
+                    }));
+                    setBatches(batchOptions);
+                }
+            } catch (error) {
+                console.error('Error loading batches:', error);
+            }
+        };
+
+        if (isOpen) {
+            loadBatches();
+        }
+    }, [isOpen]);
+
     useEffect(() => {
         if (legalCase) {
             // Chế độ sửa
@@ -55,7 +80,8 @@ const LegalCaseForm = ({
                 plaintiffAddress: legalCase.plaintiffAddress,
                 defendant: legalCase.defendant,
                 defendantAddress: legalCase.defendantAddress,
-                legalRelationshipId: legalCase.legalRelationship.legalRelationshipId
+                legalRelationshipId: legalCase.legalRelationship.legalRelationshipId,
+                batchId: legalCase.batch?.batchId || ''
             });
         } else {
             // Chế độ thêm mới
@@ -66,7 +92,8 @@ const LegalCaseForm = ({
                 plaintiffAddress: '',
                 defendant: '',
                 defendantAddress: '',
-                legalRelationshipId: ''
+                legalRelationshipId: '',
+                batchId: ''
             });
         }
         setErrors({});
@@ -89,6 +116,10 @@ const LegalCaseForm = ({
 
         if (!formData.legalRelationshipId) {
             newErrors.legalRelationshipId = 'Quan hệ pháp luật là bắt buộc';
+        }
+
+        if (!formData.batchId) {
+            newErrors.batchId = 'Batch là bắt buộc';
         }
 
         setErrors(newErrors);
@@ -268,6 +299,22 @@ const LegalCaseForm = ({
                             />
                             {errors.legalRelationshipId && (
                                 <p className="text-red-500 text-xs mt-1">{errors.legalRelationshipId}</p>
+                            )}
+                        </div>
+
+                        {/* Batch */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Batch <span className="text-red-500">*</span>
+                            </label>
+                            <ComboboxSearchForm
+                                options={batches}
+                                value={formData.batchId}
+                                onChange={(value) => handleInputChange('batchId', value)}
+                                placeholder="Chọn batch"
+                            />
+                            {errors.batchId && (
+                                <p className="text-red-500 text-xs mt-1">{errors.batchId}</p>
                             )}
                         </div>
 

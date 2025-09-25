@@ -8,6 +8,7 @@ import LegalCaseDetailsPage from "./page/LegalCaseDetailsPage";
 import JudgeManager from "./page/OfficerManager";
 import RandomAssignment from "./page/RandomAssignment";
 import TypeOfDecisionManager from "./page/TypeOfDecisionManager";
+import BatchManagement from "./page/BatchManagement";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
 import CaseDataManager from "./page/CaseDataManager";
 import AccountManagement from "./page/AccountManagement";
@@ -95,6 +96,16 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <AccountManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/batch-management"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <BatchManagement />
               </MainLayout>
             </ProtectedRoute>
           }

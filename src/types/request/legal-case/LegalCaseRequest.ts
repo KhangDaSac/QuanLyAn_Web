@@ -6,4 +6,5 @@ export interface LegalCaseRequest {
   defendant: string;
   defendantAddress: string;
   legalRelationshipId: string;
+  batchId: string;
 }
