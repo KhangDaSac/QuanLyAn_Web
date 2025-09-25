@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import TypeOfDecisionCard from '../component/type-of-decision-manager/TypeOfDecisionCard';
 import TypeOfDecisionForm from '../component/type-of-decision-manager/TypeOfDecisionForm';
 import ConfirmModal from '../component/basic-component/ConfirmModal';
+import Pagination from '../component/basic-component/Pagination';
 import { ToastContainer, useToast } from '../component/basic-component/Toast';
 import { TypeOfDecisionService } from '../services/TypeOfDecisionService';
 import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
@@ -16,14 +17,13 @@ const TypeOfDecisionManager = () => {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [typeOfDecisionSearch, setTypeOfDecisionSearch] = useState<TypeOfDecisionSearchRequest>({
-    typeOfDecisionId: '',
-    typeOfDecisionName: '',
-    typeOfLegalCaseId: '',
-    courtIssued: '' as CourtIssued,
-    theEndDecision: false
+    typeOfDecisionId: null,
+    typeOfDecisionName: null,
+    typeOfLegalCaseId: null,
+    courtIssued: null,
+    theEndDecision: null
   });
 
-  // Options for filters
   const [typeOfLegalCaseOptions, setTypeOfLegalCaseOptions] = useState<Option[]>([]);
   
   const courtIssuedOptions: Option[] = [
@@ -41,25 +41,78 @@ const TypeOfDecisionManager = () => {
 
   const toast = useToast();
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const itemsPerPage = 12;
+  // Pagination state - using server-side pagination like LegalCaseManager
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+    isFirst: true,
+    isLast: false,
+  });
+
+  // Separate state for sort criteria
+  const [sortBy, setSortBy] = useState("typeOfDecisionId");
+
+  // Page size options
+  const pageSizeOptions: Option[] = [
+    { value: "5", label: "5" },
+    { value: "10", label: "10" },
+    { value: "20", label: "20" },
+    { value: "50", label: "50" },
+    { value: "100", label: "100" },
+  ];
+
+  // Sort by options
+  const sortByOptions: Option[] = [
+    { value: "typeOfDecisionId", label: "Mã loại quyết định" },
+    { value: "typeOfDecisionName", label: "Tên loại quyết định" },
+    { value: "courtIssued", label: "Cấp tòa" },
+    { value: "theEndDecision", label: "Quyết định kết thúc" },
+  ];
 
   useEffect(() => {
     loadTypeOfDecisions();
     loadTypeOfLegalCases();
   }, []);
 
-  const loadTypeOfDecisions = async () => {
+  const loadTypeOfDecisions = async (
+    page: number = 0, 
+    size: number = 10, 
+    sort: string = "typeOfDecisionId",
+    searchRequest?: TypeOfDecisionSearchRequest
+  ) => {
     setLoading(true);
     try {
-      const response = await TypeOfDecisionService.getTop50();
+      // Use provided search request or empty object for initial load
+      const requestToUse = searchRequest || {
+        typeOfDecisionId: null,
+        typeOfDecisionName: null,
+        typeOfLegalCaseId: null,
+        courtIssued: null,
+        theEndDecision: null
+      };
+      
+      const response = await TypeOfDecisionService.search(
+        requestToUse,
+        page,
+        size,
+        sort
+      );
       if (response.success && response.data) {
-        setTypeOfDecisions(response.data);
-        setTotalRecords(response.data.length);
-        setTotalPages(Math.ceil(response.data.length / itemsPerPage));
+        setTypeOfDecisions(response.data.content);
+        setPagination({
+          page: response.data.number,
+          size: response.data.size,
+          totalElements: response.data.totalElements || response.data.numberOfElement,
+          totalPages: response.data.totalPages || Math.ceil((response.data.totalElements || response.data.numberOfElement) / response.data.size),
+          hasNext: response.data.hasNext,
+          hasPrevious: response.data.hasPrevious,
+          isFirst: response.data.isFirst,
+          isLast: response.data.isLast,
+        });
       } else {
         toast.error('Lỗi', 'Không thể tải danh sách loại quyết định');
       }
@@ -91,21 +144,13 @@ const TypeOfDecisionManager = () => {
     try {
       const searchRequest: TypeOfDecisionSearchRequest = {
         ...typeOfDecisionSearch,
-        typeOfDecisionId: typeOfDecisionSearch.typeOfDecisionId || '',
-        typeOfDecisionName: typeOfDecisionSearch.typeOfDecisionName || '',
-        typeOfLegalCaseId: typeOfDecisionSearch.typeOfLegalCaseId || '',
-        courtIssued: typeOfDecisionSearch.courtIssued || '' as CourtIssued
+        typeOfDecisionId: typeOfDecisionSearch.typeOfDecisionId || null,
+        typeOfDecisionName: typeOfDecisionSearch.typeOfDecisionName || null,
+        typeOfLegalCaseId: typeOfDecisionSearch.typeOfLegalCaseId || null,
+        courtIssued: typeOfDecisionSearch.courtIssued || null
       };
 
-      const response = await TypeOfDecisionService.search(searchRequest);
-      if (response.success && response.data) {
-        setTypeOfDecisions(response.data);
-        setTotalRecords(response.data.length);
-        setTotalPages(Math.ceil(response.data.length / itemsPerPage));
-        setCurrentPage(1);
-      } else {
-        toast.error('Lỗi', 'Không thể tìm kiếm loại quyết định');
-      }
+      await loadTypeOfDecisions(0, pagination.size, sortBy, searchRequest);
     } catch (error) {
       console.error('Error searching type of decisions:', error);
       toast.error('Lỗi', 'Không thể tìm kiếm loại quyết định');
@@ -115,14 +160,15 @@ const TypeOfDecisionManager = () => {
   };
 
   const handleReset = () => {
-    setTypeOfDecisionSearch({
-      typeOfDecisionId: '',
-      typeOfDecisionName: '',
-      typeOfLegalCaseId: '',
-      courtIssued: '' as CourtIssued,
-      theEndDecision: false
-    });
-    loadTypeOfDecisions();
+    const clearedSearch = {
+      typeOfDecisionId: null,
+      typeOfDecisionName: null,
+      typeOfLegalCaseId: null,
+      courtIssued: null,
+      theEndDecision: null
+    };
+    setTypeOfDecisionSearch(clearedSearch);
+    loadTypeOfDecisions(0, pagination.size, sortBy, clearedSearch);
   };
 
   const handleCreate = () => {
@@ -150,7 +196,7 @@ const TypeOfDecisionManager = () => {
         if (response.success) {
           toast.success('Cập nhật thành công', 'Loại quyết định đã được cập nhật!');
           setShowEditForm(false);
-          await loadTypeOfDecisions();
+          await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, typeOfDecisionSearch);
         } else {
           toast.error('Cập nhật thất bại', response.error || 'Có lỗi xảy ra khi cập nhật loại quyết định');
         }
@@ -160,7 +206,7 @@ const TypeOfDecisionManager = () => {
         if (response.success) {
           toast.success('Tạo thành công', 'Loại quyết định mới đã được tạo!');
           setShowCreateForm(false);
-          await loadTypeOfDecisions();
+          await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, typeOfDecisionSearch);
         } else {
           toast.error('Tạo thất bại', response.error || 'Có lỗi xảy ra khi tạo loại quyết định');
         }
@@ -180,7 +226,7 @@ const TypeOfDecisionManager = () => {
       const response = await TypeOfDecisionService.delete(selectedTypeOfDecision.typeOfDecisionId);
       if (response.success) {
         toast.success('Xóa thành công', 'Loại quyết định đã được xóa khỏi hệ thống!');
-        await loadTypeOfDecisions();
+        await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, typeOfDecisionSearch);
       } else {
         toast.error('Xóa thất bại', response.error || 'Có lỗi xảy ra khi xóa loại quyết định');
       }
@@ -192,61 +238,18 @@ const TypeOfDecisionManager = () => {
     setSelectedTypeOfDecision(null);
   };
 
-  const getPaginatedData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return typeOfDecisions.slice(startIndex, endIndex);
-  };
-
+  // Pagination handlers
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    loadTypeOfDecisions(page, pagination.size, sortBy, typeOfDecisionSearch);
   };
 
-  const renderPagination = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  const handlePageSizeChange = (size: number) => {
+    loadTypeOfDecisions(0, size, sortBy, typeOfDecisionSearch);
+  };
 
-    if (endPage - startPage < maxVisiblePages - 1) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`px-3 py-2 mx-1 rounded-lg text-sm font-medium transition-colors ${
-            currentPage === i
-              ? 'bg-red-600 text-white'
-              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    return (
-      <div className="flex items-center justify-center space-x-2 mt-6">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Trước
-        </button>
-        {pages}
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Sau
-        </button>
-      </div>
-    );
+  const handleSortByChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    loadTypeOfDecisions(0, pagination.size, newSortBy, typeOfDecisionSearch);
   };
 
   return (
@@ -256,7 +259,7 @@ const TypeOfDecisionManager = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Quản lý loại quyết định</h1>
           <p className="text-gray-600 mt-1">
-            Tìm thấy {totalRecords} loại quyết định
+            Tìm thấy {pagination.totalElements} loại quyết định
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -292,8 +295,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <input
                 type="text"
-                value={typeOfDecisionSearch.typeOfDecisionId}
-                onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfDecisionId: e.target.value }))}
+                value={typeOfDecisionSearch.typeOfDecisionId || ''}
+                onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfDecisionId: e.target.value || null }))}
                 placeholder="Nhập mã loại quyết định"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
               />
@@ -304,8 +307,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <input
                 type="text"
-                value={typeOfDecisionSearch.typeOfDecisionName}
-                onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfDecisionName: e.target.value }))}
+                value={typeOfDecisionSearch.typeOfDecisionName || ''}
+                onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfDecisionName: e.target.value || null }))}
                 placeholder="Nhập tên loại quyết định"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
               />
@@ -316,8 +319,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <ComboboxSearch
                 options={typeOfLegalCaseOptions}
-                value={typeOfDecisionSearch.typeOfLegalCaseId}
-                onChange={(value) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfLegalCaseId: value }))}
+                value={typeOfDecisionSearch.typeOfLegalCaseId || ''}
+                onChange={(value) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfLegalCaseId: value || null }))}
                 placeholder="Chọn loại án"
               />
             </div>
@@ -327,8 +330,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <ComboboxSearch
                 options={courtIssuedOptions}
-                value={typeOfDecisionSearch.courtIssued}
-                onChange={(value) => setTypeOfDecisionSearch(prev => ({ ...prev, courtIssued: value as CourtIssued }))}
+                value={typeOfDecisionSearch.courtIssued || ''}
+                onChange={(value) => setTypeOfDecisionSearch(prev => ({ ...prev, courtIssued: value as CourtIssued || null }))}
                 placeholder="Chọn cấp tòa"
               />
             </div>
@@ -336,7 +339,7 @@ const TypeOfDecisionManager = () => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={typeOfDecisionSearch.theEndDecision}
+                  checked={typeOfDecisionSearch.theEndDecision || false}
                   onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, theEndDecision: e.target.checked }))}
                   className="w-4 h-4 bg-gray-100 rounded"
                 />
@@ -359,6 +362,30 @@ const TypeOfDecisionManager = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Pagination Component - Top */}
+      {!loading && typeOfDecisions.length > 0 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
+          pageSize={pagination.size}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          isFirst={pagination.isFirst}
+          isLast={pagination.isLast}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSortChange={handleSortByChange}
+          pageSizeOptions={pageSizeOptions}
+          sortOptions={sortByOptions}
+          currentSort={sortBy}
+          showPageInfo={true}
+          showPageSizeSelector={true}
+          showSortSelector={true}
+          className="mb-6"
+        />
       )}
 
       {/* Content */}
@@ -386,7 +413,7 @@ const TypeOfDecisionManager = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getPaginatedData().map((typeOfDecision) => (
+            {typeOfDecisions.map((typeOfDecision) => (
               <TypeOfDecisionCard
                 key={typeOfDecision.typeOfDecisionId}
                 typeOfDecision={typeOfDecision}
@@ -395,7 +422,6 @@ const TypeOfDecisionManager = () => {
               />
             ))}
           </div>
-          {totalPages > 1 && renderPagination()}
         </>
       )}
 

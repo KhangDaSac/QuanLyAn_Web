@@ -5,6 +5,7 @@ import { type LegalRelationshipGroupSearchRequest } from "../../types/request/le
 import { LegalRelationshipGroupService } from "../../services/LegalRelationshipGroupService";
 import LegalRelationshipGroupForm from "./LegalRelationshipGroupForm";
 import LegalRelationshipGroupCard from "./LegalRelationshipGroupCard";
+import Pagination from "../basic-component/Pagination";
 import ConfirmModal from "../basic-component/ConfirmModal";
 import { useToast, ToastContainer } from "../basic-component/Toast";
 import ComboboxSearch, { type Option } from "../basic-component/ComboboxSearch";
@@ -192,8 +193,8 @@ const LegalRelationshipGroupTab = () => {
     searchWithNewPage();
   };
 
-  const handlePageSizeChange = (size: string) => {
-    const newSize = parseInt(size);
+  const handlePageSizeChange = (size: number) => {
+    const newSize = size;
     setPagination((prev) => ({ ...prev, page: 0, size: newSize }));
     const searchWithNewSize = async () => {
       setLoading(true);
@@ -527,174 +528,29 @@ const LegalRelationshipGroupTab = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          {/* Page Size and Sort Controls */}
-          <div className="flex flex-col sm:flex-row gap-10 sm:gap-6">
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                Hiển thị:
-              </label>
-              <ComboboxSearch
-                options={pageSizeOptions}
-                value={pagination.size.toString()}
-                onChange={handlePageSizeChange}
-                placeholder="Chọn số lượng"
-                className="w-24"
-                isSearch={false}
-              />
-              <span className="text-sm text-gray-500">mục/trang</span>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                Sắp xếp theo:
-              </label>
-              <ComboboxSearch
-                options={sortByOptions}
-                value={sortBy}
-                onChange={handleSortByChange}
-                placeholder="Chọn tiêu chí sắp xếp"
-                className="w-48"
-                isSearch={false}
-              />
-            </div>
-          </div>
-
-          {/* Pagination Info and Navigation */}
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex items-center space-x-1">
-              {/* Nút trang đầu */}
-              <button
-                onClick={() => handlePageChange(0)}
-                disabled={pagination.isFirst}
-                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang đầu (Home)">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 19l-7-7 7-7M21 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-
-              {/* Nút trang trước */}
-              <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={!pagination.hasPrevious}
-                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang trước (←)">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-
-              {/* Dãy số trang */}
-              {(() => {
-                const totalPages = pagination.totalPages;
-                const currentPage = pagination.page;
-
-                const maxPagesToShow = 5;
-                const pageNumbers = [];
-
-                if (totalPages <= maxPagesToShow) {
-                  for (let i = 0; i < totalPages; i++) {
-                    pageNumbers.push(i);
-                  }
-                } else {
-                  let startPage = Math.max(0, currentPage - 2);
-                  let endPage = Math.min(
-                    totalPages - 1,
-                    startPage + maxPagesToShow - 1
-                  );
-
-                  if (endPage - startPage < maxPagesToShow - 1) {
-                    startPage = Math.max(0, endPage - maxPagesToShow + 1);
-                  }
-
-                  for (let i = startPage; i <= endPage; i++) {
-                    pageNumbers.push(i);
-                  }
-                }
-
-                if (pageNumbers.length === 0) {
-                  pageNumbers.push(0);
-                }
-
-                return pageNumbers.map((pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`min-w-[40px] px-3 py-2 text-sm font-medium border rounded-lg transition-all duration-200 ${
-                      pageNum === currentPage
-                        ? "bg-red-600 text-white border-red-600 shadow-lg transform scale-105"
-                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md"
-                    }`}
-                    title={`Trang ${pageNum + 1}`}>
-                    {pageNum + 1}
-                  </button>
-                ));
-              })()}
-
-              {/* Nút trang sau */}
-              <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={!pagination.hasNext}
-                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang sau (→)">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-
-              {/* Nút trang cuối */}
-              <button
-                onClick={() => handlePageChange(pagination.totalPages - 1)}
-                disabled={pagination.isLast}
-                className="p-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:shadow-md"
-                title="Trang cuối (End)">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 5l7 7-7 7m-8 0l7-7-7-7"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Pagination Component */}
+      {!loading && groups.length > 0 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
+          pageSize={pagination.size}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          isFirst={pagination.isFirst}
+          isLast={pagination.isLast}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSortChange={handleSortByChange}
+          pageSizeOptions={pageSizeOptions}
+          sortOptions={sortByOptions}
+          currentSort={sortBy}
+          showPageInfo={true}
+          showPageSizeSelector={true}
+          showSortSelector={true}
+          className="mb-6"
+        />
+      )}
 
       {/* Data List */}
       <div className="space-y-4">
