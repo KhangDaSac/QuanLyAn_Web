@@ -1,4 +1,3 @@
-// JWT decode utility (simple version without external library)
 export interface TokenPayload {
   scope?: string;
   role?: string;
@@ -9,15 +8,13 @@ export interface TokenPayload {
 
 export const decodeToken = (token: string): TokenPayload | null => {
   try {
-    // JWT có 3 parts: header.payload.signature
     const parts = token.split('.');
     if (parts.length !== 3) {
       return null;
     }
 
-    // Decode payload (base64url)
     const payload = parts[1];
-    // Add padding if needed
+
     const paddedPayload = payload + '=='.substring(0, (4 - payload.length % 4) % 4);
     const decodedPayload = atob(paddedPayload.replace(/-/g, '+').replace(/_/g, '/'));
     
