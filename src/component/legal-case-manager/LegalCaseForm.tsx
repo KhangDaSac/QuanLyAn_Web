@@ -56,7 +56,7 @@ const LegalCaseForm = ({
                 if (response.success && response.data) {
                     const batchOptions: Option[] = response.data.map(batch => ({
                         value: batch.batchId,
-                        label: batch.batchName
+                        label: batch.batchId + " - " + batch.batchName
                     }));
                     setBatches(batchOptions);
                 }

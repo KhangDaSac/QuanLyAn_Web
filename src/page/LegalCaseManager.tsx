@@ -9,6 +9,7 @@ import Pagination from "../component/basic-component/Pagination";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import { LegalCaseService } from "../services/LegalCaseService";
 import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
+import { BatchService } from "../services/BatchService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import type { LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
@@ -118,6 +119,14 @@ const LegalCaseManager = () => {
     Option[]
   >([{ value: "", label: "Tất cả nhóm quan hệ pháp luật" }]);
 
+  // Batch filters state
+  const [batchFilters, setBatchFilters] = useState({
+    batchId: "",
+  });
+  const [batches, setBatches] = useState<Option[]>([
+    { value: "", label: "Tất cả đợt nhập" },
+  ]);
+
   // States for form modal
   const [showForm, setShowForm] = useState(false);
   const [editingCase, setEditingCase] = useState<LegalCaseResponse | null>(
@@ -203,6 +212,7 @@ const LegalCaseManager = () => {
     fetchTypeOfLegalCases();
     fetchLegalRelationships();
     fetchLegalRelationshipGroups();
+    fetchBatches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array for initial load only
 
@@ -331,6 +341,28 @@ const LegalCaseManager = () => {
     }
   };
 
+  const fetchBatches = async () => {
+    setLoading(true);
+    try {
+      const { data } = await BatchService.getAll();
+      if (data) {
+        setBatches([
+          ...batches,
+          ...data.map(
+            (item): Option => ({
+              value: item.batchId,
+              label: item.batchId + " - " +item.batchName,
+            })
+          ),
+        ]);
+      }
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = async () => {
     setLoading(true);
     try {
@@ -387,6 +419,14 @@ const LegalCaseManager = () => {
       storageDate: null,
     };
     setLegalCaseSearch(clearedSearch);
+    
+    // Reset all filter states
+    setStatusOfLegalCaseFilters({ statusOfLegalCase: "" });
+    setTypeOfLegalCaseFilters({ typeOfLegalCaseId: "" });
+    setLegalRelationshipFilters({ legalRelationshipId: "" });
+    setLegalRelationshipGroupFilters({ legalRelationshipGroupId: "" });
+    setBatchFilters({ batchId: "" });
+    
     // Reset pagination to first page but keep size and sortBy
     setPagination((prev) => ({ ...prev, page: 0 }));
     // Perform search with cleared filters
@@ -1278,17 +1318,20 @@ const LegalCaseManager = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Mã đợt nhập
               </label>
-              <input
-                type="text"
-                value={legalCaseSearch?.batchId ?? ""}
-                onChange={(e) =>
-                  setLegalCaseSearch((prev) => ({
+              <ComboboxSearch
+                options={batches}
+                value={batchFilters.batchId}
+                onChange={(val) => {
+                  setBatchFilters((prev) => ({
                     ...prev,
-                    batchId: e.target.value,
-                  }))
-                }
-                placeholder="Mã đợt nhập án"
-                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                    batchId: val,
+                  }));
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    batchId: val != "" ? val : null,
+                  });
+                }}
+                placeholder="Chọn đợt nhập"
               />
             </div>
 
