@@ -35,13 +35,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user and token are stored in localStorage on app start
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
       try {
-        // Check if token is still valid using new utility
         if (!isTokenExpired(storedToken)) {
           const userData = JSON.parse(storedUser);
           const role = getUserRole(storedToken);
@@ -54,7 +52,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             permissions
           });
         } else {
-          // Token expired, clear storage
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
@@ -71,7 +68,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
 
-      // Try real backend if fake account doesn't match
       const response = await AuthService.login({ identifier, password });
       if (response.success && response?.data?.authenticated && response?.data?.token) {
         const jwtToken = response.data.token;

@@ -305,13 +305,13 @@ const LegalCaseForm = ({
                         {/* Batch */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Batch <span className="text-red-500">*</span>
+                                Đợt nhập án <span className="text-red-500">*</span>
                             </label>
                             <ComboboxSearchForm
                                 options={batches}
                                 value={formData.batchId}
                                 onChange={(value) => handleInputChange('batchId', value)}
-                                placeholder="Chọn batch"
+                                placeholder="Chọn đợt nhập"
                             />
                             {errors.batchId && (
                                 <p className="text-red-500 text-xs mt-1">{errors.batchId}</p>

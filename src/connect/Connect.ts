@@ -1,5 +1,6 @@
 import { type ApiResponse } from "../types/ApiResponse";
-const server_url = "http://192.168.222.189:8081";
+// const server_url = "http://192.168.222.189:8081"; //KhangDaSac
+const server_url = "http://192.168.2.43:8081" // 1_5G
 // const server_url = "https://quanlyan-server.onrender.com";
 
 export class Connect {
@@ -21,24 +22,9 @@ export class Connect {
                 body: body ? JSON.stringify(body) : undefined,
             });
 
-            // Xử lý response cho cả trường hợp thành công và thất bại
             const responseData = await response.json().catch(() => ({}));
-            
-            // if (!response.ok) {
-            //     // Trả về response với thông tin lỗi thay vì ném exception
-            //     return {
-            //         success: false,
-            //         status: response.status,
-            //         message: responseData.message || `HTTP Error ${response.status}`,
-            //         error: responseData.error || responseData.message || `Lỗi ${response.status}: ${response.statusText}`,
-            //         data: {} as T,
-            //         timestamp: responseData.timestamp || new Date().toISOString()
-            //     };
-            // }
-            // console.log("API Response:", responseData);
             return responseData as ApiResponse<T>;
         } catch (error: unknown) {
-            // Xử lý lỗi network hoặc lỗi khác
             let errorMessage = "Không thể kết nối đến máy chủ";
             
             if (error instanceof Error) {

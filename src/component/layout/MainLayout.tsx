@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/authContext/useAuth";
 import { Permission } from "../../utils/authUtils";
+import { useNavigate } from "react-router-dom";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ const MainLayout = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { logout, hasPermission, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,26 +177,7 @@ const MainLayout = ({
       ),
       href: "/account-management",
       requiredPermissions: [Permission.VIEW_ACCOUNT_MANAGER] as Permission[],
-    },
-    {
-      name: "Thông tin cá nhân",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      ),
-      href: "/profile",
-      requiredPermissions: [] as Permission[], // Available for all logged-in users
-    },
+    }
   ];
 
   return (
@@ -206,7 +189,7 @@ const MainLayout = ({
         } transition-transform duration-300 ease-in-out lg:translate-x-0`}>
         <div className="m-4 mb-10 h-10 bg-gradient-to-r from-primary-600 to-primary-700">
           <div className="bg-gradient-to-r from-red-200 to-red-100 rounded-lg p-4">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3" onClick={() => navigate('/profile')}>
               <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-primary-600 font-semibold text-sm">
                   {user?.username?.slice(0, 2).toUpperCase()}
