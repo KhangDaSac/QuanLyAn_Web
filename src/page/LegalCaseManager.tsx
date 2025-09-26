@@ -1339,10 +1339,9 @@ const LegalCaseManager = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ngày nhập án (từ - đến)
+                Ngày nhập án từ
               </label>
-              <div className="flex gap-2">
-                <input
+              <input
                   type="date"
                   value={legalCaseSearch?.startStorageDate ?? ""}
                   onChange={(e) =>
@@ -1353,6 +1352,23 @@ const LegalCaseManager = () => {
                   }
                   className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
                 />
+                
+                {/* <input
+                  type="date"
+                  value={legalCaseSearch?.endStorageDate ?? ""}
+                  onChange={(e) =>
+                    setLegalCaseSearch((prev) => ({
+                      ...prev,
+                      endStorageDate: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                /> */}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ngày nhập án đến
+              </label>   
                 <input
                   type="date"
                   value={legalCaseSearch?.endStorageDate ?? ""}
@@ -1364,7 +1380,6 @@ const LegalCaseManager = () => {
                   }
                   className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
                 />
-              </div>
             </div>
           </div>
 
