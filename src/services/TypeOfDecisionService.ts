@@ -57,6 +57,16 @@ export class TypeOfDecisionService {
         );
     }
 
+    static async getById(id: string): Promise<ApiResponse<TypeOfDecisionResponse>> {
+        const token = localStorage.getItem("token");
+        return Connect.request<TypeOfDecisionResponse>(
+            `${this.api}/${id}`,
+            'GET',
+            null,
+            token
+        );
+    }
+
     // static async search(request: TypeOfDecisionSearchRequest): Promise<ApiResponse<TypeOfDecisionResponse[]>> {
     //     const token = localStorage.getItem("token");
     //     return Connect.request<TypeOfDecisionResponse[]>(

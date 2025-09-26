@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TypeOfDecisionCard from '../component/type-of-decision-manager/TypeOfDecisionCard';
 import TypeOfDecisionForm from '../component/type-of-decision-manager/TypeOfDecisionForm';
 import ConfirmModal from '../component/basic-component/ConfirmModal';
@@ -13,6 +14,7 @@ import ComboboxSearch, { type Option } from '../component/basic-component/Combob
 import { CourtIssued } from '../types/enum/CourtIssued';
 
 const TypeOfDecisionManager = () => {
+  const navigate = useNavigate();
   const [typeOfDecisions, setTypeOfDecisions] = useState<TypeOfDecisionResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -184,6 +186,10 @@ const TypeOfDecisionManager = () => {
   const handleDelete = (typeOfDecision: TypeOfDecisionResponse) => {
     setSelectedTypeOfDecision(typeOfDecision);
     setShowConfirmModal(true);
+  };
+
+  const handleViewDetails = (typeOfDecision: TypeOfDecisionResponse) => {
+    navigate(`/type-of-decision-details/${typeOfDecision.typeOfDecisionId}`);
   };
 
   const handleFormSubmit = async (data: TypeOfDecisionRequest) => {
@@ -419,6 +425,7 @@ const TypeOfDecisionManager = () => {
                 typeOfDecision={typeOfDecision}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onViewDetails={handleViewDetails}
               />
             ))}
           </div>

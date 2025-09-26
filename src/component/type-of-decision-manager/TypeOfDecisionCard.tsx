@@ -5,18 +5,15 @@ interface TypeOfDecisionCardProps {
   typeOfDecision: TypeOfDecisionResponse;
   onEdit?: (typeOfDecision: TypeOfDecisionResponse) => void;
   onDelete?: (typeOfDecision: TypeOfDecisionResponse) => void;
+  onViewDetails?: (typeOfDecision: TypeOfDecisionResponse) => void;
 }
 
-const getCourtIssuedText = (courtIssued: CourtIssued) => {
-  switch (courtIssued) {
-    case "Tòa án hiện tại":
-      return 'Tòa án hiện tại';
-    case "Tòa án cấp trên":
-      return 'Tòa án cấp trên';
-    default:
-      return 'Không xác định';
-  }
-};
+  const getCourtIssuedText = (status: string) => {
+    if (Object.values(CourtIssued).includes(status as CourtIssued)) {
+      return status;
+    }
+    return (CourtIssued as any)[status] || status;
+  };
 
 const getCourtIssuedColor = (courtIssued: CourtIssued) => {
   switch (courtIssued) {
@@ -64,7 +61,7 @@ const getTypeOfLegalCaseColor = (codeName: string) => {
   }
 };
 
-const TypeOfDecisionCard = ({ typeOfDecision, onEdit, onDelete }: TypeOfDecisionCardProps) => {
+const TypeOfDecisionCard = ({ typeOfDecision, onEdit, onDelete, onViewDetails }: TypeOfDecisionCardProps) => {
   const courtColor = getCourtIssuedColor(typeOfDecision.courtIssued);
 
   return (
@@ -121,7 +118,7 @@ const TypeOfDecisionCard = ({ typeOfDecision, onEdit, onDelete }: TypeOfDecision
                 />
               </svg>
               <p className={`text-base font-semibold ${courtColor.text}`}>
-                {typeOfDecision.courtIssued}
+                {getCourtIssuedText(typeOfDecision.courtIssued)}
               </p>
             </div>
           </div>
@@ -168,6 +165,35 @@ const TypeOfDecisionCard = ({ typeOfDecision, onEdit, onDelete }: TypeOfDecision
 
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
+        <button
+          onClick={() => {
+            console.log('Chi tiết button clicked:', typeOfDecision.typeOfDecisionId);
+            onViewDetails?.(typeOfDecision);
+          }}
+          className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-green-300 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            />
+          </svg>
+          <span>Chi tiết</span>
+        </button>
+
         <button
           onClick={() => onEdit?.(typeOfDecision)}
           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-blue-300 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
