@@ -14,5 +14,6 @@ export interface LegalCaseSearchRequest {
   statusOfLegalCase: StatusOfLegalCase | null;
   judgeName: string | null;
   batchId: string | null;
-  storageDate: string | null;
+  startStorageDate: string | null;
+  endStorageDate: string | null;
 }

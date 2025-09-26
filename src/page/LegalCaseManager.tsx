@@ -63,7 +63,8 @@ const LegalCaseManager = () => {
       statusOfLegalCase: null,
       judgeName: null,
       batchId: null,
-      storageDate: null,
+      startStorageDate: null,
+      endStorageDate: null,
     });
 
   // Page size options
@@ -351,7 +352,7 @@ const LegalCaseManager = () => {
           ...data.map(
             (item): Option => ({
               value: item.batchId,
-              label: item.batchId + " - " +item.batchName,
+              label: item.batchId + " - " + item.batchName,
             })
           ),
         ]);
@@ -416,17 +417,18 @@ const LegalCaseManager = () => {
       statusOfLegalCase: null,
       judgeName: null,
       batchId: null,
-      storageDate: null,
+      startStorageDate: null,
+      endStorageDate: null,
     };
     setLegalCaseSearch(clearedSearch);
-    
+
     // Reset all filter states
     setStatusOfLegalCaseFilters({ statusOfLegalCase: "" });
     setTypeOfLegalCaseFilters({ typeOfLegalCaseId: "" });
     setLegalRelationshipFilters({ legalRelationshipId: "" });
     setLegalRelationshipGroupFilters({ legalRelationshipGroupId: "" });
     setBatchFilters({ batchId: "" });
-    
+
     // Reset pagination to first page but keep size and sortBy
     setPagination((prev) => ({ ...prev, page: 0 }));
     // Perform search with cleared filters
@@ -1337,19 +1339,32 @@ const LegalCaseManager = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ngày nhập án
+                Ngày nhập án (từ - đến)
               </label>
-              <input
-                type="date"
-                value={legalCaseSearch?.storageDate ?? ""}
-                onChange={(e) =>
-                  setLegalCaseSearch((prev) => ({
-                    ...prev,
-                    storageDate: e.target.value,
-                  }))
-                }
-                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={legalCaseSearch?.startStorageDate ?? ""}
+                  onChange={(e) =>
+                    setLegalCaseSearch((prev) => ({
+                      ...prev,
+                      startStorageDate: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                />
+                <input
+                  type="date"
+                  value={legalCaseSearch?.endStorageDate ?? ""}
+                  onChange={(e) =>
+                    setLegalCaseSearch((prev) => ({
+                      ...prev,
+                      endStorageDate: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                />
+              </div>
             </div>
           </div>
 
