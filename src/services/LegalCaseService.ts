@@ -49,7 +49,7 @@ export class LegalCaseService {
 
   static async create(request: LegalCaseRequest): Promise<ApiResponse<void>> {
     const token = localStorage.getItem("token");
-    return Connect.request<void>(`${this.api}/`, "POST", request, token);
+    return Connect.request<void>(`${this.api}`, "POST", request, token);
   }
 
   static async getById(id: string): Promise<ApiResponse<LegalCaseResponse>> {

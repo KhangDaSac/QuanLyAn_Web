@@ -30,7 +30,7 @@ export class TypeOfDecisionService {
     static async create(request: TypeOfDecisionRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
-            `${this.api}/`,
+            `${this.api}`,
             'POST',
             request,
             token

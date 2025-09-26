@@ -55,7 +55,7 @@ export class LegalRelationshipService {
     console.log(request)
     const token = localStorage.getItem('token');
     return Connect.request<void>(
-      `${this.api}/`,
+      `${this.api}`,
       'POST',
       request,
       token

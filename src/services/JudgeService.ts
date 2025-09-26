@@ -51,7 +51,7 @@ export class JudgeService {
   static async create(createRequest: JudgeRequest): Promise<ApiResponse<void>> {
     const token = localStorage.getItem('token');
     return Connect.request<void>(
-      `${this.api}/`,
+      `${this.api}`,
       'POST',
       createRequest,
       token

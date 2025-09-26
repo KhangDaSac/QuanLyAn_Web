@@ -21,7 +21,7 @@ export class TypeOfLegalCaseService {
   static async create(request: TypeOfLegalCaseRequest): Promise<ApiResponse<void>> {
     const token = localStorage.getItem('token');
     return Connect.request<void>(
-      `${this.api}/`,
+      `${this.api}`,
       'POST',
       request,
       token
