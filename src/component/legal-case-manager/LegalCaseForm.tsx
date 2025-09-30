@@ -119,7 +119,7 @@ const LegalCaseForm = ({
         }
 
         if (!formData.batchId) {
-            newErrors.batchId = 'Batch là bắt buộc';
+            newErrors.batchId = 'Đợt nhập án là bắt buộc';
         }
 
         setErrors(newErrors);

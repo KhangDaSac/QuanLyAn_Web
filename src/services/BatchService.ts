@@ -38,7 +38,7 @@ export class BatchService {
     static async update(id: string, request: BatchRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
-            `${this.api}/update/${id}`,
+            `${this.api}/${id}`,
             'PUT',
             request,
             token
@@ -48,7 +48,7 @@ export class BatchService {
     static async delete(id: string): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
-            `${this.api}/delete/${id}`,
+            `${this.api}/${id}`,
             'DELETE',
             null,
             token

@@ -54,11 +54,7 @@ const JudgeAssignmentModal = ({
         try {
             const response = await JudgeService.search(searchParams);
             if (response.success && response.data) {
-                console.log('Judge data:', response.data[0]); // Debug log
-                console.log('Status of first judge:', response.data[0]?.statusOfOfficer);
-                console.log('Status type:', typeof response.data[0]?.statusOfOfficer);
-                // Chỉ hiển thị thẩm phán đang hoạt động và còn khả năng nhận án
-                const availableJudges = response.data.filter(judge => 
+                const availableJudges = response.data.content.filter(judge => 
                     isOfficerWorking(judge.statusOfOfficer as any) && 
                     (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCases < judge.maxNumberOfLegalCase)
                 );

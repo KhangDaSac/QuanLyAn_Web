@@ -90,15 +90,21 @@ const TypeOfDecisionDetailsPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
+  console.log('TypeOfDecisionDetailsPage rendered with ID:', typeOfDecisionId);
+
   const [typeOfDecision, setTypeOfDecision] = useState<TypeOfDecisionResponse | null>(null);
   const [handleTypeOfDecisions, setHandleTypeOfDecisions] = useState<HandleTypeOfDecisionResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [handlesLoading, setHandlesLoading] = useState(false);
 
   useEffect(() => {
+    console.log('useEffect triggered with typeOfDecisionId:', typeOfDecisionId);
     if (typeOfDecisionId) {
       fetchTypeOfDecisionDetails();
       fetchHandleTypeOfDecisions();
+    } else {
+      console.log('No typeOfDecisionId, redirecting to decision-type');
+      navigate("/decision-type");
     }
   }, [typeOfDecisionId]);
 
@@ -108,19 +114,30 @@ const TypeOfDecisionDetailsPage = () => {
     console.log('Fetching details for typeOfDecisionId:', typeOfDecisionId);
     setLoading(true);
     try {
+      // Thử dùng getById trước
       const response = await TypeOfDecisionService.getById(typeOfDecisionId);
-      console.log('API Response:', response);
+      console.log('getById API Response:', response);
+      
       if (response.success && response.data) {
         setTypeOfDecision(response.data);
       } else {
-        console.error('API Error:', response);
-        toast.error("Lỗi", "Không thể tải thông tin loại quyết định");
-        navigate("/decision-type");
+        // Nếu getById thất bại, thử dùng getAll và filter
+        console.log('getById failed, trying getAll approach...');
+        const allResponse = await TypeOfDecisionService.getAll();
+        console.log('getAll API Response:', allResponse);
+        
+        if (allResponse.success && allResponse.data) {
+          const foundTypeOfDecision = allResponse.data.find(
+            item => item.typeOfDecisionId === typeOfDecisionId
+          );
+          
+          if (foundTypeOfDecision) {
+            setTypeOfDecision(foundTypeOfDecision);
+          }
+        } 
       }
     } catch (error) {
       console.error("Error fetching type of decision details:", error);
-      toast.error("Lỗi", "Có lỗi xảy ra khi tải thông tin loại quyết định");
-      navigate("/decision-type");
     } finally {
       setLoading(false);
     }

@@ -29,8 +29,6 @@ export class LegalCaseService {
     sortBy: string = "acceptanceDate"
   ): Promise<ApiResponse<PageResponse<LegalCaseResponse>>> {
     const token = localStorage.getItem("token");
-    
-    // Build query parameters
     const queryParams = new URLSearchParams({
       page: page.toString(),
       size: size.toString(),

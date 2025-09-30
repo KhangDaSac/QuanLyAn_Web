@@ -1,7 +1,8 @@
 import { type ApiResponse } from "../types/ApiResponse";
 // const server_url = "http://192.168.222.189:8081"; //KhangDaSac
-const server_url = "http://192.168.2.43:8081" // 1_5G
+// const server_url = "http://192.168.2.43:8081" // 1_5G
 // const server_url = "https://quanlyan-server.onrender.com";
+const server_url = "http://localhost:8081"
 
 export class Connect {
     static async request<T>(
@@ -11,7 +12,7 @@ export class Connect {
         token?: string | null
     ): Promise<ApiResponse<T>> {
         try {
-          console.log("Connect.request called with:", { body });
+          console.log(method + " - " + endpoint +  " - " + JSON.stringify(body, null, 2));
             const accessToken = token ?? localStorage.getItem("token");
             const response = await fetch(`${server_url}${endpoint}`, {
                 method,
@@ -21,6 +22,11 @@ export class Connect {
                 },
                 body: body ? JSON.stringify(body) : undefined,
             });
+
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            }
 
             const responseData = await response.json().catch(() => ({}));
             return responseData as ApiResponse<T>;

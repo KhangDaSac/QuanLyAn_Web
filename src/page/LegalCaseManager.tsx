@@ -517,11 +517,6 @@ const LegalCaseManager = () => {
     const searchWithNewSize = async () => {
       setLoading(true);
       try {
-        console.log("Page size change request:", {
-          page: 0,
-          size,
-          sortBy,
-        }); // Debug log
         const { data } = await LegalCaseService.search(
           legalCaseSearch,
           0,
@@ -560,11 +555,6 @@ const LegalCaseManager = () => {
     const searchWithNewSort = async () => {
       setLoading(true);
       try {
-        console.log("Sort change request:", {
-          page: 0,
-          size: pagination.size,
-          sortBy: newSortBy,
-        }); // Debug log
         const { data } = await LegalCaseService.search(
           legalCaseSearch,
           0,
@@ -860,7 +850,19 @@ const LegalCaseManager = () => {
   const handleExportExcel = async () => {
     try {
       setExportLoading(true);
+      const { data } = await LegalCaseService.search(
+        legalCaseSearch,
+        0, 
+        pagination.totalElements || 10000,
+        sortBy
+      );
 
+      if (!data || !data.content || data.content.length === 0) {
+        toast.error("Xuất Excel thất bại", "Không có dữ liệu để xuất");
+        return;
+      }
+
+      const allLegalCases = data.content;
       // Tạo workbook và worksheet mới
       const workbook = XLSX.utils.book_new();
 
@@ -876,10 +878,12 @@ const LegalCaseManager = () => {
         "Loại vụ án",
         "Quan hệ pháp luật",
         "Thẩm phán",
+        "Trạng thái",
+        "Mã đợt nhập",
       ];
 
-      // Chuẩn bị dữ liệu rows
-      const rows = legalCases.map((legalCase, index) => [
+      // Chuẩn bị dữ liệu rows từ TẤT CẢ dữ liệu
+      const rows = allLegalCases.map((legalCase, index) => [
         index + 1, // STT
         legalCase.acceptanceNumber || "",
         legalCase.acceptanceDate || "",
@@ -890,13 +894,15 @@ const LegalCaseManager = () => {
         legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
         legalCase.legalRelationship?.legalRelationshipName || "",
         legalCase.judge?.fullName || "",
+        legalCase.statusOfLegalCase || "",
+        legalCase.batch?.batchId || "",
       ]);
 
       // Tạo data array với header và rows
-      const data = [headers, ...rows];
+      const data_array = [headers, ...rows];
 
       // Tạo worksheet từ data
-      const worksheet = XLSX.utils.aoa_to_sheet(data);
+      const worksheet = XLSX.utils.aoa_to_sheet(data_array);
 
       // Tự động điều chỉnh độ rộng cột
       const colWidths = headers.map((header, index) => {
@@ -921,7 +927,7 @@ const LegalCaseManager = () => {
 
       toast.success(
         "Xuất Excel thành công",
-        `File "${fileName}" đã được tải về!`
+        `File "${fileName}" đã được tải về với ${allLegalCases.length} bản ghi!`
       );
     } catch (error) {
       console.error("Error exporting Excel:", error);

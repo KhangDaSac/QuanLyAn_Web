@@ -524,14 +524,6 @@ const TypeOfLegalCaseTab = () => {
           <h3 className="text-lg font-semibold text-gray-900">
             Kết quả ({typeOfLegalCases.length} loại vụ án)
           </h3>
-          <button
-            onClick={handleAddNew}
-            className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Thêm mới
-          </button>
         </div>
 
         {typeOfLegalCases.length > 0 ? (
