@@ -16,7 +16,7 @@ const AccountCard = ({
   onDelete,
   onToggleStatus,
 }: AccountCardProps) => {
-  console.log(account);``
+  console.log(account);
 
   const isActiveStatus = (status: any) => {
     return (
@@ -173,10 +173,10 @@ const AccountCard = ({
             <span>Sửa</span>
           </button>
 
-          {/* <button
+          <button
             onClick={() => onToggleStatus(account.accountId)}
             className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 border ${
-              isActiveStatus(account.statusOfAccount)
+              account.statusOfAccount.toString() == "ACTIVE"
                 ? "text-orange-600 bg-orange-50 hover:bg-orange-100 border-orange-200"
                 : "text-green-600 bg-green-50 hover:bg-green-100 border-green-200"
             }`}>
@@ -199,7 +199,7 @@ const AccountCard = ({
             <span>
               {account.statusOfAccount.toString() == "ACTIVE" ? "Khóa" : "Mở khóa"}
             </span>
-          </button> */}
+          </button>
 
           <button
             onClick={() => onDelete(account.accountId)}

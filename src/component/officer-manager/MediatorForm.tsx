@@ -19,21 +19,21 @@ const MediatorForm = ({
     mediator,
     isLoading = false
 }: MediatorFormProps) => {
-    const [formData, setFormData] = useState<MediatorRequest>({
+    const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        statusOfOfficer: null,
-        email: null
+        statusOfOfficer: '',
+        email: ''
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const statusOptions = [
-        { value: StatusOfOfficer.WORKING, label: StatusOfOfficer.WORKING },
-        { value: StatusOfOfficer.NOT_WORKING, label: StatusOfOfficer.NOT_WORKING },
-        { value: StatusOfOfficer.ON_BUSINESS_TRIP, label: StatusOfOfficer.ON_BUSINESS_TRIP },
-        { value: StatusOfOfficer.ON_LEAVE, label: StatusOfOfficer.ON_LEAVE },
-        { value: StatusOfOfficer.DISCIPLINED, label: StatusOfOfficer.DISCIPLINED }
+        { value: "WORKING", label: StatusOfOfficer.WORKING },
+        { value: "NOT_WORKING", label: StatusOfOfficer.NOT_WORKING },
+        { value: "ON_BUSINESS_TRIP", label: StatusOfOfficer.ON_BUSINESS_TRIP },
+        { value: "ON_LEAVE", label: StatusOfOfficer.ON_LEAVE },
+        { value: "DISCIPLINED", label: StatusOfOfficer.DISCIPLINED }
     ];
 
     const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
@@ -75,18 +75,18 @@ const MediatorForm = ({
         if (mediator) {
             // Chế độ sửa
             setFormData({
-                firstName: mediator.firstName,
-                lastName: mediator.lastName,
-                statusOfOfficer: mediator.statusOfOfficer,
-                email: mediator.email
+                firstName: mediator.firstName || '',
+                lastName: mediator.lastName || '',
+                statusOfOfficer: mediator.statusOfOfficer || '',
+                email: mediator.email || ''
             });
         } else {
             // Chế độ thêm mới
             setFormData({
                 firstName: '',
                 lastName: '',
-                statusOfOfficer: null,
-                email: null
+                statusOfOfficer: '',
+                email: ''
             });
         }
         setErrors({});
@@ -113,8 +113,47 @@ const MediatorForm = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateForm()) {
-            onSubmit(formData);
+        if (!validateForm()) {
+            return;
+        }
+
+        if (mediator) {
+            // Update existing mediator - chỉ gửi các field đã thay đổi
+            const updateData: MediatorRequest = {};
+            
+            // Chỉ thêm field nào thay đổi so với giá trị ban đầu
+            if (formData.firstName !== mediator.firstName) {
+                updateData.firstName = formData.firstName;
+            }
+            
+            if (formData.lastName !== mediator.lastName) {
+                updateData.lastName = formData.lastName;
+            }
+            
+            if (formData.statusOfOfficer && formData.statusOfOfficer !== mediator.statusOfOfficer) {
+                updateData.statusOfOfficer = formData.statusOfOfficer as StatusOfOfficer;
+            }
+            
+            if (formData.email && formData.email !== mediator.email) {
+                updateData.email = formData.email;
+            }
+            
+            // Nếu không có field nào thay đổi, không gửi request
+            if (Object.keys(updateData).length === 0) {
+                onClose();
+                return;
+            }
+            
+            onSubmit(updateData);
+        } else {
+            // Create new mediator - gửi đầy đủ thông tin
+            const createData: MediatorRequest = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                statusOfOfficer: null, // Mặc định khi tạo mới
+                email: formData.email || null
+            };
+            onSubmit(createData);
         }
     };
 

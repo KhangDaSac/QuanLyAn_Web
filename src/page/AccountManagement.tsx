@@ -163,11 +163,11 @@ const AccountManagement = () => {
       let response;
 
       if (editingAccount) {
-        // Update existing account
-        response = await AccountService.updateAccount(editingAccount.accountId, data);
+        // Update existing account - data là AccountUpdateRequest
+        response = await AccountService.updateAccount(editingAccount.accountId, data as AccountRequest);
       } else {
-        // Create new account
-        response = await AccountService.createAccount(data);
+        // Create new account - data là AccountRequest
+        response = await AccountService.createAccount(data as AccountRequest);
       }
 
       if (response.success) {
@@ -228,18 +228,20 @@ const AccountManagement = () => {
 
   const handleToggleStatusConfirm = async () => {
     try {
-      // const response = await AccountService.toggleAccountStatus(
-      //   targetAccountId
-      // );
-      // if (response.success) {
-      //   toast.success("Thành công", "Thay đổi trạng thái tài khoản thành công");
-      //   await loadAccounts();
-      // } else {
-      //   toast.error(
-      //     "Lỗi",
-      //     response.message || "Không thể thay đổi trạng thái tài khoản"
-      //   );
-      // }
+      const newStatus = targetAccountActive ? "BLOCKED" : "ACTIVATE";
+      const response = await AccountService.toggleAccountStatus(
+        targetAccountId,
+        newStatus as StatusOfAccount
+      );
+      if (response.success) {
+        toast.success("Thành công", "Thay đổi trạng thái tài khoản thành công");
+        await loadAccounts();
+      } else {
+        toast.error(
+          "Lỗi",
+          response.message || "Không thể thay đổi trạng thái tài khoản"
+        );
+      }
     } catch (error) {
       console.error("Error toggling account status:", error);
       toast.error("Lỗi", "Có lỗi xảy ra khi thay đổi trạng thái tài khoản");

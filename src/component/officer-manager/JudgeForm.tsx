@@ -19,22 +19,22 @@ const JudgeForm = ({
     judge,
     isLoading = false
 }: JudgeFormProps) => {
-    const [formData, setFormData] = useState<JudgeRequest>({
+    const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         maxNumberOfLegalCase: 0,
-        statusOfOfficer: null,
-        email: null
+        statusOfOfficer: '',
+        email: ''
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const statusOptions = [
-        { value: StatusOfOfficer.WORKING, label: StatusOfOfficer.WORKING },
-        { value: StatusOfOfficer.NOT_WORKING, label: StatusOfOfficer.NOT_WORKING },
-        { value: StatusOfOfficer.ON_BUSINESS_TRIP, label: StatusOfOfficer.ON_BUSINESS_TRIP },
-        { value: StatusOfOfficer.ON_LEAVE, label: StatusOfOfficer.ON_LEAVE },
-        { value: StatusOfOfficer.DISCIPLINED, label: StatusOfOfficer.DISCIPLINED }
+        { value: "WORKING", label: StatusOfOfficer.WORKING },
+        { value: "NOT_WORKING", label: StatusOfOfficer.NOT_WORKING },
+        { value: "ON_BUSINESS_TRIP", label: StatusOfOfficer.ON_BUSINESS_TRIP },
+        { value: "ON_LEAVE", label: StatusOfOfficer.ON_LEAVE },
+        { value: "DISCIPLINED", label: StatusOfOfficer.DISCIPLINED }
     ];
 
     const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
@@ -76,11 +76,11 @@ const JudgeForm = ({
         if (judge) {
             // Chế độ sửa
             setFormData({
-                firstName: judge.firstName,
-                lastName: judge.lastName,
-                maxNumberOfLegalCase: judge.maxNumberOfLegalCase,
-                statusOfOfficer: judge.statusOfOfficer,
-                email: judge.email
+                firstName: judge.firstName || '',
+                lastName: judge.lastName || '',
+                maxNumberOfLegalCase: judge.maxNumberOfLegalCase || 0,
+                statusOfOfficer: judge.statusOfOfficer || '',
+                email: judge.email || ''
             });
         } else {
             // Chế độ thêm mới
@@ -88,8 +88,8 @@ const JudgeForm = ({
                 firstName: '',
                 lastName: '',
                 maxNumberOfLegalCase: 0,
-                statusOfOfficer: null,
-                email: null
+                statusOfOfficer: '',
+                email: ''
             });
         }
         setErrors({});
@@ -129,24 +129,46 @@ const JudgeForm = ({
             return;
         }
 
-        // Nếu đang sửa, không gửi email
         if (judge) {
-            const updateData: JudgeRequest = {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
-                statusOfOfficer: formData.statusOfOfficer,
-                email: null
-            };
+            // Update existing judge - chỉ gửi các field đã thay đổi
+            const updateData: JudgeRequest = {};
+            
+            // Chỉ thêm field nào thay đổi so với giá trị ban đầu
+            if (formData.firstName !== judge.firstName) {
+                updateData.firstName = formData.firstName;
+            }
+            
+            if (formData.lastName !== judge.lastName) {
+                updateData.lastName = formData.lastName;
+            }
+            
+            if (formData.maxNumberOfLegalCase !== (judge.maxNumberOfLegalCase || 0)) {
+                updateData.maxNumberOfLegalCase = formData.maxNumberOfLegalCase;
+            }
+            
+            if (formData.statusOfOfficer && formData.statusOfOfficer !== judge.statusOfOfficer) {
+                updateData.statusOfOfficer = formData.statusOfOfficer as StatusOfOfficer;
+            }
+            
+            if (formData.email && formData.email !== judge.email) {
+                updateData.email = formData.email;
+            }
+            
+            // Nếu không có field nào thay đổi, không gửi request
+            if (Object.keys(updateData).length === 0) {
+                onClose();
+                return;
+            }
+            
             onSubmit(updateData);
         } else {
-            // Khi tạo mới, gửi email
+            // Create new judge - gửi đầy đủ thông tin
             const createData: JudgeRequest = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
-                statusOfOfficer: null,
-                email: formData.email
+                statusOfOfficer: null, // Mặc định khi tạo mới
+                email: formData.email || null
             };
             onSubmit(createData);
         }

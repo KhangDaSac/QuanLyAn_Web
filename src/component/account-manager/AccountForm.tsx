@@ -120,17 +120,35 @@ const AccountForm = ({
     }
 
     if (account) {
-      // Update existing account
-      const updateData: AccountRequest = {
-        username: formData.username,
-        password: formData.password,
-        email: formData.email,
-        role: formData.role as Role,
-        statusOfAccount: "ACTIVE" as StatusOfAccount,
-      };
+      // Update existing account - chỉ gửi các field đã thay đổi
+      const updateData: AccountRequest = {};
+      
+      // Chỉ thêm field nào thay đổi so với giá trị ban đầu
+      if (formData.username !== account.username) {
+        updateData.username = formData.username;
+      }
+      
+      if (formData.password && formData.password.trim()) {
+        updateData.password = formData.password;
+      }
+      
+      if (formData.email !== account.email) {
+        updateData.email = formData.email;
+      }
+      
+      if (formData.role !== account.role) {
+        updateData.role = formData.role as Role;
+      }
+      
+      // Nếu không có field nào thay đổi, không gửi request
+      if (Object.keys(updateData).length === 0) {
+        onClose();
+        return;
+      }
+      
       onSubmit(updateData);
     } else {
-      // Create new account
+      // Create new account - gửi đầy đủ thông tin
       const createData: AccountRequest = {
         username: formData.username,
         password: formData.password,

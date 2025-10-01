@@ -113,13 +113,7 @@ const MediatorCard = ({ mediator, onEdit, onDelete }: MediatorCardProps) => {
           {onDelete && (
             <button
               onClick={() => {
-                if (
-                  window.confirm(
-                    `Bạn có chắc chắn muốn xóa hòa giải viên "${mediator.fullName}"?`
-                  )
-                ) {
-                  onDelete(mediator.officerId);
-                }
+                onDelete(mediator.officerId);
               }}
               className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
               <svg

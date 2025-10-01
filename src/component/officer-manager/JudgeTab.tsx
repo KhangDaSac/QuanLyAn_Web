@@ -195,10 +195,10 @@ const JudgeTab = () => {
       setFormLoading(true);
 
       if (editingJudge) {
-        await JudgeService.update(editingJudge.officerId, data);
+        await JudgeService.update(editingJudge.officerId, data as JudgeRequest);
         toast.success('Cập nhật thành công', 'Thông tin thẩm phán đã được cập nhật thành công!');
       } else {
-        await JudgeService.create(data);
+        await JudgeService.create(data as JudgeRequest);
         toast.success('Thêm mới thành công', 'Thẩm phán mới đã được thêm vào hệ thống!');
       }
 

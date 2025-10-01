@@ -110,7 +110,7 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                 <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Tỷ lệ công việc</span>
                     <span className="text-sm font-semibold text-gray-900">
-                        {judge.maxNumberOfLegalCase === -1
+                        {judge.maxNumberOfLegalCase === -1  
                             ? `${judge.numberOfLegalCases} án`
                             : `${judge.numberOfLegalCases}/${judge.maxNumberOfLegalCase}`
                         }
@@ -151,9 +151,7 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
                     {onDelete && (
                         <button
                             onClick={() => {
-                                if (window.confirm(`Bạn có chắc chắn muốn xóa thẩm phán "${judge.fullName}"?`)) {
-                                    onDelete(judge.officerId);
-                                }
+                              onDelete(judge.officerId);
                             }}
                             className="flex items-center space-x-1 px-3 py-2 text-md font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
                         >

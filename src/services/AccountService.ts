@@ -4,6 +4,7 @@ import type { PageResponse } from "../types/response/PageResponse";
 import type AccountRequest from "../types/request/auth/AccountRequest";
 import type { AccountSearchRequest } from "../types/request/auth/AccountSearchRequest";
 import type { AccountResponse } from "../types/response/auth/AccountResponse";
+import type { StatusOfAccount } from "../types/enum/StatusOfAccount";
 
 export class AccountService {
   static api: string = '/auth/account';
@@ -68,6 +69,23 @@ export class AccountService {
     );
   }
 
+  static async toggleAccountStatus(id: string, statusOfAccount: StatusOfAccount): Promise<ApiResponse<void>> {
+    const token = localStorage.getItem('token');
+    const request: AccountRequest = {
+      username: null,
+      password: null,
+      email: null,
+      role: null,
+      statusOfAccount: statusOfAccount
+    };
+    return Connect.request<void>(
+      `${this.api}/${id}`,
+      'PUT',
+      request,
+      token
+    );
+  }
+
   static async deleteAccount(id: string): Promise<ApiResponse<void>> {
     const token = localStorage.getItem('token');
     return Connect.request<void>(
@@ -77,14 +95,4 @@ export class AccountService {
       token
     );
   }
-
-  // static async toggleAccountStatus(id: string): Promise<ApiResponse<void>> {
-  //   const token = localStorage.getItem('token');
-  //   return Connect.request<void>(
-  //     `${this.api}/${id}/toggle-status`,
-  //     'PUT',
-  //     null,
-  //     token
-  //   );
-  // }
 }

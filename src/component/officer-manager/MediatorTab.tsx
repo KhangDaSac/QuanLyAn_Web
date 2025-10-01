@@ -195,10 +195,10 @@ const MediatorTab = () => {
       setFormLoading(true);
 
       if (editingMediator) {
-        await MediatorService.update(editingMediator.officerId, data);
+        await MediatorService.update(editingMediator.officerId, data as MediatorRequest);
         toast.success('Cập nhật thành công', 'Thông tin hòa giải viên đã được cập nhật thành công!');
       } else {
-        await MediatorService.create(data);
+        await MediatorService.create(data as MediatorRequest);
         toast.success('Thêm mới thành công', 'Hòa giải viên mới đã được thêm vào hệ thống!');
       }
 
