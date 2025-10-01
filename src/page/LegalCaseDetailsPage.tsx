@@ -11,7 +11,9 @@ import ConfirmModal from "../component/basic-component/ConfirmModal";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import type { AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
+import type DecisionRequest from "../types/request/decision/DecisionRequest";
 import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
+import DecisionForm from "../component/decision-manager/DecisionForm";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -101,8 +103,10 @@ const LegalCaseDetailsPage = () => {
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showDecisionForm, setShowDecisionForm] = useState(false);
   const [assignmentLoading, setAssignmentLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [decisionFormLoading, setDecisionFormLoading] = useState(false);
 
   useEffect(() => {
     if (legalCaseId) {
@@ -175,6 +179,41 @@ const LegalCaseDetailsPage = () => {
 
   const handleAssign = () => {
     setShowAssignmentModal(true);
+  };
+
+  const handleAddDecision = () => {
+    setShowDecisionForm(true);
+  };
+
+  const handleDecisionSubmit = async (data: DecisionRequest) => {
+    if (!legalCase) return;
+
+    setDecisionFormLoading(true);
+    try {
+      const response = await DecisionService.create(data);
+
+      if (response.success) {
+        toast.success(
+          "Thêm quyết định thành công",
+          `Đã thêm quyết định số "${data.number}"`
+        );
+        setShowDecisionForm(false);
+        await fetchDecisions();
+      } else {
+        toast.error(
+          "Thêm quyết định thất bại",
+          response.error || "Có lỗi xảy ra khi thêm quyết định"
+        );
+      }
+    } catch (error) {
+      console.error("Error creating decision:", error);
+      toast.error(
+        "Thêm quyết định thất bại",
+        "Có lỗi xảy ra khi thêm quyết định"
+      );
+    } finally {
+      setDecisionFormLoading(false);
+    }
   };
 
   const handleAssignSubmit = async (judgeId: string) => {
@@ -303,6 +342,7 @@ const LegalCaseDetailsPage = () => {
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button
+              onClick={handleAddDecision}
               className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
               <svg
                 className="w-4 h-4 mr-2"
@@ -316,7 +356,7 @@ const LegalCaseDetailsPage = () => {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Thêm
+              Thêm quyết định
             </button>
           <button
             onClick={handleAssign}
@@ -755,37 +795,112 @@ const LegalCaseDetailsPage = () => {
             {decisions.map((decision, index) => (
               <div
                 key={decision.decisionId}
-                className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-medium text-gray-900">
-                    Quyết định #{index + 1}
-                  </h4>
-                  <span className="text-sm text-gray-500">
-                    {formatDate(decision.decisionDate)}
-                  </span>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-600">
-                      Số quyết định:
-                    </span>
-                    <span className="ml-2 text-gray-900">
-                      {decision.decisionNumber}
-                    </span>
+                className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center space-x-3">
+                    <h4 className="font-semibold text-gray-900 text-lg">
+                      Quyết định {decision.number}
+                    </h4>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-600">
-                      Loại quyết định:
-                    </span>
-                    <span className="ml-2 text-gray-900">
-                      {decision.typeOfDecision.typeOfDecisionName}
-                    </span>
+                  <div className="text-right">
+                    <div className="text-sm text-gray-900 font-mono">
+                      {decision.decisionId}
+                    </div>
                   </div>
                 </div>
-                {decision.description && (
-                  <div className="mt-3">
-                    <span className="font-medium text-gray-600">Mô tả:</span>
-                    <p className="mt-1 text-gray-900">{decision.description}</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Thông tin cơ bản */}
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Số quyết định:
+                      </span>
+                      <span className="text-base text-gray-900 font-semibold">
+                        {decision.number}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Ngày ban hành:
+                      </span>
+                      <span className="text-base text-gray-900">
+                        {formatDate(decision.releaseDate)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Ngày thêm vào hệ thống:
+                      </span>
+                      <span className="text-base text-gray-900">
+                        {formatDate(decision.addedDate)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thông tin loại quyết định */}
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Mã loại quyết định:
+                      </span>
+                      <span className="text-base text-gray-900 font-mono">
+                        {decision.typeOfDecision.typeOfDecisionId}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Tên loại quyết định:
+                      </span>
+                      <span className="text-base text-gray-900">
+                        {decision.typeOfDecision.typeOfDecisionName}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Loại vụ án:
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {decision.typeOfDecision.typeOfLegalCase.codeName}
+                        </span>
+                        <span className="text-base text-gray-900">
+                          {decision.typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Tòa án ban hành:
+                      </span>
+                      <span className="text-base text-gray-900">
+                        {decision.typeOfDecision.courtIssued === "CURRENT_COURT" 
+                          ? "Tòa án hiện tại" 
+                          : decision.typeOfDecision.courtIssued}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600 block">
+                        Quyết định cuối cùng:
+                      </span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        decision.typeOfDecision.theEndDecision 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {decision.typeOfDecision.theEndDecision ? "Có" : "Không"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ghi chú */}
+                {decision.note && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <span className="text-sm font-medium text-yellow-800 block mb-1">
+                      Ghi chú:
+                    </span>
+                    <p className="text-sm text-yellow-700">{decision.note}</p>
                   </div>
                 )}
               </div>
@@ -821,6 +936,15 @@ const LegalCaseDetailsPage = () => {
         type="danger"
         confirmText="Xác nhận"
         cancelText="Hủy"
+      />
+
+      {/* Decision Form */}
+      <DecisionForm
+        isOpen={showDecisionForm}
+        onClose={() => setShowDecisionForm(false)}
+        onSubmit={handleDecisionSubmit}
+        legalCaseId={legalCase.legalCaseId}
+        isLoading={decisionFormLoading}
       />
 
       {/* Toast Container */}

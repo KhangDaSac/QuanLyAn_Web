@@ -58,6 +58,7 @@ const LegalRelationshipTab = () => {
   const sortByOptions: Option[] = [
     { value: "legalRelationshipName", label: "Tên quan hệ pháp luật" },
     { value: "legalRelationshipId", label: "Mã quan hệ pháp luật" },
+    { value : "typeOfLegalCaseId", label: "Loại vụ án" },
   ];
 
   const toast = useToast();
@@ -556,7 +557,7 @@ const LegalRelationshipTab = () => {
                     onClick={resetSearch}
                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    Đặt lại
+                    Xóa bộ lọc
                   </button>
                 </div>
               </div>

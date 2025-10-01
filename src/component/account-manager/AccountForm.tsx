@@ -126,7 +126,7 @@ const AccountForm = ({
         password: formData.password,
         email: formData.email,
         role: formData.role as Role,
-        statusOfAccount: "ACTIVE" as StatusOfAccount, // Default value for update
+        statusOfAccount: "ACTIVE" as StatusOfAccount,
       };
       onSubmit(updateData);
     } else {
@@ -136,7 +136,7 @@ const AccountForm = ({
         password: formData.password,
         email: formData.email,
         role: formData.role as Role,
-        statusOfAccount: "ACTIVE" as StatusOfAccount, // Default value for new account
+        statusOfAccount: "ACTIVE" as StatusOfAccount,
       };
       onSubmit(createData);
     }

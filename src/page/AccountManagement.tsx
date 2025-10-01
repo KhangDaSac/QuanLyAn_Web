@@ -91,25 +91,27 @@ const AccountManagement = () => {
   const loadAccounts = async () => {
     try {
       setLoading(true);
-      const response = await AccountService.search(
-        accountSearch,
-        pagination.page,
-        pagination.size,
-        sortBy
-      );
+      // const response = await AccountService.search(
+      //   accountSearch,
+      //   pagination.page,
+      //   pagination.size,
+      //   sortBy
+      // );
+
+      const response = await AccountService.getAllAccounts()
       
       if (response.success && response.data) {
-        setAccounts(response.data.content);
-        setPagination({
-          page: response.data.number,
-          size: response.data.size,
-          totalElements: response.data.totalElements,
-          totalPages: response.data.totalPages,
-          hasNext: response.data.hasNext,
-          hasPrevious: response.data.hasPrevious,
-          isFirst: response.data.isFirst,
-          isLast: response.data.isLast
-        });
+        setAccounts(response.data);
+        // setPagination({
+        //   page: response.data.number,
+        //   size: response.data.size,
+        //   totalElements: response.data.totalElements,
+        //   totalPages: response.data.totalPages,
+        //   hasNext: response.data.hasNext,
+        //   hasPrevious: response.data.hasPrevious,
+        //   isFirst: response.data.isFirst,
+        //   isLast: response.data.isLast
+        // });
       }
     } catch (error) {
       console.error("Error loading accounts:", error);
@@ -226,18 +228,18 @@ const AccountManagement = () => {
 
   const handleToggleStatusConfirm = async () => {
     try {
-      const response = await AccountService.toggleAccountStatus(
-        targetAccountId
-      );
-      if (response.success) {
-        toast.success("Thành công", "Thay đổi trạng thái tài khoản thành công");
-        await loadAccounts();
-      } else {
-        toast.error(
-          "Lỗi",
-          response.message || "Không thể thay đổi trạng thái tài khoản"
-        );
-      }
+      // const response = await AccountService.toggleAccountStatus(
+      //   targetAccountId
+      // );
+      // if (response.success) {
+      //   toast.success("Thành công", "Thay đổi trạng thái tài khoản thành công");
+      //   await loadAccounts();
+      // } else {
+      //   toast.error(
+      //     "Lỗi",
+      //     response.message || "Không thể thay đổi trạng thái tài khoản"
+      //   );
+      // }
     } catch (error) {
       console.error("Error toggling account status:", error);
       toast.error("Lỗi", "Có lỗi xảy ra khi thay đổi trạng thái tài khoản");
@@ -405,7 +407,7 @@ const AccountManagement = () => {
                 <button
                   onClick={resetSearch}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                  Đặt lại
+                  Xóa bộ lọc
                 </button>
               </div>
             </div>
@@ -415,7 +417,7 @@ const AccountManagement = () => {
         
 
         {/* Pagination Component */}
-        {!loading && accounts.length > 0 && (
+        {/* {!loading && accounts.length > 0 && (
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -436,7 +438,7 @@ const AccountManagement = () => {
             showSortSelector={true}
             className="mb-6"
           />
-        )}
+        )} */}
 
         {/* Accounts Grid */}
         {accounts.length === 0 ? (
@@ -474,7 +476,7 @@ const AccountManagement = () => {
                   handleToggleStatusClick(
                     id,
                     account.username || account.email,
-                    account.statusOfAccount === StatusOfAccount.ACTIVE
+                    account.statusOfAccount.toString() === "ACTIVE"
                   )
                 }
               />
@@ -515,12 +517,12 @@ const AccountManagement = () => {
       <ConfirmModal
         isOpen={showToggleModal}
         title={`Xác nhận ${
-          targetAccountActive ? "vô hiệu hóa" : "kích hoạt"
+          targetAccountActive ? "Khóa" : "Mở khóa"
         } tài khoản`}
         message={`Bạn có chắc chắn muốn ${
-          targetAccountActive ? "vô hiệu hóa" : "kích hoạt"
+          targetAccountActive ? "Khóa" : "Mở khóa"
         } tài khoản "${targetAccountName}"?`}
-        confirmText={targetAccountActive ? "Vô hiệu hóa" : "Kích hoạt"}
+        confirmText={targetAccountActive ? "Khóa" : "Mở khóa"}
         cancelText="Hủy"
         onConfirm={handleToggleStatusConfirm}
         onClose={() => {

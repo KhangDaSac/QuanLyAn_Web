@@ -12,7 +12,7 @@ export class Connect {
         token?: string | null
     ): Promise<ApiResponse<T>> {
         try {
-          console.log(method + " - " + endpoint +  " - " + JSON.stringify(body, null, 2));
+          
             const accessToken = token ?? localStorage.getItem("token");
             const response = await fetch(`${server_url}${endpoint}`, {
                 method,
@@ -29,6 +29,7 @@ export class Connect {
             }
 
             const responseData = await response.json().catch(() => ({}));
+            console.log(method + " - " + endpoint +  " - " + JSON.stringify(body, null, 2) +  " - Response data" + JSON.stringify(responseData, null, 2) );
             return responseData as ApiResponse<T>;
         } catch (error: unknown) {
             let errorMessage = "Không thể kết nối đến máy chủ";

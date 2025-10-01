@@ -173,7 +173,7 @@ const AccountCard = ({
             <span>Sửa</span>
           </button>
 
-          <button
+          {/* <button
             onClick={() => onToggleStatus(account.accountId)}
             className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 border ${
               isActiveStatus(account.statusOfAccount)
@@ -199,7 +199,7 @@ const AccountCard = ({
             <span>
               {account.statusOfAccount.toString() == "ACTIVE" ? "Khóa" : "Mở khóa"}
             </span>
-          </button>
+          </button> */}
 
           <button
             onClick={() => onDelete(account.accountId)}

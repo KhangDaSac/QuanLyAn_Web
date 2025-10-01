@@ -78,13 +78,13 @@ export class AccountService {
     );
   }
 
-  static async toggleAccountStatus(id: string): Promise<ApiResponse<void>> {
-    const token = localStorage.getItem('token');
-    return Connect.request<void>(
-      `${this.api}/${id}/toggle-status`,
-      'PUT',
-      null,
-      token
-    );
-  }
+  // static async toggleAccountStatus(id: string): Promise<ApiResponse<void>> {
+  //   const token = localStorage.getItem('token');
+  //   return Connect.request<void>(
+  //     `${this.api}/${id}/toggle-status`,
+  //     'PUT',
+  //     null,
+  //     token
+  //   );
+  // }
 }
