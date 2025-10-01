@@ -1,7 +1,6 @@
 import { Connect } from "../connect/Connect";
 import type { ApiResponse } from "../types/ApiResponse";
 import type TypeOfDecisionRequest from "../types/request/type-of-decision/TypeOfDecisionRequest";
-import type TypeOfDecisionUpdateRequest from "../types/request/type-of-decision/TypeOfDecisionUpdateRequest";
 import type TypeOfDecisionSearchRequest from "../types/request/type-of-decision/TypeOfDecisionSearchRequest";
 import type TypeOfDecisionResponse from "../types/response/type-of-decision/TypeOfDecisionResponse";
 import type { PageResponse } from "../types/response/PageResponse";
@@ -38,7 +37,7 @@ export class TypeOfDecisionService {
         );
     }
 
-    static async update(id: string, request: TypeOfDecisionUpdateRequest): Promise<ApiResponse<void>> {
+    static async update(id: string, request: TypeOfDecisionRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
             `${this.api}/${id}`,

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import type TypeOfDecisionResponse from '../../types/response/type-of-decision/TypeOfDecisionResponse';
 import type TypeOfDecisionRequest from '../../types/request/type-of-decision/TypeOfDecisionRequest';
-import type TypeOfDecisionUpdateRequest from '../../types/request/type-of-decision/TypeOfDecisionUpdateRequest';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 import { CourtIssued } from '../../types/enum/CourtIssued';
 
 interface TypeOfDecisionFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: TypeOfDecisionRequest | TypeOfDecisionUpdateRequest) => void;
+    onSubmit: (data: TypeOfDecisionRequest) => void;
     typeOfDecision?: TypeOfDecisionResponse | null;
     typeOfLegalCaseOptions: Option[];
     isLoading?: boolean;
@@ -85,7 +84,7 @@ const TypeOfDecisionForm = ({
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData.typeOfDecisionName.trim()) {
+        if (!formData?.typeOfDecisionName?.trim()) {
             newErrors.typeOfDecisionName = 'Tên loại quyết định là bắt buộc';
         }
 
@@ -122,7 +121,7 @@ const TypeOfDecisionForm = ({
             console.log('Original courtIssued:', originalCourtIssued);
             console.log('CourtIssued changed:', formData.courtIssued !== originalCourtIssued);
             
-            const updateData: TypeOfDecisionUpdateRequest = {
+            const updateData: TypeOfDecisionRequest = {
                 typeOfDecisionName: formData.typeOfDecisionName !== typeOfDecision.typeOfDecisionName 
                     ? formData.typeOfDecisionName : null,
                 typeOfLegalCaseId: formData.typeOfLegalCaseId !== typeOfDecision.typeOfLegalCase.typeOfLegalCaseId 
@@ -219,7 +218,7 @@ const TypeOfDecisionForm = ({
                                 </label>
                                 <input
                                     type="text"
-                                    value={formData.typeOfDecisionName}
+                                    value={formData.typeOfDecisionName || ""}
                                     onChange={(e) => handleInputChange('typeOfDecisionName', e.target.value)}
                                     placeholder="Nhập tên loại quyết định"
                                     className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
@@ -238,7 +237,7 @@ const TypeOfDecisionForm = ({
                                 </label>
                                 <ComboboxSearch
                                     options={typeOfLegalCaseOptions.filter(option => option.value !== '')}
-                                    value={formData.typeOfLegalCaseId}
+                                    value={formData.typeOfLegalCaseId || ""}
                                     onChange={(value) => handleInputChange('typeOfLegalCaseId', value)}
                                     placeholder="Chọn loại án"
                                 />
@@ -254,7 +253,7 @@ const TypeOfDecisionForm = ({
                                 </label>
                                 <ComboboxSearch
                                     options={courtIssuedOptions}
-                                    value={formData.courtIssued}
+                                    value={formData.courtIssued || ""}
                                     onChange={(value) => handleInputChange('courtIssued', value as CourtIssued)}
                                     placeholder="Chọn cấp tòa"
                                 />
@@ -268,7 +267,7 @@ const TypeOfDecisionForm = ({
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        checked={formData.theEndDecision}
+                                        checked={formData.theEndDecision || false}
                                         onChange={(e) => handleInputChange('theEndDecision', e.target.checked)}
                                         className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded"
                                     />

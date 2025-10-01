@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { TypeOfDecisionService } from "../services/TypeOfDecisionService";
 import { HandleTypeOfDecisionService } from "../services/HandleTypeOfDecisionService";
+import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
 import type TypeOfDecisionResponse from "../types/response/type-of-decision/TypeOfDecisionResponse";
 import type HandleTypeOfDecisionResponse from "../types/response/handle-type-of-decision/HandleTypeOfDecisionResponse";
+import type TypeOfDecisionRequest from "../types/request/type-of-decision/TypeOfDecisionRequest";
+import type { Option } from "../component/basic-component/ComboboxSearch";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
+import TypeOfDecisionForm from "../component/type-of-decision-manager/TypeOfDecisionForm";
+import ConfirmModal from "../component/basic-component/ConfirmModal";
 import { CourtIssued } from "../types/enum/CourtIssued";
 import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
 
@@ -90,20 +95,23 @@ const TypeOfDecisionDetailsPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  console.log('TypeOfDecisionDetailsPage rendered with ID:', typeOfDecisionId);
-
   const [typeOfDecision, setTypeOfDecision] = useState<TypeOfDecisionResponse | null>(null);
   const [handleTypeOfDecisions, setHandleTypeOfDecisions] = useState<HandleTypeOfDecisionResponse[]>([]);
+  const [typeOfLegalCaseOptions, setTypeOfLegalCaseOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
   const [handlesLoading, setHandlesLoading] = useState(false);
 
+  // Modal states
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+
   useEffect(() => {
-    console.log('useEffect triggered with typeOfDecisionId:', typeOfDecisionId);
     if (typeOfDecisionId) {
       fetchTypeOfDecisionDetails();
       fetchHandleTypeOfDecisions();
+      fetchTypeOfLegalCaseOptions();
     } else {
-      console.log('No typeOfDecisionId, redirecting to decision-type');
       navigate("/decision-type");
     }
   }, [typeOfDecisionId]);
@@ -111,20 +119,14 @@ const TypeOfDecisionDetailsPage = () => {
   const fetchTypeOfDecisionDetails = async () => {
     if (!typeOfDecisionId) return;
 
-    console.log('Fetching details for typeOfDecisionId:', typeOfDecisionId);
     setLoading(true);
     try {
-      // Thử dùng getById trước
       const response = await TypeOfDecisionService.getById(typeOfDecisionId);
-      console.log('getById API Response:', response);
       
       if (response.success && response.data) {
         setTypeOfDecision(response.data);
       } else {
-        // Nếu getById thất bại, thử dùng getAll và filter
-        console.log('getById failed, trying getAll approach...');
         const allResponse = await TypeOfDecisionService.getAll();
-        console.log('getAll API Response:', allResponse);
         
         if (allResponse.success && allResponse.data) {
           const foundTypeOfDecision = allResponse.data.find(
@@ -133,13 +135,36 @@ const TypeOfDecisionDetailsPage = () => {
           
           if (foundTypeOfDecision) {
             setTypeOfDecision(foundTypeOfDecision);
+          } else {
+            toast.error("Lỗi", "Không thể tải thông tin loại quyết định");
+            navigate("/decision-type");
           }
-        } 
+        } else {
+          toast.error("Lỗi", "Không thể tải thông tin loại quyết định");
+          navigate("/decision-type");
+        }
       }
     } catch (error) {
       console.error("Error fetching type of decision details:", error);
+      toast.error("Lỗi", "Không thể tải thông tin loại quyết định");
+      navigate("/decision-type");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTypeOfLegalCaseOptions = async () => {
+    try {
+      const response = await TypeOfLegalCaseService.getAll();
+      if (response.success && response.data) {
+        const options: Option[] = response.data.map((item) => ({
+          value: item.typeOfLegalCaseId,
+          label: item.typeOfLegalCaseName,
+        }));
+        setTypeOfLegalCaseOptions(options);
+      }
+    } catch (error) {
+      console.error("Error fetching type of legal case options:", error);
     }
   };
 
@@ -160,9 +185,48 @@ const TypeOfDecisionDetailsPage = () => {
     }
   };
 
+  const handleEdit = () => {
+    setShowEditForm(true);
+  };
+
+  const handleDelete = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleFormSubmit = async (data: TypeOfDecisionRequest) => {
+    if (!typeOfDecision) return;
+
+    try {
+      setFormLoading(true);
+      await TypeOfDecisionService.update(typeOfDecision.typeOfDecisionId, data as TypeOfDecisionRequest);
+      toast.success("Cập nhật thành công", "Loại quyết định đã được cập nhật thành công!");
+      setShowEditForm(false);
+      await fetchTypeOfDecisionDetails();
+    } catch (error) {
+      console.error("Error updating type of decision:", error);
+      toast.error("Có lỗi xảy ra", "Không thể cập nhật thông tin loại quyết định. Vui lòng thử lại!");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!typeOfDecision) return;
+
+    try {
+      await TypeOfDecisionService.delete(typeOfDecision.typeOfDecisionId);
+      toast.success("Xóa thành công", "Loại quyết định đã được xóa khỏi hệ thống!");
+      navigate("/decision-type");
+    } catch (error) {
+      console.error("Error deleting type of decision:", error);
+      toast.error("Xóa thất bại", "Có lỗi xảy ra khi xóa loại quyết định. Vui lòng thử lại!");
+    }
+    setShowConfirmModal(false);
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
@@ -170,39 +234,14 @@ const TypeOfDecisionDetailsPage = () => {
 
   if (!typeOfDecision) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-center">
-          <svg
-            className="w-24 h-24 text-gray-300 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Không tìm thấy loại quyết định
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Loại quyết định không tồn tại hoặc đã bị xóa.
-          </p>
-          <button
-            onClick={() => navigate("/decision-type")}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Quay lại danh sách
-          </button>
-        </div>
+      <div className="text-center py-12">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Không tìm thấy loại quyết định
+        </h3>
+        <p className="text-gray-600">Loại quyết định không tồn tại hoặc đã bị xóa.</p>
       </div>
     );
   }
-
-  const courtIssuedColors = getCourtIssuedColor(typeOfDecision.courtIssued);
 
   return (
     <div className="space-y-6 p-4 md:p-0">
@@ -211,14 +250,12 @@ const TypeOfDecisionDetailsPage = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate("/decision-type")}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white">
             <svg
-              className="w-5 h-5 text-gray-600"
+              className="w-8 h-8 mr-2"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -232,235 +269,285 @@ const TypeOfDecisionDetailsPage = () => {
               Chi tiết loại quyết định
             </h1>
             <p className="text-gray-600 mt-1 text-sm md:text-base">
-              Thông tin chi tiết và xử lý loại quyết định
+              Mã: {typeOfDecision.typeOfDecisionId}
             </p>
           </div>
         </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={handleEdit}
+            className="inline-flex items-center px-4 py-2 border border-yellow-600 text-yellow-600 text-sm font-medium rounded-lg bg-yellow-50 hover:bg-yellow-100 transition-colors">
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Chỉnh sửa
+          </button>
+          <button
+            onClick={handleDelete}
+            className="inline-flex items-center px-4 py-2 border border-red-600 text-red-600 text-sm font-medium rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Xóa
+          </button>
+        </div>
       </div>
 
-      {/* Type of Decision Info */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Thông tin loại quyết định
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Basic Information */}
-            <div className="space-y-4">
+      {/* Main Card - Similar to LegalCaseDetailsPage Layout */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+        {/* Horizontal Layout */}
+        <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6 space-y-4 lg:space-y-0">
+          {/* Left Section - Main Info */}
+          <div className="flex-1 space-y-3 lg:space-y-4">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tên loại quyết định
-                </label>
-                <p className="text-base text-gray-900 font-medium">
+                <h3 className="text-lg md:text-xl font-bold text-gray-900">
                   {typeOfDecision.typeOfDecisionName}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  ID: {typeOfDecision.typeOfDecisionId}
                 </p>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Loại vụ án
-                </label>
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeOfLegalCaseColor(
-                      typeOfDecision.typeOfLegalCase.codeName
-                    )}`}
-                  >
-                    {typeOfDecision.typeOfLegalCase.codeName}
-                  </span>
-                  <span className="text-gray-700">
-                    {typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
-                  </span>
-                </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`
+                    text-md px-5 py-1 rounded-full font-medium
+                    ${getTypeOfLegalCaseColor(typeOfDecision.typeOfLegalCase.codeName)}
+                  `}>
+                  {typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                </span>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tòa ban hành
-                </label>
+            {/* Type of Legal Case Details */}
+            <div className="bg-blue-50 rounded-lg p-3">
+              <p className="text-sm text-blue-600 mb-1">Loại vụ án</p>
+              <div className="flex items-center space-x-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {typeOfDecision.typeOfLegalCase.codeName}
+                </span>
+                <p className="text-md font-semibold text-blue-900">
+                  {typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                </p>
+              </div>
+            </div>
+
+            {/* Court Issued & End Decision */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center space-x-2">
+                  <svg
+                    className="w-4 h-4 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                  <p className="text-sm text-gray-600 font-medium">Tòa ban hành</p>
+                </div>
                 <span
-                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${courtIssuedColors.bg} ${courtIssuedColors.text} ${courtIssuedColors.border}`}
-                >
+                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getCourtIssuedColor(typeOfDecision.courtIssued).bg} ${getCourtIssuedColor(typeOfDecision.courtIssued).text} ${getCourtIssuedColor(typeOfDecision.courtIssued).border}`}>
                   {getCourtIssuedText(typeOfDecision.courtIssued)}
                 </span>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quyết định cuối
-                </label>
-                <div className="flex items-center">
-                  {typeOfDecision.theEndDecision ? (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-600 border border-green-300">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Có
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-50 text-gray-600 border border-gray-300">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                      Không
-                    </span>
-                  )}
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center space-x-2">
+                  <svg
+                    className="w-4 h-4 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <p className="text-sm text-gray-600 font-medium">Quyết định cuối</p>
                 </div>
+                {typeOfDecision.theEndDecision ? (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-600 border border-green-300">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Có
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-50 text-gray-600 border border-gray-300">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    Không
+                  </span>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Handle Type of Decisions */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Danh sách xử lý loại quyết định
-            </h2>
-            <span className="text-sm text-gray-600">
-              {handleTypeOfDecisions.length} xử lý
-            </span>
+      {/* Handle Type of Decisions List */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Danh sách xử lý loại quyết định
+        </h3>
+        {handlesLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
           </div>
-        </div>
-
-        <div className="p-6">
-          {handlesLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-            </div>
-          ) : handleTypeOfDecisions.length > 0 ? (
-            <div className="space-y-4">
-              {handleTypeOfDecisions.map((handle, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Pre Status */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Trạng thái trước
-                      </label>
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          handle.preStatus
-                        )}`}
-                      >
-                        {getStatusText(handle.preStatus)}
-                      </span>
-                    </div>
-
-                    {/* Post Status */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Trạng thái sau
-                      </label>
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          handle.postStatus
-                        )}`}
-                      >
-                        {getStatusText(handle.postStatus)}
-                      </span>
-                    </div>
-
-                    {/* Extension Period */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Thời gian gia hạn
-                      </label>
-                      <div className="flex items-center">
-                        <svg
-                          className="w-4 h-4 text-blue-500 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-gray-900 font-medium">
-                          {handle.extensionPeriod} ngày
-                        </span>
-                      </div>
-                    </div>
+        ) : handleTypeOfDecisions.length === 0 ? (
+          <div className="text-center py-8">
+            <svg
+              className="w-12 h-12 text-gray-300 mx-auto mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+            <p className="text-gray-500">Chưa có xử lý nào</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {handleTypeOfDecisions.map((handle, index) => (
+              <div
+                key={index}
+                className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {/* Pre Status */}
+                  <div>
+                    <span className="text-sm font-medium text-gray-600 block mb-1">
+                      Trạng thái trước:
+                    </span>
+                    <span
+                      className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(handle.preStatus)}`}>
+                      {getStatusText(handle.preStatus)}
+                    </span>
                   </div>
 
-                  {/* Status Flow Visualization */}
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          handle.preStatus
-                        )}`}
-                      >
-                        {getStatusText(handle.preStatus)}
-                      </span>
-                      
-                      <div className="flex items-center flex-1 mx-4">
-                        <div className="flex-1 h-0.5 bg-gray-300"></div>
-                        <svg
-                          className="w-5 h-5 text-gray-400 mx-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                        <div className="flex-1 h-0.5 bg-gray-300"></div>
-                      </div>
+                  {/* Post Status */}
+                  <div>
+                    <span className="text-sm font-medium text-gray-600 block mb-1">
+                      Trạng thái sau:
+                    </span>
+                    <span
+                      className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(handle.postStatus)}`}>
+                      {getStatusText(handle.postStatus)}
+                    </span>
+                  </div>
 
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          handle.postStatus
-                        )}`}
-                      >
-                        {getStatusText(handle.postStatus)}
+                  {/* Extension Period */}
+                  <div>
+                    <span className="text-sm font-medium text-gray-600 block mb-1">
+                      Thời gian gia hạn:
+                    </span>
+                    <div className="flex items-center">
+                      <svg
+                        className="w-4 h-4 text-blue-500 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-base text-gray-900 font-semibold">
+                        {handle.extensionPeriod} ngày
                       </span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <svg
-                className="w-16 h-16 text-gray-300 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-              <h3 className="text-base font-medium text-gray-900 mb-2">
-                Chưa có xử lý nào
-              </h3>
-              <p className="text-gray-600">
-                Loại quyết định này chưa có cấu hình xử lý nào.
-              </p>
-            </div>
-          )}
-        </div>
+
+                {/* Status Flow Visualization */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(handle.preStatus)}`}>
+                      {getStatusText(handle.preStatus)}
+                    </span>
+                    
+                    <div className="flex items-center flex-1 mx-4">
+                      <div className="flex-1 h-0.5 bg-gray-300"></div>
+                      <svg
+                        className="w-5 h-5 text-gray-400 mx-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                      <div className="flex-1 h-0.5 bg-gray-300"></div>
+                    </div>
+
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(handle.postStatus)}`}>
+                      {getStatusText(handle.postStatus)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Modals */}
+      <TypeOfDecisionForm
+        isOpen={showEditForm}
+        onClose={() => setShowEditForm(false)}
+        onSubmit={handleFormSubmit}
+        typeOfDecision={typeOfDecision}
+        typeOfLegalCaseOptions={typeOfLegalCaseOptions}
+        isLoading={formLoading}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa loại quyết định"
+        message={`Bạn có chắc chắn muốn xóa loại quyết định "${typeOfDecision.typeOfDecisionName}"? Hành động này không thể hoàn tác.`}
+        type="danger"
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
 
       {/* Toast Container */}
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
