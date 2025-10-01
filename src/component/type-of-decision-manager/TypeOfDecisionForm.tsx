@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import type TypeOfDecisionResponse from '../../types/response/type-of-decision/TypeOfDecisionResponse';
 import type TypeOfDecisionRequest from '../../types/request/type-of-decision/TypeOfDecisionRequest';
+import type TypeOfDecisionUpdateRequest from '../../types/request/type-of-decision/TypeOfDecisionUpdateRequest';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 import { CourtIssued } from '../../types/enum/CourtIssued';
 
 interface TypeOfDecisionFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: TypeOfDecisionRequest) => void;
+    onSubmit: (data: TypeOfDecisionRequest | TypeOfDecisionUpdateRequest) => void;
     typeOfDecision?: TypeOfDecisionResponse | null;
     typeOfLegalCaseOptions: Option[];
     isLoading?: boolean;
@@ -24,24 +25,36 @@ const TypeOfDecisionForm = ({
     const [formData, setFormData] = useState<TypeOfDecisionRequest>({
         typeOfDecisionName: '',
         typeOfLegalCaseId: '',
-        courtIssued: CourtIssued.CURRENT_COURT,
+        courtIssued: "CURRENT_COURT" as CourtIssued,
         theEndDecision: false
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const courtIssuedOptions: Option[] = [
-        { value: CourtIssued.CURRENT_COURT, label: 'Tòa án hiện tại' },
-        { value: CourtIssued.SUPERIOR_COURT, label: 'Tòa án cấp trên' }
+        { value: "CURRENT_COURT", label: 'Tòa án hiện tại' },
+        { value: "SUPERIOR_COURT", label: 'Tòa án cấp trên' }
     ];
 
     // Load data when editing
     useEffect(() => {
         if (typeOfDecision) {
+            console.log('TypeOfDecision from backend:', typeOfDecision);
+            console.log('CourtIssued value:', typeOfDecision.courtIssued);
+            
+            // Xử lý courtIssued - có thể backend trả về enum name hoặc enum value
+            let courtIssuedValue: string;
+            const courtIssuedStr = typeOfDecision.courtIssued as string;
+            if (courtIssuedStr === "CURRENT_COURT" || courtIssuedStr === "Tòa án hiện tại") {
+                courtIssuedValue = "CURRENT_COURT";
+            } else {
+                courtIssuedValue = "SUPERIOR_COURT";
+            }
+            
             setFormData({
                 typeOfDecisionName: typeOfDecision.typeOfDecisionName,
                 typeOfLegalCaseId: typeOfDecision.typeOfLegalCase.typeOfLegalCaseId,
-                courtIssued: typeOfDecision.courtIssued,
+                courtIssued: courtIssuedValue as CourtIssued,
                 theEndDecision: typeOfDecision.theEndDecision
             });
         } else {
@@ -49,7 +62,7 @@ const TypeOfDecisionForm = ({
             setFormData({
                 typeOfDecisionName: '',
                 typeOfLegalCaseId: '',
-                courtIssued: CourtIssued.CURRENT_COURT,
+                courtIssued: "CURRENT_COURT" as CourtIssued,
                 theEndDecision: false
             });
         }
@@ -91,8 +104,54 @@ const TypeOfDecisionForm = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (validateForm()) {
-            onSubmit(formData);
+        if (!validateForm()) {
+            return;
+        }
+
+        if (typeOfDecision) {
+            // Update existing TypeOfDecision - gửi tất cả field, field không thay đổi = null
+            let originalCourtIssued: string;
+            const courtIssuedStr = typeOfDecision.courtIssued as string;
+            if (courtIssuedStr === "CURRENT_COURT" || courtIssuedStr === "Tòa án hiện tại") {
+                originalCourtIssued = "CURRENT_COURT";
+            } else {
+                originalCourtIssued = "SUPERIOR_COURT";
+            }
+            
+            console.log('Form courtIssued:', formData.courtIssued);
+            console.log('Original courtIssued:', originalCourtIssued);
+            console.log('CourtIssued changed:', formData.courtIssued !== originalCourtIssued);
+            
+            const updateData: TypeOfDecisionUpdateRequest = {
+                typeOfDecisionName: formData.typeOfDecisionName !== typeOfDecision.typeOfDecisionName 
+                    ? formData.typeOfDecisionName : null,
+                typeOfLegalCaseId: formData.typeOfLegalCaseId !== typeOfDecision.typeOfLegalCase.typeOfLegalCaseId 
+                    ? formData.typeOfLegalCaseId : null,
+                courtIssued: formData.courtIssued !== originalCourtIssued 
+                    ? formData.courtIssued as CourtIssued : null,
+                theEndDecision: formData.theEndDecision !== typeOfDecision.theEndDecision 
+                    ? formData.theEndDecision : null
+            };
+            
+            console.log('Update data to send:', updateData);
+            
+            // Kiểm tra có field nào thay đổi không
+            const hasChanges = Object.values(updateData).some(value => value !== null);
+            if (!hasChanges) {
+                onClose();
+                return;
+            }
+            
+            onSubmit(updateData);
+        } else {
+            // Create new TypeOfDecision - gửi đầy đủ thông tin
+            const createData: TypeOfDecisionRequest = {
+                typeOfDecisionName: formData.typeOfDecisionName,
+                typeOfLegalCaseId: formData.typeOfLegalCaseId,
+                courtIssued: formData.courtIssued,
+                theEndDecision: formData.theEndDecision
+            };
+            onSubmit(createData);
         }
     };
 

@@ -10,6 +10,7 @@ import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
 import type TypeOfDecisionResponse from '../types/response/type-of-decision/TypeOfDecisionResponse';
 import type TypeOfDecisionSearchRequest from '../types/request/type-of-decision/TypeOfDecisionSearchRequest';
 import type TypeOfDecisionRequest from '../types/request/type-of-decision/TypeOfDecisionRequest';
+import type TypeOfDecisionUpdateRequest from '../types/request/type-of-decision/TypeOfDecisionUpdateRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { CourtIssued } from '../types/enum/CourtIssued';
 
@@ -30,8 +31,8 @@ const TypeOfDecisionManager = () => {
   
   const courtIssuedOptions: Option[] = [
     { value: '', label: 'Tất cả cấp tòa' },
-    { value: CourtIssued.CURRENT_COURT, label: 'Tòa án hiện tại' },
-    { value: CourtIssued.SUPERIOR_COURT, label: 'Tòa án cấp trên' }
+    { value: "CURRENT_COURT", label: 'Tòa án hiện tại' },
+    { value: "SUPERIOR_COURT", label: 'Tòa án cấp trên' }
   ];
 
   // Modal states
@@ -192,13 +193,13 @@ const TypeOfDecisionManager = () => {
     navigate(`/type-of-decision-details/${typeOfDecision.typeOfDecisionId}`);
   };
 
-  const handleFormSubmit = async (data: TypeOfDecisionRequest) => {
+  const handleFormSubmit = async (data: TypeOfDecisionRequest | TypeOfDecisionUpdateRequest) => {
     try {
       setFormLoading(true);
       
       if (selectedTypeOfDecision) {
         // Update
-        const response = await TypeOfDecisionService.update(selectedTypeOfDecision.typeOfDecisionId, data);
+        const response = await TypeOfDecisionService.update(selectedTypeOfDecision.typeOfDecisionId, data as TypeOfDecisionUpdateRequest);
         if (response.success) {
           toast.success('Cập nhật thành công', 'Loại quyết định đã được cập nhật!');
           setShowEditForm(false);
@@ -208,7 +209,7 @@ const TypeOfDecisionManager = () => {
         }
       } else {
         // Create
-        const response = await TypeOfDecisionService.create(data);
+        const response = await TypeOfDecisionService.create(data as TypeOfDecisionRequest);
         if (response.success) {
           toast.success('Tạo thành công', 'Loại quyết định mới đã được tạo!');
           setShowCreateForm(false);
