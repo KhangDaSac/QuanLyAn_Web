@@ -6,8 +6,8 @@ import type { AccountSearchRequest } from "../types/request/auth/AccountSearchRe
 import { StatusOfAccount } from "../types/enum/StatusOfAccount";
 import AccountCard from "../component/account-manager/AccountCard";
 import AccountForm from "../component/account-manager/AccountForm";
-import ConfirmModal from "../component/basic-component/ConfirmModal";
 import Pagination from "../component/basic-component/Pagination";
+import ConfirmModal from "../component/basic-component/ConfirmModal";
 import ComboboxSearch, {
   type Option,
 } from "../component/basic-component/ComboboxSearch";
@@ -23,9 +23,9 @@ const AccountManagement = () => {
     email: null,
     fullName: null,
     role: null,
-    statusOfAccount: null
+    statusOfAccount: null,
   });
-  
+
   // Pagination state
   const [pagination, setPagination] = useState({
     page: 0,
@@ -35,10 +35,10 @@ const AccountManagement = () => {
     hasNext: false,
     hasPrevious: false,
     isFirst: true,
-    isLast: false
+    isLast: false,
   });
-  const [sortBy, setSortBy] = useState<string>('accountId');
-  
+  const [sortBy, setSortBy] = useState<string>("accountId");
+
   // Form states
   const [showForm, setShowForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<AccountResponse | null>(
@@ -55,21 +55,6 @@ const AccountManagement = () => {
     useState<boolean>(false);
   const toast = useToast();
 
-  // Pagination options
-  const pageSizeOptions: Option[] = [
-    { value: '5', label: '5 bản ghi' },
-    { value: '10', label: '10 bản ghi' },
-    { value: '20', label: '20 bản ghi' },
-    { value: '50', label: '50 bản ghi' }
-  ];
-
-  const sortByOptions: Option[] = [
-    { value: 'accountId', label: 'Mã tài khoản' },
-    { value: 'email', label: 'Email' },
-    { value: 'role', label: 'Quyền' },
-    { value: 'statusOfAccount', label: 'Trạng thái' }
-  ];
-
   const statusOptions: Option[] = [
     ...Object.entries(StatusOfAccount).map(([key, value]) => ({
       value: key,
@@ -84,6 +69,20 @@ const AccountManagement = () => {
     })),
   ];
 
+  const pageSizeOptions: Option[] = [
+    { value: "5", label: "5 bản ghi" },
+    { value: "10", label: "10 bản ghi" },
+    { value: "20", label: "20 bản ghi" },
+    { value: "50", label: "50 bản ghi" },
+  ];
+
+  const sortByOptions: Option[] = [
+    { value: "accountId", label: "Mã tài khoản" },
+    { value: "email", label: "Email" },
+    { value: "role", label: "Quyền" },
+    { value: "statusOfAccount", label: "Trạng thái" },
+  ];
+
   useEffect(() => {
     loadAccounts();
   }, [pagination.page, pagination.size, sortBy]);
@@ -91,27 +90,27 @@ const AccountManagement = () => {
   const loadAccounts = async () => {
     try {
       setLoading(true);
-      // const response = await AccountService.search(
-      //   accountSearch,
-      //   pagination.page,
-      //   pagination.size,
-      //   sortBy
-      // );
+      const response = await AccountService.search(
+        accountSearch,
+        pagination.page,
+        pagination.size,
+        sortBy
+      );
 
-      const response = await AccountService.getAllAccounts()
-      
+      // const response = await AccountService.getAllAccounts()
+
       if (response.success && response.data) {
-        setAccounts(response.data);
-        // setPagination({
-        //   page: response.data.number,
-        //   size: response.data.size,
-        //   totalElements: response.data.totalElements,
-        //   totalPages: response.data.totalPages,
-        //   hasNext: response.data.hasNext,
-        //   hasPrevious: response.data.hasPrevious,
-        //   isFirst: response.data.isFirst,
-        //   isLast: response.data.isLast
-        // });
+        setAccounts(response.data.content);
+        setPagination({
+          page: response.data.number,
+          size: response.data.size,
+          totalElements: response.data.totalElements,
+          totalPages: response.data.totalPages,
+          hasNext: response.data.hasNext,
+          hasPrevious: response.data.hasPrevious,
+          isFirst: response.data.isFirst,
+          isLast: response.data.isLast,
+        });
       }
     } catch (error) {
       console.error("Error loading accounts:", error);
@@ -121,22 +120,21 @@ const AccountManagement = () => {
   };
 
   const handleSearch = async () => {
-    setPagination(prev => ({ ...prev, page: 0 }));
+    setPagination((prev) => ({ ...prev, page: 0 }));
     await loadAccounts();
   };
 
-  // Pagination handlers
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
   };
 
   const handlePageSizeChange = (size: number) => {
-    setPagination(prev => ({ ...prev, page: 0, size }));
+    setPagination((prev) => ({ ...prev, page: 0, size }));
   };
 
   const handleSortByChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    setPagination(prev => ({ ...prev, page: 0 }));
+    setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
   const handleReset = () => {
@@ -145,9 +143,9 @@ const AccountManagement = () => {
       email: null,
       fullName: null,
       role: null,
-      statusOfAccount: null
+      statusOfAccount: null,
     });
-    setPagination(prev => ({ ...prev, page: 0 }));
+    setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
   const handleEditAccount = (account: AccountResponse) => {
@@ -155,16 +153,17 @@ const AccountManagement = () => {
     setShowForm(true);
   };
 
-  const handleFormSubmit = async (
-    data: AccountRequest
-  ) => {
+  const handleFormSubmit = async (data: AccountRequest) => {
     try {
       setIsSubmitting(true);
       let response;
 
       if (editingAccount) {
         // Update existing account - data là AccountUpdateRequest
-        response = await AccountService.updateAccount(editingAccount.accountId, data as AccountRequest);
+        response = await AccountService.updateAccount(
+          editingAccount.accountId,
+          data as AccountRequest
+        );
       } else {
         // Create new account - data là AccountRequest
         response = await AccountService.createAccount(data as AccountRequest);
@@ -228,13 +227,17 @@ const AccountManagement = () => {
 
   const handleToggleStatusConfirm = async () => {
     try {
-      const newStatus = targetAccountActive ? "BLOCKED" : "ACTIVATE";
-      const response = await AccountService.toggleAccountStatus(
-        targetAccountId,
-        newStatus as StatusOfAccount
-      );
+      let response;
+
+      if (targetAccountActive) {
+        response = await AccountService.blockAccount(targetAccountId);
+      } else {
+        response = await AccountService.activeAccount(targetAccountId);
+      }
+
       if (response.success) {
-        toast.success("Thành công", "Thay đổi trạng thái tài khoản thành công");
+        const action = targetAccountActive ? "khóa" : "kích hoạt";
+        toast.success("Thành công", `Đã ${action} tài khoản thành công`);
         await loadAccounts();
       } else {
         toast.error(
@@ -289,7 +292,8 @@ const AccountManagement = () => {
               Danh sách tài khoản
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Quản lý các tài khoản trong hệ thống ({pagination.totalElements} tài khoản)
+              Quản lý các tài khoản trong hệ thống ({pagination.totalElements}{" "}
+              tài khoản)
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -382,7 +386,10 @@ const AccountManagement = () => {
                   options={roles}
                   value={accountSearch.role || ""}
                   onChange={(value) =>
-                    setAccountSearch((prev) => ({ ...prev, role: (value as Role) || null }))
+                    setAccountSearch((prev) => ({
+                      ...prev,
+                      role: (value as Role) || null,
+                    }))
                   }
                   placeholder="Chọn quyền"
                 />
@@ -395,7 +402,10 @@ const AccountManagement = () => {
                   options={statusOptions}
                   value={accountSearch.statusOfAccount || ""}
                   onChange={(value) =>
-                    setAccountSearch((prev) => ({ ...prev, statusOfAccount: (value as StatusOfAccount) || null }))
+                    setAccountSearch((prev) => ({
+                      ...prev,
+                      statusOfAccount: (value as StatusOfAccount) || null,
+                    }))
                   }
                   placeholder="Chọn trạng thái"
                 />
@@ -416,10 +426,8 @@ const AccountManagement = () => {
           </div>
         )}
 
-        
-
         {/* Pagination Component */}
-        {/* {!loading && accounts.length > 0 && (
+        {!loading && accounts?.length > 0 && (
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -440,7 +448,7 @@ const AccountManagement = () => {
             showSortSelector={true}
             className="mb-6"
           />
-        )} */}
+        )}
 
         {/* Accounts Grid */}
         {accounts.length === 0 ? (
@@ -518,9 +526,7 @@ const AccountManagement = () => {
       {/* Toggle Status Confirmation Modal */}
       <ConfirmModal
         isOpen={showToggleModal}
-        title={`Xác nhận ${
-          targetAccountActive ? "Khóa" : "Mở khóa"
-        } tài khoản`}
+        title={`Xác nhận ${targetAccountActive ? "Khóa" : "Mở khóa"} tài khoản`}
         message={`Bạn có chắc chắn muốn ${
           targetAccountActive ? "Khóa" : "Mở khóa"
         } tài khoản "${targetAccountName}"?`}

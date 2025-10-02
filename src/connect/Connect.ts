@@ -7,7 +7,7 @@ const server_url = "http://localhost:8081"
 export class Connect {
     static async request<T>(
         endpoint: string,
-        method: "GET" | "POST" | "PUT" | "DELETE",
+        method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
         body?: any,
         token?: string | null
     ): Promise<ApiResponse<T>> {
