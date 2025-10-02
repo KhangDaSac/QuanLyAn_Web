@@ -146,7 +146,7 @@ const LegalRelationshipTab = () => {
 
   const loadTypeOfLegalCases = async () => {
     try {
-      const response = await TypeOfLegalCaseService.top50();
+      const response = await TypeOfLegalCaseService.getAll();
       if (response.success && response.data) {
         setTypeOfLegalCases(response.data);
       } else {

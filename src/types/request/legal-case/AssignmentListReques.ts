@@ -1,4 +1,4 @@
 export interface AssignmentListRequest {
-  isMediator: boolean;
-  legalRelationshipGroupId?: string;
+  isMediator?: boolean;
+  legalRelationshipGroupId?: string | null;
 }

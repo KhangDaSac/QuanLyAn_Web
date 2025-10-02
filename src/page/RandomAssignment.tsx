@@ -75,7 +75,7 @@ const RandomAssignment = () => {
         try {
             const searchRequest: AssignmentListRequest = {
                 isMediator: hasMediator,
-                legalRelationshipGroupId: hasMediator ? undefined : selectedGroupId
+                legalRelationshipGroupId: hasMediator ? null : selectedGroupId
             };
             const response = await LegalCaseService.getAssignmentList(searchRequest);
             if (response.success && response.data) {
@@ -148,8 +148,7 @@ const RandomAssignment = () => {
         setLoading(true);
         try {
           const request = {
-              legalCaseIds: selectedCases,
-              judgeIds: assignableJudges.map(judge => judge.officerId)
+              legalCaseIds: selectedCases
           };
             const response = await LegalCaseService.randomAssignment(request);
             if (response.success && response.data) {

@@ -1,5 +1,5 @@
 export interface TypeOfLegalCaseSearchRequest {
-  typeOfLegalCaseId?: string;
-  typeOfLegalCaseName?: string;
-  codeName?: string;
+  typeOfLegalCaseId: string | null;
+  typeOfLegalCaseName: string | null;
+  codeName: string | null;
 }
