@@ -1,8 +1,8 @@
 export interface LegalRelationshipSearchRequest {
-  legalRelationshipId?: string;
-  legalRelationshipName?: string;
-  typeOfLegalCaseId?: string;
-  typeOfLegalCaseName?: string;
-  legalRelationshipGroupId?: string;
-  legalRelationshipGroupName?: string;
+  legalRelationshipId?: string | null;
+  legalRelationshipName?: string | null;
+  typeOfLegalCaseId?: string | null;
+  typeOfLegalCaseName?: string | null;
+  legalRelationshipGroupId?: string | null;
+  legalRelationshipGroupName?: string | null;
 }

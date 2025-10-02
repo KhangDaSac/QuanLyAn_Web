@@ -120,12 +120,21 @@ const LegalRelationshipGroupTab = () => {
     pagination.totalPages,
   ]);
 
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: LegalRelationshipGroupSearchRequest): LegalRelationshipGroupSearchRequest => {
+    return {
+      legalRelationshipGroupId: criteria.legalRelationshipGroupId || null,
+      legalRelationshipGroupName: criteria.legalRelationshipGroupName || null,
+    };
+  };
+
   const handleSearch = async () => {
     setLoading(true);
     try {
+      const criteria = cleanSearchCriteria(searchCriteria);
       const { data } = await LegalRelationshipGroupService.search(
-        searchCriteria,
-        pagination.page,
+        criteria,
+        0,
         pagination.size,
         sortBy
       );
@@ -161,8 +170,9 @@ const LegalRelationshipGroupTab = () => {
     const searchWithNewPage = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria(searchCriteria);
         const { data } = await LegalRelationshipGroupService.search(
-          searchCriteria,
+          criteria,
           page,
           pagination.size,
           sortBy
@@ -199,8 +209,9 @@ const LegalRelationshipGroupTab = () => {
     const searchWithNewSize = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria(searchCriteria);
         const { data } = await LegalRelationshipGroupService.search(
-          searchCriteria,
+          criteria,
           0,
           newSize,
           sortBy
@@ -237,8 +248,9 @@ const LegalRelationshipGroupTab = () => {
     const searchWithNewSort = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria(searchCriteria);
         const { data } = await LegalRelationshipGroupService.search(
-          searchCriteria,
+          criteria,
           0,
           pagination.size,
           newSortBy
@@ -374,8 +386,9 @@ const LegalRelationshipGroupTab = () => {
     const performSearch = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria({});
         const { data } = await LegalRelationshipGroupService.search(
-          {},
+          cleanedCriteria,
           0,
           pagination.size,
           sortBy
@@ -488,7 +501,7 @@ const LegalRelationshipGroupTab = () => {
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    legalRelationshipGroupId: e.target.value,
+                    legalRelationshipGroupId: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập mã nhóm quan hệ pháp luật"
@@ -505,7 +518,7 @@ const LegalRelationshipGroupTab = () => {
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    legalRelationshipGroupName: e.target.value,
+                    legalRelationshipGroupName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập tên nhóm quan hệ pháp luật"

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import BatchCard from "../component/batch-manager/BatchCard";
 import BatchForm from "../component/batch-manager/BatchForm";
 import ConfirmModal from "../component/basic-component/ConfirmModal";
+import Pagination from "../component/basic-component/Pagination";
+import type { Option } from "../component/basic-component/ComboboxSearch";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import { BatchService } from "../services/BatchService";
 import type { BatchResponse } from "../types/response/batch/BatchResponse";
@@ -11,17 +13,58 @@ import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
 
 const BatchManagement = () => {
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: BatchSearchRequest): BatchSearchRequest => {
+    return {
+      batchId: criteria.batchId?.trim() || null,
+      batchName: criteria.batchName?.trim() || null,
+      note: criteria.note?.trim() || null,
+      storageDateStart: criteria.storageDateStart || null,
+      storageDateEnd: criteria.storageDateEnd || null,
+    }
+  };
+
   const auth = useAuth();
   const [batches, setBatches] = useState<BatchResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+    isFirst: true,
+    isLast: false,
+  });
+
+  // Separate state for sort criteria
+  const [sortBy, setSortBy] = useState("batchId");
+
+  // Page size options
+  const pageSizeOptions: Option[] = [
+    { value: "5", label: "5" },
+    { value: "10", label: "10" },
+    { value: "20", label: "20" },
+    { value: "50", label: "50" },
+  ];
+
+  // Sort by options
+  const sortByOptions: Option[] = [
+    { value: "batchId", label: "Mã đợt nhập" },
+    { value: "batchName", label: "Tên đợt nhập" },
+    { value: "storageDate", label: "Ngày tạo" },
+  ];
+
   const [batchSearch, setBatchSearch] = useState<BatchSearchRequest>({
-    batchId: "",
-    batchName: "",
-    note: "",
-    storageDateStart: "",
-    storageDateEnd: ""
+    batchId: null,
+    batchName: null,
+    note: null,
+    storageDateStart: null,
+    storageDateEnd: null
   });
 
   // States for form modal
@@ -46,31 +89,153 @@ const BatchManagement = () => {
   });
 
   useEffect(() => {
-    loadBatches();
+    const initialSearch = async () => {
+      setLoading(true);
+      try {
+        try {
+          const { data } = await BatchService.searchWithPagination(
+            batchSearch,
+            pagination.page,
+            pagination.size,
+            sortBy
+          );
+          if (data) {
+            setBatches(data.content);
+            setPagination({
+              page: data.number,
+              size: data.size,
+              totalElements: data.totalElements || data.numberOfElement,
+              totalPages:
+                data.totalPages ||
+                Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+              hasNext: data.hasNext,
+              hasPrevious: data.hasPrevious,
+              isFirst: data.isFirst,
+              isLast: data.isLast,
+            });
+          }
+        } catch (paginationError) {
+          const { data } = await BatchService.search(batchSearch);
+          if (data) {
+            setBatches(data);
+            setPagination({
+              page: 0,
+              size: data.length,
+              totalElements: data.length,
+              totalPages: 1,
+              hasNext: false,
+              hasPrevious: false,
+              isFirst: true,
+              isLast: true,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error searching batches:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initialSearch();
   }, []);
 
-  const loadBatches = async () => {
-    try {
-      setLoading(true);
-      const response = await BatchService.getAll();
-      if (response.success && response.data) {
-        setBatches(response.data);
+  // Keyboard navigation for pagination
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle arrow keys when not typing in input fields
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        event.target instanceof HTMLSelectElement
+      ) {
+        return;
       }
-    } catch (error) {
-      console.error("Error loading batches:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      switch (event.key) {
+        case "ArrowLeft":
+          event.preventDefault();
+          if (pagination.hasPrevious) {
+            handlePageChange(pagination.page - 1);
+          }
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          if (pagination.hasNext) {
+            handlePageChange(pagination.page + 1);
+          }
+          break;
+        case "Home":
+          event.preventDefault();
+          if (!pagination.isFirst) {
+            handlePageChange(0);
+          }
+          break;
+        case "End":
+          event.preventDefault();
+          if (!pagination.isLast) {
+            handlePageChange(pagination.totalPages - 1);
+          }
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    pagination.page,
+    pagination.hasNext,
+    pagination.hasPrevious,
+    pagination.isFirst,
+    pagination.isLast,
+    pagination.totalElements,
+    pagination.size,
+  ]);
 
   const handleSearch = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await BatchService.search(batchSearch);
-      if (response.success && response.data) {
-        setBatches(response.data);
-      } else {
-        toast.error("Lỗi", "Không thể tìm kiếm đợt nhập án");
+      const cleanedCriteria = cleanSearchCriteria(batchSearch);
+      // Try pagination first, fallback to regular search if pagination not supported
+      try {
+        const { data } = await BatchService.searchWithPagination(
+          cleanedCriteria,
+          0,
+          pagination.size,
+          sortBy
+        );
+        if (data) {
+          setBatches(data.content);
+          setPagination({
+            page: data.number,
+            size: data.size,
+            totalElements: data.totalElements || data.numberOfElement,
+            totalPages:
+              data.totalPages ||
+              Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+            hasNext: data.hasNext,
+            hasPrevious: data.hasPrevious,
+            isFirst: data.isFirst,
+            isLast: data.isLast,
+          });
+        }
+      } catch (paginationError) {
+        const response = await BatchService.search(cleanedCriteria);
+        if (response.success && response.data) {
+          setBatches(response.data);
+          setPagination({
+            page: 0,
+            size: response.data.length,
+            totalElements: response.data.length,
+            totalPages: 1,
+            hasNext: false,
+            hasPrevious: false,
+            isFirst: true,
+            isLast: true,
+          });
+        } else {
+          toast.error("Lỗi", "Không thể tìm kiếm đợt nhập án");
+        }
       }
     } catch (error) {
       console.error("Error searching batches:", error);
@@ -81,14 +246,196 @@ const BatchManagement = () => {
   };
 
   const handleClearFilters = () => {
-    setBatchSearch({
-      batchId: "",
-      batchName: "",
-      note: "",
-      storageDateStart: "",
-      storageDateEnd: ""
-    });
-    loadBatches();
+    const clearedSearch = {
+      batchId: null,
+      batchName: null,
+      note: null,
+      storageDateStart: null,
+      storageDateEnd: null
+    };
+    setBatchSearch(clearedSearch);
+    setPagination((prev) => ({ ...prev, page: 0 }));
+    const searchWithCleared = async () => {
+      setLoading(true);
+      try {
+        const cleanedCriteria = cleanSearchCriteria(clearedSearch);
+        try {
+          const { data } = await BatchService.searchWithPagination(
+            cleanedCriteria,
+            0,
+            pagination.size,
+            sortBy
+          );
+          if (data) {
+            setBatches(data.content);
+            setPagination({
+              page: data.number,
+              size: data.size,
+              totalElements: data.totalElements || data.numberOfElement,
+              totalPages:
+                data.totalPages ||
+                Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+              hasNext: data.hasNext,
+              hasPrevious: data.hasPrevious,
+              isFirst: data.isFirst,
+              isLast: data.isLast,
+            });
+          }
+        } catch (paginationError) {
+          // If pagination fails, fallback to regular search
+          console.log("Pagination not supported, using regular search");
+          const response = await BatchService.search(cleanedCriteria);
+          if (response.success && response.data) {
+            setBatches(response.data);
+            setPagination({
+              page: 0,
+              size: response.data.length,
+              totalElements: response.data.length,
+              totalPages: 1,
+              hasNext: false,
+              hasPrevious: false,
+              isFirst: true,
+              isLast: true,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error searching batches:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithCleared();
+  };
+
+  const handlePageChange = (page: number) => {
+    setPagination((prev) => ({ ...prev, page }));
+    const searchWithNewPage = async () => {
+      setLoading(true);
+      try {
+        const cleanedCriteria = cleanSearchCriteria(batchSearch);
+        try {
+          const { data } = await BatchService.searchWithPagination(
+            cleanedCriteria,
+            page,
+            pagination.size,
+            sortBy
+          );
+          if (data) {
+            setBatches(data.content);
+            setPagination({
+              page: data.number,
+              size: data.size,
+              totalElements: data.totalElements || data.numberOfElement,
+              totalPages:
+                data.totalPages ||
+                Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+              hasNext: data.hasNext,
+              hasPrevious: data.hasPrevious,
+              isFirst: data.isFirst,
+              isLast: data.isLast,
+            });
+          }
+        } catch (paginationError) {
+          // If pagination fails, just use current data
+          console.log("Pagination not supported, cannot change page");
+          toast.error("Lỗi", "Chức năng phân trang chưa được hỗ trợ");
+        }
+      } catch (error) {
+        console.error("Error searching batches:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithNewPage();
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPagination((prev) => ({ ...prev, page: 0, size }));
+    // Perform search with new page size
+    const searchWithNewSize = async () => {
+      setLoading(true);
+      try {
+        const cleanedCriteria = cleanSearchCriteria(batchSearch);
+        // Try pagination first, fallback to regular search if pagination not supported
+        try {
+          const { data } = await BatchService.searchWithPagination(
+            cleanedCriteria,
+            0,
+            size,
+            sortBy
+          );
+          if (data) {
+            setBatches(data.content);
+            setPagination({
+              page: data.number,
+              size: data.size,
+              totalElements: data.totalElements || data.numberOfElement,
+              totalPages:
+                data.totalPages ||
+                Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+              hasNext: data.hasNext,
+              hasPrevious: data.hasPrevious,
+              isFirst: data.isFirst,
+              isLast: data.isLast,
+            });
+          }
+        } catch (paginationError) {
+          // If pagination fails, just use current data
+          console.log("Pagination not supported, cannot change page size");
+          toast.error("Lỗi", "Chức năng phân trang chưa được hỗ trợ");
+        }
+      } catch (error) {
+        console.error("Error searching batches:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithNewSize();
+  };
+
+  const handleSortByChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    setPagination((prev) => ({ ...prev, page: 0 }));
+    const searchWithNewSort = async () => {
+      setLoading(true);
+      try {
+        const cleanedCriteria = cleanSearchCriteria(batchSearch);
+        // Try pagination first, fallback to regular search if pagination not supported
+        try {
+          const { data } = await BatchService.searchWithPagination(
+            cleanedCriteria,
+            0,
+            pagination.size,
+            newSortBy
+          );
+          if (data) {
+            setBatches(data.content);
+            setPagination({
+              page: data.number,
+              size: data.size,
+              totalElements: data.totalElements || data.numberOfElement,
+              totalPages:
+                data.totalPages ||
+                Math.ceil((data.totalElements || data.numberOfElement) / data.size),
+              hasNext: data.hasNext,
+              hasPrevious: data.hasPrevious,
+              isFirst: data.isFirst,
+              isLast: data.isLast,
+            });
+          }
+        } catch (paginationError) {
+          // If pagination fails, just use current data
+          console.log("Pagination not supported, cannot change sort");
+          toast.error("Lỗi", "Chức năng sắp xếp chưa được hỗ trợ");
+        }
+      } catch (error) {
+        console.error("Error searching batches:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    searchWithNewSort();
   };
 
   const handleEdit = (batch: BatchResponse) => {
@@ -117,6 +464,11 @@ const BatchManagement = () => {
       if (response.success) {
         setBatches(prev => prev.filter(b => b.batchId !== batchId));
         toast.success('Xóa thành công', 'Đợt nhập án đã được xóa khỏi hệ thống!');
+        // Update pagination count
+        setPagination(prev => ({ 
+          ...prev, 
+          totalElements: Math.max(0, prev.totalElements - 1)
+        }));
       } else {
         toast.error('Xóa thất bại', response.error || 'Có lỗi xảy ra khi xóa đợt nhập án');
       }
@@ -153,7 +505,7 @@ const BatchManagement = () => {
       }
 
       // Load lại danh sách sau khi thêm/sửa thành công
-      await loadBatches();
+      await handleSearch();
       handleCloseForm();
     } catch (error) {
       console.error("Error saving batch:", error);
@@ -185,7 +537,7 @@ const BatchManagement = () => {
             Quản lý đợt nhập án
           </h1>
           <p className="text-gray-600 mt-1 text-sm md:text-base">
-            Quản lý các đợt nhập án trong hệ thống ({batches.length} đợt nhập)
+            Quản lý các đợt nhập án trong hệ thống ({pagination.totalElements > 0 ? pagination.totalElements : batches.length} đợt nhập)
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -242,11 +594,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="text"
-                value={batchSearch.batchId}
+                value={batchSearch.batchId || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    batchId: e.target.value,
+                    batchId: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập ID đợt nhập"
@@ -261,11 +613,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="text"
-                value={batchSearch.batchName}
+                value={batchSearch.batchName || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    batchName: e.target.value,
+                    batchName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập tên đợt nhập"
@@ -280,11 +632,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="text"
-                value={batchSearch.note}
+                value={batchSearch.note || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    note: e.target.value,
+                    note: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập ghi chú"
@@ -299,11 +651,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="date"
-                value={batchSearch.storageDateStart}
+                value={batchSearch.storageDateStart || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    storageDateStart: e.target.value,
+                    storageDateStart: e.target.value || null,
                   }))
                 }
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -317,11 +669,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="date"
-                value={batchSearch.storageDateEnd}
+                value={batchSearch.storageDateEnd || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    storageDateEnd: e.target.value,
+                    storageDateEnd: e.target.value || null,
                   }))
                 }
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -357,6 +709,30 @@ const BatchManagement = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Pagination Component */}
+      {!loading && batches.length > 0 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
+          pageSize={pagination.size}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          isFirst={pagination.isFirst}
+          isLast={pagination.isLast}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSortChange={handleSortByChange}
+          pageSizeOptions={pageSizeOptions}
+          sortOptions={sortByOptions}
+          currentSort={sortBy}
+          showPageInfo={true}
+          showPageSizeSelector={true}
+          showSortSelector={true}
+          className="mb-6"
+        />
       )}
 
       {/* Batch List */}

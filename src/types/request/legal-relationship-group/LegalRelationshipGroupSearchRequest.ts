@@ -1,4 +1,4 @@
 export interface LegalRelationshipGroupSearchRequest {
-  legalRelationshipGroupId?: string;
-  legalRelationshipGroupName?: string;
+  legalRelationshipGroupId?: string | null;
+  legalRelationshipGroupName?: string | null;
 }

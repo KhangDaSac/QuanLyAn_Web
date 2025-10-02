@@ -14,6 +14,17 @@ import ComboboxSearch, { type Option } from '../component/basic-component/Combob
 import { CourtIssued } from '../types/enum/CourtIssued';
 
 const TypeOfDecisionManager = () => {
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: TypeOfDecisionSearchRequest): TypeOfDecisionSearchRequest => {
+    return {
+      typeOfDecisionId: criteria.typeOfDecisionId?.trim() || null,
+      typeOfDecisionName: criteria.typeOfDecisionName?.trim() || null,
+      typeOfLegalCaseId: criteria.typeOfLegalCaseId || null,
+      courtIssued: criteria.courtIssued || null,
+      theEndDecision: criteria.theEndDecision !== null ? criteria.theEndDecision : null
+    }
+  };
+
   const navigate = useNavigate();
   const [typeOfDecisions, setTypeOfDecisions] = useState<TypeOfDecisionResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -144,15 +155,8 @@ const TypeOfDecisionManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const searchRequest: TypeOfDecisionSearchRequest = {
-        ...typeOfDecisionSearch,
-        typeOfDecisionId: typeOfDecisionSearch.typeOfDecisionId || null,
-        typeOfDecisionName: typeOfDecisionSearch.typeOfDecisionName || null,
-        typeOfLegalCaseId: typeOfDecisionSearch.typeOfLegalCaseId || null,
-        courtIssued: typeOfDecisionSearch.courtIssued || null
-      };
-
-      await loadTypeOfDecisions(0, pagination.size, sortBy, searchRequest);
+      const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+      await loadTypeOfDecisions(0, pagination.size, sortBy, cleanedCriteria);
     } catch (error) {
       console.error('Error searching type of decisions:', error);
       toast.error('Lỗi', 'Không thể tìm kiếm loại quyết định');
@@ -170,7 +174,8 @@ const TypeOfDecisionManager = () => {
       theEndDecision: null
     };
     setTypeOfDecisionSearch(clearedSearch);
-    loadTypeOfDecisions(0, pagination.size, sortBy, clearedSearch);
+    const cleanedCriteria = cleanSearchCriteria(clearedSearch);
+    loadTypeOfDecisions(0, pagination.size, sortBy, cleanedCriteria);
   };
 
   const handleCreate = () => {
@@ -246,16 +251,19 @@ const TypeOfDecisionManager = () => {
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
-    loadTypeOfDecisions(page, pagination.size, sortBy, typeOfDecisionSearch);
+    const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+    loadTypeOfDecisions(page, pagination.size, sortBy, cleanedCriteria);
   };
 
   const handlePageSizeChange = (size: number) => {
-    loadTypeOfDecisions(0, size, sortBy, typeOfDecisionSearch);
+    const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+    loadTypeOfDecisions(0, size, sortBy, cleanedCriteria);
   };
 
   const handleSortByChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    loadTypeOfDecisions(0, pagination.size, newSortBy, typeOfDecisionSearch);
+    const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+    loadTypeOfDecisions(0, pagination.size, newSortBy, cleanedCriteria);
   };
 
   return (

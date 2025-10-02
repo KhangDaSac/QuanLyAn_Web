@@ -27,6 +27,27 @@ import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
 
 const LegalCaseManager = () => {
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: LegalCaseSearchRequest): LegalCaseSearchRequest => {
+    return {
+      acceptanceNumber: criteria.acceptanceNumber?.trim() || null,
+      startAcceptanceDate: criteria.startAcceptanceDate || null,
+      endAcceptanceDate: criteria.endAcceptanceDate || null,
+      plaintiff: criteria.plaintiff?.trim() || null,
+      plaintiffAddress: criteria.plaintiffAddress?.trim() || null,
+      defendant: criteria.defendant?.trim() || null,
+      defendantAddress: criteria.defendantAddress?.trim() || null,
+      typeOfLegalCaseId: criteria.typeOfLegalCaseId || null,
+      legalRelationshipId: criteria.legalRelationshipId || null,
+      legalRelationshipGroupId: criteria.legalRelationshipGroupId || null,
+      statusOfLegalCase: criteria.statusOfLegalCase || null,
+      judgeName: criteria.judgeName?.trim() || null,
+      batchId: criteria.batchId || null,
+      startStorageDate: criteria.startStorageDate || null,
+      endStorageDate: criteria.endStorageDate || null,
+    }
+  };
+
   const auth = useAuth();
   const navigate = useNavigate();
   const [legalCases, setLegalCases] = useState<LegalCaseResponse[]>([]);
@@ -172,12 +193,7 @@ const LegalCaseManager = () => {
     const initialSearch = async () => {
       setLoading(true);
       try {
-        console.log("Initial search request body:", legalCaseSearch); // Debug log
-        console.log("Initial search pagination params:", {
-          page: pagination.page,
-          size: pagination.size,
-          sortBy,
-        }); // Debug log
+      
         const { data } = await LegalCaseService.search(
           legalCaseSearch,
           pagination.page,
@@ -367,15 +383,10 @@ const LegalCaseManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      console.log("Search request body:", legalCaseSearch); // Debug log
-      console.log("Search pagination params:", {
-        page: pagination.page,
-        size: pagination.size,
-        sortBy,
-      }); // Debug log
+      const cleanedCriteria = cleanSearchCriteria(legalCaseSearch);
       const { data } = await LegalCaseService.search(
-        legalCaseSearch,
-        pagination.page,
+        cleanedCriteria,
+        0,
         pagination.size,
         sortBy
       );
@@ -435,8 +446,9 @@ const LegalCaseManager = () => {
     const searchWithCleared = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria(clearedSearch);
         const { data } = await LegalCaseService.search(
-          clearedSearch,
+          cleanedCriteria,
           0,
           pagination.size,
           sortBy
@@ -470,17 +482,12 @@ const LegalCaseManager = () => {
   // Pagination handlers
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({ ...prev, page }));
-    // Perform search with new page
     const searchWithNewPage = async () => {
       setLoading(true);
       try {
-        console.log("Page change request:", {
-          page,
-          size: pagination.size,
-          sortBy,
-        }); // Debug log
+        const cleanedCriteria = cleanSearchCriteria(legalCaseSearch);
         const { data } = await LegalCaseService.search(
-          legalCaseSearch,
+          cleanedCriteria,
           page,
           pagination.size,
           sortBy
@@ -490,7 +497,7 @@ const LegalCaseManager = () => {
           setPagination({
             page: data.number,
             size: data.size,
-            totalElements: data.totalElements || data.numberOfElement, // Fallback nếu backend chưa có totalElements
+            totalElements: data.totalElements || data.numberOfElement,
             totalPages:
               data.totalPages ||
               Math.ceil(
@@ -517,8 +524,9 @@ const LegalCaseManager = () => {
     const searchWithNewSize = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria(legalCaseSearch);
         const { data } = await LegalCaseService.search(
-          legalCaseSearch,
+          cleanedCriteria,
           0,
           size,
           sortBy
@@ -555,8 +563,9 @@ const LegalCaseManager = () => {
     const searchWithNewSort = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria(legalCaseSearch);
         const { data } = await LegalCaseService.search(
-          legalCaseSearch,
+          cleanedCriteria,
           0,
           pagination.size,
           newSortBy
@@ -850,8 +859,9 @@ const LegalCaseManager = () => {
   const handleExportExcel = async () => {
     try {
       setExportLoading(true);
+      const cleanedCriteria = cleanSearchCriteria(legalCaseSearch);
       const { data } = await LegalCaseService.search(
-        legalCaseSearch,
+        cleanedCriteria,
         0, 
         pagination.totalElements || 10000,
         sortBy
@@ -1097,7 +1107,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    acceptanceNumber: e.target.value,
+                    acceptanceNumber: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập số thụ lý"
@@ -1116,7 +1126,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    startAcceptanceDate: e.target.value,
+                    startAcceptanceDate: e.target.value || null,
                   }))
                 }
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -1134,7 +1144,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    endAcceptanceDate: e.target.value,
+                    endAcceptanceDate: e.target.value || null,
                   }))
                 }
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -1152,7 +1162,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    plaintiff: e.target.value,
+                    plaintiff: e.target.value || null,
                   }))
                 }
                 placeholder="Tên nguyên đơn/bị cáo"
@@ -1171,7 +1181,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    plaintiffAddress: e.target.value,
+                    plaintiffAddress: e.target.value || null,
                   }))
                 }
                 placeholder="Địa chỉ nguyên đơn"
@@ -1190,7 +1200,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    defendant: e.target.value,
+                    defendant: e.target.value || null,
                   }))
                 }
                 placeholder="Tên bị đơn"
@@ -1209,7 +1219,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    defendantAddress: e.target.value,
+                    defendantAddress: e.target.value || null,
                   }))
                 }
                 placeholder="Địa chỉ bị đơn"
@@ -1314,7 +1324,7 @@ const LegalCaseManager = () => {
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    judgeName: e.target.value,
+                    judgeName: e.target.value || null,
                   }))
                 }
                 placeholder="Tên thẩm phán"
@@ -1353,7 +1363,7 @@ const LegalCaseManager = () => {
                   onChange={(e) =>
                     setLegalCaseSearch((prev) => ({
                       ...prev,
-                      startStorageDate: e.target.value,
+                      startStorageDate: e.target.value || null,
                     }))
                   }
                   className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -1381,7 +1391,7 @@ const LegalCaseManager = () => {
                   onChange={(e) =>
                     setLegalCaseSearch((prev) => ({
                       ...prev,
-                      endStorageDate: e.target.value,
+                      endStorageDate: e.target.value || null,
                     }))
                   }
                   className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"

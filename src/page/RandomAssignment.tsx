@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import LegalCaseCardSimple from '../component/random-assignment/LegalCaseCardSimple';
 import JudgeCardSimple from '../component/random-assignment/JudgeCardSimple';
-import AssignedCaseCard from '../component/random-assignment/AssignedCaseCard';
 import { LegalCaseService } from "../services/LegalCaseService";
 import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
@@ -20,7 +19,6 @@ const RandomAssignment = () => {
     const [pendingCases, setPendingCases] = useState<LegalCaseResponse[]>([]);
     const [selectedCases, setSelectedCases] = useState<string[]>([]);
     const [assignableJudges, setAssignableJudges] = useState<JudgeResponse[]>([]);
-    const [assignedCases, setAssignedCases] = useState<LegalCaseResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
 
@@ -79,9 +77,8 @@ const RandomAssignment = () => {
             };
             const response = await LegalCaseService.getAssignmentList(searchRequest);
             if (response.success && response.data) {
-                setPendingCases(response.data);
+                setPendingCases(response.data.content);
                 setSelectedCases([]);
-                setAssignedCases([]);
             } else {
                 addToast({
                     title: "Thông báo",
@@ -152,14 +149,11 @@ const RandomAssignment = () => {
           };
             const response = await LegalCaseService.randomAssignment(request);
             if (response.success && response.data) {
-                setAssignedCases(response.data);
                 addToast({
                     title: "Thành công",
                     message: `Đã phân công thành công ${response.data.length} án`,
                     type: "success"
                 });
-
-                // Reset lại danh sách sau khi phân công thành công
                 setPendingCases([]);
                 setSelectedCases([]);
                 setAssignableJudges([]);
@@ -429,35 +423,6 @@ const RandomAssignment = () => {
                         </div>
                     )}
                 </div>
-
-                {/* Kết quả phân công */}
-                {assignedCases.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h2 className="text-xl font-semibold text-gray-900">
-                                    Kết quả phân công
-                                </h2>
-                                <p className="text-sm text-gray-600 mt-1">
-                                    Đã phân công thành công {assignedCases.length} vụ án
-                                </p>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                                <span className="text-sm text-green-600 font-medium">Hoàn tất</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            {assignedCases.map((legalCase) => (
-                                <AssignedCaseCard
-                                    key={legalCase.legalCaseId}
-                                    legalCase={legalCase}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
 
                 {/* Toast Container */}
                 <ToastContainer toasts={toasts} onRemove={removeToast} />

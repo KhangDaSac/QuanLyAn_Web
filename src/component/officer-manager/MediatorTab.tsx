@@ -12,6 +12,15 @@ import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 const MediatorTab = () => {
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: MediatorSearchRequest): MediatorSearchRequest => {
+    return {
+      officerId: criteria.officerId?.trim() === '' ? null : criteria.officerId,
+      fullName: criteria.fullName?.trim() === '' ? null : criteria.fullName,
+      statusOfOfficer: criteria.statusOfOfficer || null
+    }
+  };
+
   const [mediators, setMediators] = useState<MediatorResponse[]>([]);
   const [mediatorSearch, setMediatorSearch] = useState<MediatorSearchRequest>({
     officerId: null,
@@ -123,7 +132,8 @@ const MediatorTab = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      await loadMediators(0, pagination.size, sortBy, mediatorSearch);
+      const cleanedCriteria = cleanSearchCriteria(mediatorSearch);
+      await loadMediators(0, pagination.size, sortBy, cleanedCriteria);
     } catch (error) {
       console.error('Error searching mediators:', error);
       toast.error('Lỗi', 'Không thể tìm kiếm hòa giải viên');
@@ -140,21 +150,25 @@ const MediatorTab = () => {
     };
     setMediatorSearch(clearedSearch);
     setStatusOfOfficerFilters({ statusOfOfficer: "" });
-    loadMediators(0, pagination.size, sortBy, clearedSearch);
+    const cleanedCriteria = cleanSearchCriteria(clearedSearch);
+    loadMediators(0, pagination.size, sortBy, cleanedCriteria);
   };
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
-    loadMediators(page, pagination.size, sortBy, mediatorSearch);
+    const cleanedCriteria = cleanSearchCriteria(mediatorSearch);
+    loadMediators(page, pagination.size, sortBy, cleanedCriteria);
   };
 
   const handlePageSizeChange = (size: number) => {
-    loadMediators(0, size, sortBy, mediatorSearch);
+    const cleanedCriteria = cleanSearchCriteria(mediatorSearch);
+    loadMediators(0, size, sortBy, cleanedCriteria);
   };
 
   const handleSortByChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    loadMediators(0, pagination.size, newSortBy, mediatorSearch);
+    const cleanedCriteria = cleanSearchCriteria(mediatorSearch);
+    loadMediators(0, pagination.size, newSortBy, cleanedCriteria);
   };
 
   const handleEdit = (mediator: MediatorResponse) => {

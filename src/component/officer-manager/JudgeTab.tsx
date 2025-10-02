@@ -12,6 +12,15 @@ import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 const JudgeTab = () => {
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: JudgeSearchRequest): JudgeSearchRequest => {
+    return {
+      officerId: criteria.officerId?.trim() || null,
+      fullName: criteria.fullName?.trim() || null,
+      statusOfOfficer: criteria.statusOfOfficer || null
+    }
+  };
+
   const [judges, setJudges] = useState<JudgeResponse[]>([]);
   const [judgeSearch, setJudgeSearch] = useState<JudgeSearchRequest>({
     officerId: null,
@@ -123,7 +132,8 @@ const JudgeTab = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      await loadJudges(0, pagination.size, sortBy, judgeSearch);
+      const cleanedCriteria = cleanSearchCriteria(judgeSearch);
+      await loadJudges(0, pagination.size, sortBy, cleanedCriteria);
     } catch (error) {
       console.error('Error searching judges:', error);
       toast.error('Lỗi', 'Không thể tìm kiếm thẩm phán');
@@ -140,21 +150,25 @@ const JudgeTab = () => {
     };
     setJudgeSearch(clearedSearch);
     setStatusOfOfficerFilters({ statusOfOfficer: "" });
-    loadJudges(0, pagination.size, sortBy, clearedSearch);
+    const cleanedCriteria = cleanSearchCriteria(clearedSearch);
+    loadJudges(0, pagination.size, sortBy, cleanedCriteria);
   };
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
-    loadJudges(page, pagination.size, sortBy, judgeSearch);
+    const cleanedCriteria = cleanSearchCriteria(judgeSearch);
+    loadJudges(page, pagination.size, sortBy, cleanedCriteria);
   };
 
   const handlePageSizeChange = (size: number) => {
-    loadJudges(0, size, sortBy, judgeSearch);
+    const cleanedCriteria = cleanSearchCriteria(judgeSearch);
+    loadJudges(0, size, sortBy, cleanedCriteria);
   };
 
   const handleSortByChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    loadJudges(0, pagination.size, newSortBy, judgeSearch);
+    const cleanedCriteria = cleanSearchCriteria(judgeSearch);
+    loadJudges(0, pagination.size, newSortBy, cleanedCriteria);
   };
 
   const handleEdit = (judge: JudgeResponse) => {

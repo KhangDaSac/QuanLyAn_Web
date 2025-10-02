@@ -11,6 +11,29 @@ import ConfirmModal from "../basic-component/ConfirmModal";
 import { type Option } from "../basic-component/ComboboxSearch";
 
 const TypeOfLegalCaseTab = () => {
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: TypeOfLegalCaseSearchRequest): TypeOfLegalCaseSearchRequest => {
+    const cleaned: TypeOfLegalCaseSearchRequest = {
+      typeOfLegalCaseId: null,
+      typeOfLegalCaseName: null,
+      codeName: null,
+    };
+    
+    if (criteria.typeOfLegalCaseId && criteria.typeOfLegalCaseId.trim() !== '') {
+      cleaned.typeOfLegalCaseId = criteria.typeOfLegalCaseId;
+    }
+    
+    if (criteria.typeOfLegalCaseName && criteria.typeOfLegalCaseName.trim() !== '') {
+      cleaned.typeOfLegalCaseName = criteria.typeOfLegalCaseName;
+    }
+    
+    if (criteria.codeName && criteria.codeName.trim() !== '') {
+      cleaned.codeName = criteria.codeName;
+    }
+    
+    return cleaned;
+  };
+
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<
     TypeOfLegalCaseResponse[]
   >([]);
@@ -129,15 +152,10 @@ const TypeOfLegalCaseTab = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const criteria: TypeOfLegalCaseSearchRequest = {
-        ...searchCriteria,
-        typeOfLegalCaseId: searchCriteria.typeOfLegalCaseId || null,
-        typeOfLegalCaseName: searchCriteria.typeOfLegalCaseName || null,
-        codeName: searchCriteria.codeName || null,
-      };
+      const cleanedCriteria = cleanSearchCriteria(searchCriteria);
       const { data } = await TypeOfLegalCaseService.search(
-        criteria,
-        pagination.page,
+        cleanedCriteria,
+        0,
         pagination.size,
         sortBy
       );
@@ -170,8 +188,9 @@ const TypeOfLegalCaseTab = () => {
     const searchWithNewPage = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria(searchCriteria);
         const { data } = await TypeOfLegalCaseService.search(
-          searchCriteria,
+          cleanedCriteria,
           page,
           pagination.size,
           sortBy
@@ -208,8 +227,9 @@ const TypeOfLegalCaseTab = () => {
     const searchWithNewSize = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria(searchCriteria);
         const { data } = await TypeOfLegalCaseService.search(
-          searchCriteria,
+          cleanedCriteria,
           0,
           newSize,
           sortBy
@@ -246,8 +266,9 @@ const TypeOfLegalCaseTab = () => {
     const searchWithNewSort = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria(searchCriteria);
         const { data } = await TypeOfLegalCaseService.search(
-          searchCriteria,
+          cleanedCriteria,
           0,
           pagination.size,
           newSortBy
@@ -368,11 +389,6 @@ const TypeOfLegalCaseTab = () => {
     }
   };
 
-  const handleAddNew = () => {
-    setEditingItem(null);
-    setShowForm(true);
-  };
-
   const resetSearch = () => {
     setSearchCriteria({
       typeOfLegalCaseId: null,
@@ -383,8 +399,13 @@ const TypeOfLegalCaseTab = () => {
     const performSearch = async () => {
       setLoading(true);
       try {
+        const cleanedCriteria = cleanSearchCriteria({
+          typeOfLegalCaseId: null,
+          typeOfLegalCaseName: null,
+          codeName: null,
+        });
         const { data } = await TypeOfLegalCaseService.search(
-          searchCriteria,
+          cleanedCriteria,
           0,
           pagination.size,
           sortBy
@@ -508,7 +529,7 @@ const TypeOfLegalCaseTab = () => {
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    typeOfLegalCaseId: e.target.value,
+                    typeOfLegalCaseId: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập mã loại vụ án"
@@ -525,7 +546,7 @@ const TypeOfLegalCaseTab = () => {
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    typeOfLegalCaseName: e.target.value,
+                    typeOfLegalCaseName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập tên loại vụ án"
@@ -542,7 +563,7 @@ const TypeOfLegalCaseTab = () => {
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    codeName: e.target.value,
+                    codeName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập ký hiệu loại vụ án"

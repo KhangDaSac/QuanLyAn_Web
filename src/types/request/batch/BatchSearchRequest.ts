@@ -1,7 +1,7 @@
 export default interface BatchSearchRequest {
-    batchId: string;
-    batchName: string;
-    note: string;
-    storageDateStart: string;
-    storageDateEnd: string;
+    batchId: string | null;
+    batchName: string | null;
+    note: string | null;
+    storageDateStart: string | null;
+    storageDateEnd: string | null;
 }

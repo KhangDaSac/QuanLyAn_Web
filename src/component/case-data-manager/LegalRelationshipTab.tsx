@@ -30,7 +30,6 @@ const LegalRelationshipTab = () => {
     useState<LegalRelationshipSearchRequest>({});
   const [showFilters, setShowFilters] = useState(false);
 
-  // Pagination state
   const [pagination, setPagination] = useState({
     page: 0,
     size: 10,
@@ -58,7 +57,7 @@ const LegalRelationshipTab = () => {
   const sortByOptions: Option[] = [
     { value: "legalRelationshipName", label: "Tên quan hệ pháp luật" },
     { value: "legalRelationshipId", label: "Mã quan hệ pháp luật" },
-    { value : "typeOfLegalCaseId", label: "Loại vụ án" },
+    { value: "typeOfLegalCaseId", label: "Loại vụ án" },
   ];
 
   const toast = useToast();
@@ -130,13 +129,22 @@ const LegalRelationshipTab = () => {
     pagination.totalPages,
   ]);
 
+  // Helper function to clean search criteria
+  const cleanSearchCriteria = (criteria: LegalRelationshipSearchRequest): LegalRelationshipSearchRequest => {
+    return {
+      typeOfLegalCaseId: criteria.typeOfLegalCaseId || null,
+      typeOfLegalCaseName: criteria.typeOfLegalCaseName || null,
+      legalRelationshipGroupId: criteria.legalRelationshipGroupId || null,
+      legalRelationshipGroupName: criteria.legalRelationshipGroupName || null,
+      legalRelationshipId: criteria.legalRelationshipId || null,
+      legalRelationshipName: criteria.legalRelationshipName || null,
+    };
+  };
+
   const loadData = async () => {
     try {
       setLoading(true);
-      await Promise.all([
-        loadTypeOfLegalCases(),
-        loadGroups(),
-      ]);
+      await Promise.all([loadTypeOfLegalCases(), loadGroups()]);
       handleSearch();
     } catch (error) {
       console.error("Error loading data:", error);
@@ -175,9 +183,10 @@ const LegalRelationshipTab = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
+      const criteria = cleanSearchCriteria(searchCriteria);
       const { data } = await LegalRelationshipService.search(
-        searchCriteria,
-        pagination.page,
+        criteria,
+        0,
         pagination.size,
         sortBy
       );
@@ -210,8 +219,9 @@ const LegalRelationshipTab = () => {
     const searchWithNewPage = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria(searchCriteria);
         const { data } = await LegalRelationshipService.search(
-          searchCriteria,
+          criteria,
           page,
           pagination.size,
           sortBy
@@ -248,8 +258,9 @@ const LegalRelationshipTab = () => {
     const searchWithNewSize = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria(searchCriteria);
         const { data } = await LegalRelationshipService.search(
-          searchCriteria,
+          criteria,
           0,
           newSize,
           sortBy
@@ -286,8 +297,9 @@ const LegalRelationshipTab = () => {
     const searchWithNewSort = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria(searchCriteria);
         const { data } = await LegalRelationshipService.search(
-          searchCriteria,
+          criteria,
           0,
           pagination.size,
           newSortBy
@@ -320,11 +332,11 @@ const LegalRelationshipTab = () => {
 
   const handleSubmit = async (data: LegalRelationshipRequest) => {
     try {
-      console.log('Submitting data:', data);
-      console.log('Is editing:', !!editingItem);
-      
+      console.log("Submitting data:", data);
+      console.log("Is editing:", !!editingItem);
+
       if (editingItem) {
-        console.log('Updating with ID:', editingItem.legalRelationshipId);
+        console.log("Updating with ID:", editingItem.legalRelationshipId);
         const result = await LegalRelationshipService.update(
           editingItem.legalRelationshipId,
           data
@@ -335,9 +347,9 @@ const LegalRelationshipTab = () => {
           toast.error("Thất bại", `${result.error}`);
         }
       } else {
-        console.log('Creating new legal relationship');
+        console.log("Creating new legal relationship");
         const result = await LegalRelationshipService.create(data);
-        console.log('Create result:', result);
+        console.log("Create result:", result);
         if (result.success) {
           toast.success("Thành công", "Thêm mới quan hệ pháp luật thành công");
         } else {
@@ -359,8 +371,9 @@ const LegalRelationshipTab = () => {
     const performSearch = async () => {
       setLoading(true);
       try {
+        const criteria = cleanSearchCriteria({});
         const { data } = await LegalRelationshipService.search(
-          {},
+          criteria,
           0,
           pagination.size,
           sortBy
@@ -473,31 +486,183 @@ const LegalRelationshipTab = () => {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">
+            Danh sách quan hệ pháp luật
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Quản lý các quan hệ pháp luật trong hệ thống
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${
+              showFilters
+                ? "border-red-300 bg-red-50 text-red-700"
+                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            }`}>
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"
+              />
+            </svg>
+            Bộ lọc
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg">
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Thêm
+          </button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      {showFilters && (
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Bộ lọc tìm kiếm
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                Danh sách quan hệ pháp luật
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">Quản lý các quan hệ pháp luật trong hệ thống</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tên quan hệ pháp luật
+              </label>
+              <input
+                type="text"
+                value={searchCriteria.legalRelationshipName || ""}
+                onChange={(e) =>
+                  setSearchCriteria((prev) => ({
+                    ...prev,
+                    legalRelationshipName: e.target.value.trim() || null,
+                  }))
+                }
+                placeholder="Nhập tên quan hệ pháp luật"
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Loại vụ án
+              </label>
+              <ComboboxSearch
+                options={typeOfLegalCases.map((type) => ({
+                  value: type.typeOfLegalCaseId,
+                  label: type.typeOfLegalCaseName,
+                }))}
+                value={searchCriteria.typeOfLegalCaseId || ""}
+                onChange={(value) =>
+                  setSearchCriteria((prev) => ({
+                    ...prev,
+                    typeOfLegalCaseId: value || null,
+                  }))
+                }
+                placeholder="Chọn loại vụ án"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nhóm quan hệ pháp luật
+              </label>
+              <ComboboxSearch
+                options={groups.map((g) => ({
+                  value: g.legalRelationshipGroupId,
+                  label: g.legalRelationshipGroupName,
+                }))}
+                value={searchCriteria.legalRelationshipGroupId || ""}
+                onChange={(value) =>
+                  setSearchCriteria((prev) => ({
+                    ...prev,
+                    legalRelationshipGroupId: value || null,
+                  }))
+                }
+                placeholder="Nhóm quan hệ pháp luật"
+              />
+            </div>
+            <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex items-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${
-                  showFilters
-                    ? 'border-red-300 bg-red-50 text-red-700'
-                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-                </svg>
-                Bộ lọc
+                onClick={handleSearch}
+                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                Tìm kiếm
               </button>
               <button
-                onClick={() => setShowForm(true)}
-                className="inline-flex items-center px-6 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white text-sm font-medium rounded-lg">
+                onClick={resetSearch}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
+                Xóa bộ lọc
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pagination Component */}
+      {!loading && relationships.length > 0 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
+          pageSize={pagination.size}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          isFirst={pagination.isFirst}
+          isLast={pagination.isLast}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onSortChange={handleSortByChange}
+          pageSizeOptions={pageSizeOptions}
+          sortOptions={sortByOptions}
+          currentSort={sortBy}
+          showPageInfo={true}
+          showPageSizeSelector={true}
+          showSortSelector={true}
+          className="mb-6"
+        />
+      )}
+
+      {/* Results */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Kết quả ({relationships.length} quan hệ pháp luật)
+          </h3>
+        </div>
+
+        {relationships.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relationships.map((item) => (
+              <LegalRelationshipCard
+                key={item.legalRelationshipId}
+                relationship={item}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 mr-2"
+                  className="w-8 h-8 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24">
@@ -505,133 +670,23 @@ const LegalRelationshipTab = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M12 4v16m8-8H4"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                Thêm
-              </button>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">
+                  Không có dữ liệu
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Không tìm thấy quan hệ pháp luật nào phù hợp với tiêu chí tìm
+                  kiếm.
+                </p>
+              </div>
             </div>
           </div>
-
-          {/* Filters */}
-          {showFilters && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tên quan hệ pháp luật</label>
-                  <input
-                    type="text"
-                    value={searchCriteria.legalRelationshipName || ''}
-                    onChange={(e) => setSearchCriteria(prev => ({ ...prev, legalRelationshipName: e.target.value }))}
-                    placeholder="Nhập tên quan hệ pháp luật"
-                    className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Loại vụ án</label>
-                  <ComboboxSearch
-                    options={typeOfLegalCases.map(type => ({ value: type.typeOfLegalCaseId, label: type.typeOfLegalCaseName }))}
-                    value={searchCriteria.typeOfLegalCaseId || ''}
-                    onChange={(value) => setSearchCriteria(prev => ({ ...prev, typeOfLegalCaseId: value }))}
-                    placeholder="Chọn loại vụ án"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nhóm quan hệ pháp luật</label>
-                  <ComboboxSearch
-                    options={groups.map(g => ({ value: g.legalRelationshipGroupId, label: g.legalRelationshipGroupName }))}
-                    value={searchCriteria.legalRelationshipGroupId || ''}
-                    onChange={(value) => setSearchCriteria(prev => ({ ...prev, legalRelationshipGroupId: value }))}
-                    placeholder="Nhóm quan hệ pháp luật"
-                  />
-                </div>
-                <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
-                  <button
-                    onClick={handleSearch}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Tìm kiếm
-                  </button>
-                  <button
-                    onClick={resetSearch}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Xóa bộ lọc
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Pagination Component */}
-          {!loading && relationships.length > 0 && (
-            <Pagination
-              currentPage={pagination.page}
-              totalPages={pagination.totalPages}
-              totalElements={pagination.totalElements}
-              pageSize={pagination.size}
-              hasNext={pagination.hasNext}
-              hasPrevious={pagination.hasPrevious}
-              isFirst={pagination.isFirst}
-              isLast={pagination.isLast}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              onSortChange={handleSortByChange}
-              pageSizeOptions={pageSizeOptions}
-              sortOptions={sortByOptions}
-              currentSort={sortBy}
-              showPageInfo={true}
-              showPageSizeSelector={true}
-              showSortSelector={true}
-              className="mb-6"
-            />
-          )}
-
-          {/* Results */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Kết quả ({relationships.length} quan hệ pháp luật)
-              </h3>
-            </div>
-
-            {relationships.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relationships.map((item) => (
-                  <LegalRelationshipCard
-                    key={item.legalRelationshipId}
-                    relationship={item}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-8 h-8 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">Không có dữ liệu</h3>
-                    <p className="text-sm text-gray-500 mt-1">Không tìm thấy quan hệ pháp luật nào phù hợp với tiêu chí tìm kiếm.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+        )}
+      </div>
 
       {/* Confirm Modal */}
       <ConfirmModal
