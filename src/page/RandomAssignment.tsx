@@ -344,13 +344,13 @@ const RandomAssignment = () => {
                         <div className="flex flex-wrap gap-3">
                             <div className="text-sm text-gray-500">
                                 <span className="font-medium">Tổng số án chờ:</span>
-                                <span className="ml-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full font-semibold">
+                                <span className="ml-1 px-2 py-1 font-semibold">
                                     {pagination.totalElements > 0 ? pagination.totalElements : pendingCases.length}
                                 </span>
                             </div>
                             <div className="text-sm text-gray-500">
                                 <span className="font-medium">Đã chọn:</span>
-                                <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold">
+                                <span className="ml-1 px-2 py-1 font-semibold">
                                     {selectedCases.length}
                                 </span>
                             </div>

@@ -37,6 +37,21 @@ const LegalCaseForm = ({
         batchId: '',
     });
 
+    // Store original values to track changes during editing
+    const [originalData, setOriginalData] = useState({
+        acceptanceNumber: '',
+        acceptanceDate: '',
+        plaintiff: '',
+        plaintiffAddress: '',
+        defendant: '',
+        defendantAddress: '',
+        note: '',
+        legalRelationshipId: '',
+        judgeId: '',
+        mediatorId: '',
+        batchId: '',
+    });
+
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [batches, setBatches] = useState<Option[]>([]);
     const [judges, setJudges] = useState<Option[]>([]);
@@ -116,6 +131,7 @@ const LegalCaseForm = ({
                 batchId: legalCase.batch?.batchId || ''
             };
             setFormData(editData);
+            setOriginalData(editData); // Store original values for comparison
         } else {
             // Chế độ thêm mới
             const newData = {
@@ -132,6 +148,7 @@ const LegalCaseForm = ({
                 batchId: ''
             };
             setFormData(newData);
+            setOriginalData(newData); // For new items, original is empty
         }
         setErrors({});
     }, [legalCase, isOpen]);
@@ -163,23 +180,47 @@ const LegalCaseForm = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    // Helper function to clean form data - send null for empty optional fields
+    // Helper function to clean form data - for updates, only send changed fields
     const cleanFormData = (data: typeof formData): LegalCaseRequest => {
+        // For new legal cases (no legalCase prop), send all non-empty optional fields
+        if (!legalCase) {
+            return {
+                acceptanceNumber: data.acceptanceNumber,
+                acceptanceDate: data.acceptanceDate,
+                plaintiff: data.plaintiff,
+                legalRelationshipId: data.legalRelationshipId,
+                batchId: data.batchId,
+                
+                // Optional fields - send null if empty
+                plaintiffAddress: data.plaintiffAddress?.trim() || null,
+                defendant: data.defendant?.trim() || null,
+                defendantAddress: data.defendantAddress?.trim() || null,
+                note: data.note?.trim() || null,
+                judgeId: data.judgeId || null,
+                mediatorId: data.mediatorId || null,
+            };
+        }
+
+        // For updates, only send changed fields, set unchanged fields to null
         return {
-            // Required fields - always send as is
-            acceptanceNumber: data.acceptanceNumber,
-            acceptanceDate: data.acceptanceDate,
-            plaintiff: data.plaintiff,
-            legalRelationshipId: data.legalRelationshipId,
-            batchId: data.batchId,
+            // Required fields - send if changed
+            acceptanceNumber: data.acceptanceNumber !== originalData.acceptanceNumber ? data.acceptanceNumber : null,
+            acceptanceDate: data.acceptanceDate !== originalData.acceptanceDate ? data.acceptanceDate : null,
+            plaintiff: data.plaintiff !== originalData.plaintiff ? data.plaintiff : null,
+            legalRelationshipId: data.legalRelationshipId !== originalData.legalRelationshipId ? data.legalRelationshipId : null,
+            batchId: data.batchId !== originalData.batchId ? data.batchId : null,
             
-            // Optional fields - send null if empty
-            plaintiffAddress: data.plaintiffAddress?.trim() || null,
-            defendant: data.defendant?.trim() || null,
-            defendantAddress: data.defendantAddress?.trim() || null,
-            note: data.note?.trim() || null,
-            judgeId: data.judgeId || null,
-            mediatorId: data.mediatorId || null,
+            // Optional fields - send if changed (comparing trimmed values)
+            plaintiffAddress: (data.plaintiffAddress?.trim() || '') !== (originalData.plaintiffAddress?.trim() || '') 
+                ? (data.plaintiffAddress?.trim() || null) : null,
+            defendant: (data.defendant?.trim() || '') !== (originalData.defendant?.trim() || '') 
+                ? (data.defendant?.trim() || null) : null,
+            defendantAddress: (data.defendantAddress?.trim() || '') !== (originalData.defendantAddress?.trim() || '') 
+                ? (data.defendantAddress?.trim() || null) : null,
+            note: (data.note?.trim() || '') !== (originalData.note?.trim() || '') 
+                ? (data.note?.trim() || null) : null,
+            judgeId: data.judgeId !== originalData.judgeId ? (data.judgeId || null) : null,
+            mediatorId: data.mediatorId !== originalData.mediatorId ? (data.mediatorId || null) : null,
         };
     };
 

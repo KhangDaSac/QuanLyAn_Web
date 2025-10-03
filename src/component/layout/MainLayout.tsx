@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/authContext/useAuth";
-import { Permission } from "../../utils/authUtils";
+import { Permission, UserRole } from "../../utils/authUtils";
 import { useNavigate } from "react-router-dom";
+import { Role } from "../../types/enum/Role";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,25 @@ const MainLayout = ({
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
     logout();
+  };
+
+  const getRoleText = (role: string) => {
+    if (Object.values(Role).includes(role as Role)) {
+      return role;
+    }
+    return (Role as any)[role] || role;
+  };
+
+  const getDisplayName = () => {
+    if (!user) return "";
+    
+    // For Judge and Mediator, show fullName if available, otherwise username
+    if (user.role === UserRole.JUDGE || user.role === UserRole.MEDIATOR) {
+      return user.officer?.fullName || user.username;
+    }
+    
+    // For other roles, show username
+    return user.username;
   };
 
   const menuItems = [
@@ -177,7 +197,7 @@ const MainLayout = ({
       ),
       href: "/account-management",
       requiredPermissions: [Permission.VIEW_ACCOUNT_MANAGER] as Permission[],
-    }
+    },
   ];
 
   return (
@@ -189,7 +209,9 @@ const MainLayout = ({
         } transition-transform duration-300 ease-in-out lg:translate-x-0`}>
         <div className="m-4 mb-10 h-10 bg-gradient-to-r from-primary-600 to-primary-700">
           <div className="bg-gradient-to-r from-red-200 to-red-100 rounded-lg p-4">
-            <div className="flex items-center space-x-3" onClick={() => navigate('/profile')}>
+            <div
+              className="flex items-center space-x-3"
+              onClick={() => navigate("/profile")}>
               <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-primary-600 font-semibold text-sm">
                   {user?.username?.slice(0, 2).toUpperCase()}
@@ -197,9 +219,9 @@ const MainLayout = ({
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  {user?.role}
+                  {getRoleText(user?.role || "")}
                 </p>
-                <p className="text-xs text-gray-800">{user?.username}</p>
+                <p className="text-xs text-gray-800">{getDisplayName()}</p>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { AuthService } from '../../services/AuthService';
 import { createContext } from 'react';
 import type { ApiResponse } from '../../types/ApiResponse';
 import type { AuthenticationResponse } from '../../types/response/auth/AuthenticationResponse';
+import type { OfficerResponse } from '../../types/response/officer/OfficerResponse';
 import { getUserRole, getUserPermissions, hasPermission, isTokenExpired, UserRole, Permission } from '../../utils/authUtils';
 
 interface User {
@@ -11,6 +12,7 @@ interface User {
   email?: string;
   role?: UserRole;
   permissions: Permission[];
+  officer?: OfficerResponse;
 }
 
 interface AuthContextType {
