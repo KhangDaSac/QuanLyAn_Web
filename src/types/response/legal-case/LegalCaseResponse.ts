@@ -13,6 +13,7 @@ export interface LegalCaseResponse {
   plaintiffAddress: string;
   defendant: string;
   defendantAddress: string;
+  note: string | null;
   legalRelationship: LegalRelationshipResponse;
   storageDate: string;
   assignment: string | null;

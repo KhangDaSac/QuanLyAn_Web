@@ -26,15 +26,12 @@ const AccountForm = ({
     username: "",
     password: "",
     email: "",
-    role: Role.JUDGE.toString(),
+    role: Role.MANAGER.toString(),
   });
 
   const roles: Option[] = [
-    // { value: "", label: "Tất cả vai trò" },
-    ...Object.entries(Role).map(([key, value]) => ({
-      value: key,
-      label: value,
-    })),
+    { value: Role.ADMIN.toString(), label: "Quản trị viên" },
+    { value: Role.MANAGER.toString(), label: "Quản lý" }
   ];
 
   const [errors, setErrors] = useState<Record<string, string>>({});

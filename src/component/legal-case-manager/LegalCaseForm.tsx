@@ -3,6 +3,8 @@ import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCas
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 import type { LegalCaseRequest } from '../../types/request/legal-case/LegalCaseRequest';
 import { BatchService } from '../../services/BatchService';
+import { JudgeService } from '../../services/JudgeService';
+import { MediatorService } from '../../services/MediatorService';
 interface LegalCaseFormProps {
     isOpen: boolean;
     onClose: () => void;
@@ -20,19 +22,25 @@ const LegalCaseForm = ({
     legalRelationships,
     isLoading = false
 }: LegalCaseFormProps) => {
-    const [formData, setFormData] = useState<LegalCaseRequest>({
+    // Internal form state uses strings for input compatibility
+    const [formData, setFormData] = useState({
         acceptanceNumber: '',
         acceptanceDate: '',
         plaintiff: '',
         plaintiffAddress: '',
         defendant: '',
         defendantAddress: '',
+        note: '',
         legalRelationshipId: '',
+        judgeId: '',
+        mediatorId: '',
         batchId: '',
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [batches, setBatches] = useState<Option[]>([]);
+    const [judges, setJudges] = useState<Option[]>([]);
+    const [mediators, setMediators] = useState<Option[]>([]);
 
     // Ngăn cuộn trang khi modal mở
     useEffect(() => {
@@ -48,53 +56,82 @@ const LegalCaseForm = ({
         };
     }, [isOpen]);
 
-    // Load batches từ API
+    // Load batches, judges và mediators từ API
     useEffect(() => {
-        const loadBatches = async () => {
+        const loadData = async () => {
             try {
-                const response = await BatchService.getAll();
-                if (response.success && response.data) {
-                    const batchOptions: Option[] = response.data.map(batch => ({
+                // Load batches
+                const batchResponse = await BatchService.getAll();
+                if (batchResponse.success && batchResponse?.data?.content) {
+                    const batchOptions: Option[] = batchResponse.data.content.map(batch => ({
                         value: batch.batchId,
                         label: batch.batchId + " - " + batch.batchName
                     }));
                     setBatches(batchOptions);
                 }
+
+                // Load judges
+                const judgeResponse = await JudgeService.getAll();
+                if (judgeResponse.success && judgeResponse.data) {
+                    const judgeOptions: Option[] = judgeResponse.data.map(judge => ({
+                        value: judge.officerId,
+                        label: judge.fullName
+                    }));
+                    setJudges(judgeOptions);
+                }
+
+                // Load mediators
+                const mediatorResponse = await MediatorService.getAll();
+                if (mediatorResponse.success && mediatorResponse.data) {
+                    const mediatorOptions: Option[] = mediatorResponse.data.map(mediator => ({
+                        value: mediator.officerId,
+                        label: mediator.fullName
+                    }));
+                    setMediators(mediatorOptions);
+                }
             } catch (error) {
-                console.error('Error loading batches:', error);
+                console.error('Error loading data:', error);
             }
         };
 
         if (isOpen) {
-            loadBatches();
+            loadData();
         }
     }, [isOpen]);
 
     useEffect(() => {
         if (legalCase) {
             // Chế độ sửa
-            setFormData({
+            const editData = {
                 acceptanceNumber: legalCase.acceptanceNumber,
                 acceptanceDate: legalCase.acceptanceDate,
                 plaintiff: legalCase.plaintiff,
                 plaintiffAddress: legalCase.plaintiffAddress,
                 defendant: legalCase.defendant,
                 defendantAddress: legalCase.defendantAddress,
+                note: legalCase.note || '',
                 legalRelationshipId: legalCase.legalRelationship.legalRelationshipId,
+                judgeId: legalCase.judge?.officerId || '',
+                mediatorId: legalCase.mediator?.officerId || '',
                 batchId: legalCase.batch?.batchId || ''
-            });
+            };
+            setFormData(editData);
         } else {
             // Chế độ thêm mới
-            setFormData({
+            const newData = {
                 acceptanceNumber: '',
                 acceptanceDate: '',
                 plaintiff: '',
                 plaintiffAddress: '',
                 defendant: '',
                 defendantAddress: '',
+                note: '',
                 legalRelationshipId: '',
+                judgeId: '',
+                mediatorId: '',
                 batchId: ''
-            });
+            };
+            setFormData(newData);
         }
         setErrors({});
     }, [legalCase, isOpen]);
@@ -126,11 +163,32 @@ const LegalCaseForm = ({
         return Object.keys(newErrors).length === 0;
     };
 
+    // Helper function to clean form data - send null for empty optional fields
+    const cleanFormData = (data: typeof formData): LegalCaseRequest => {
+        return {
+            // Required fields - always send as is
+            acceptanceNumber: data.acceptanceNumber,
+            acceptanceDate: data.acceptanceDate,
+            plaintiff: data.plaintiff,
+            legalRelationshipId: data.legalRelationshipId,
+            batchId: data.batchId,
+            
+            // Optional fields - send null if empty
+            plaintiffAddress: data.plaintiffAddress?.trim() || null,
+            defendant: data.defendant?.trim() || null,
+            defendantAddress: data.defendantAddress?.trim() || null,
+            note: data.note?.trim() || null,
+            judgeId: data.judgeId || null,
+            mediatorId: data.mediatorId || null,
+        };
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         if (validateForm()) {
-            onSubmit(formData);
+            const cleanedData = cleanFormData(formData);
+            onSubmit(cleanedData);
         }
     };
 
@@ -316,6 +374,49 @@ const LegalCaseForm = ({
                             {errors.batchId && (
                                 <p className="text-red-500 text-xs mt-1">{errors.batchId}</p>
                             )}
+                        </div>
+
+                        {/* Optional fields in a grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Thẩm phán */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Thẩm phán
+                                </label>
+                                <ComboboxSearchForm
+                                    options={judges}
+                                    value={formData.judgeId}
+                                    onChange={(value) => handleInputChange('judgeId', value)}
+                                    placeholder="Chọn thẩm phán"
+                                />
+                            </div>
+
+                            {/* Hòa giải viên */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Hòa giải viên
+                                </label>
+                                <ComboboxSearchForm
+                                    options={mediators}
+                                    value={formData.mediatorId}
+                                    onChange={(value) => handleInputChange('mediatorId', value)}
+                                    placeholder="Chọn hòa giải viên"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Ghi chú */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Ghi chú
+                            </label>
+                            <textarea
+                                value={formData.note}
+                                onChange={(e) => handleInputChange('note', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                                placeholder="Nhập ghi chú về vụ án"
+                                rows={3}
+                            />
                         </div>
 
                         {/* Buttons */}

@@ -99,8 +99,8 @@ const LegalCaseManager = () => {
 
   // Sort by options
   const sortByOptions: Option[] = [
-    { value: "acceptanceDate", label: "Ngày tiếp nhận" },
-    { value: "acceptanceNumber", label: "Số tiếp nhận" },
+    { value: "acceptanceDate", label: "Ngày thụ lý" },
+    { value: "acceptanceNumber", label: "Số thụ lý" },
     { value: "plaintiff", label: "Nguyên đơn" },
     { value: "defendant", label: "Bị đơn" },
     { value: "storageDate", label: "Ngày lưu trữ" },
@@ -361,11 +361,12 @@ const LegalCaseManager = () => {
   const fetchBatches = async () => {
     setLoading(true);
     try {
-      const { data } = await BatchService.getAll();
-      if (data) {
+      const response = await BatchService.getAll();
+      const content = response.data?.content;
+      if (content) {
         setBatches([
           ...batches,
-          ...data.map(
+          ...content.map(
             (item): Option => ({
               value: item.batchId,
               label: item.batchId + " - " + item.batchName,

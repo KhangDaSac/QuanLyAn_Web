@@ -114,11 +114,21 @@ export class LegalCaseService {
     );
   }
 
-  static async getAssignmentList(request: AssignmentListRequest): Promise<ApiResponse<PageResponse<LegalCaseResponse>>> {
-    console.log("Requesting assignment list with request:", request);
+  static async getAssignmentList(
+    request: AssignmentListRequest, 
+    page: number = 0, 
+    size: number = 10, 
+    sortBy: string = "acceptanceDate"
+  ): Promise<ApiResponse<PageResponse<LegalCaseResponse>>> {
     const token = localStorage.getItem("token");
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+      sortBy: sortBy
+    }).toString();
+    
     return Connect.request<PageResponse<LegalCaseResponse>>(
-      `${this.api}/assignment-list`,
+      `${this.api}/assignment-list?${queryParams}`,
       "POST",
       request,
       token

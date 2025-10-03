@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import LegalCaseCardSimple from '../component/random-assignment/LegalCaseCardSimple';
 import JudgeCardSimple from '../component/random-assignment/JudgeCardSimple';
+import Pagination from "../component/basic-component/Pagination";
 import { LegalCaseService } from "../services/LegalCaseService";
 import { JudgeService } from "../services/JudgeService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
@@ -21,10 +22,92 @@ const RandomAssignment = () => {
     const [assignableJudges, setAssignableJudges] = useState<JudgeResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+    
+    // Pagination state
+    const [pagination, setPagination] = useState({
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+        isFirst: true,
+        isLast: false,
+    });
+
+    // Separate state for sort criteria
+    const [sortBy, setSortBy] = useState("acceptanceDate");
+
+    // Page size options
+    const pageSizeOptions: Option[] = [
+        { value: "5", label: "5" },
+        { value: "10", label: "10" },
+        { value: "20", label: "20" },
+        { value: "50", label: "50" },
+    ];
+
+    // Sort by options
+    const sortByOptions: Option[] = [
+        { value: "acceptanceDate", label: "Ngày thụ lý" },
+        { value: "acceptanceNumber", label: "Số thụ lý" },
+        { value: "plaintiff", label: "Nguyên đơn" },
+        { value: "defendant", label: "Bị đơn" },
+    ];
     useEffect(() => {
         loadLegalRelationshipGroups();
         loadAllJudges(); 
     }, []);
+
+    // Keyboard navigation for pagination
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Only handle arrow keys when not typing in input fields
+            if (
+                event.target instanceof HTMLInputElement ||
+                event.target instanceof HTMLTextAreaElement ||
+                event.target instanceof HTMLSelectElement
+            ) {
+                return;
+            }
+
+            switch (event.key) {
+                case "ArrowLeft":
+                    event.preventDefault();
+                    if (pagination.hasPrevious) {
+                        handlePageChange(pagination.page - 1);
+                    }
+                    break;
+                case "ArrowRight":
+                    event.preventDefault();
+                    if (pagination.hasNext) {
+                        handlePageChange(pagination.page + 1);
+                    }
+                    break;
+                case "Home":
+                    event.preventDefault();
+                    if (!pagination.isFirst) {
+                        handlePageChange(0);
+                    }
+                    break;
+                case "End":
+                    event.preventDefault();
+                    if (!pagination.isLast) {
+                        handlePageChange(pagination.totalPages - 1);
+                    }
+                    break;
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [
+        pagination.page,
+        pagination.hasNext,
+        pagination.hasPrevious,
+        pagination.isFirst,
+        pagination.isLast,
+        pagination.totalPages,
+    ]);
 
     const loadLegalRelationshipGroups = async () => {
         try {
@@ -47,7 +130,7 @@ const RandomAssignment = () => {
         }
     };
 
-    const searchPendingCases = async () => {
+    const searchPendingCases = async (page: number = 0, customSize?: number) => {
         // Validate input theo quy tắc: có mediator HOẶC có legalRelationshipGroupId
         if (hasMediator && selectedGroupId) {
             addToast({
@@ -73,9 +156,26 @@ const RandomAssignment = () => {
                 isMediator: hasMediator,
                 legalRelationshipGroupId: hasMediator ? null : selectedGroupId
             };
-            const response = await LegalCaseService.getAssignmentList(searchRequest);
+            const response = await LegalCaseService.getAssignmentList(
+                searchRequest, 
+                page, 
+                customSize || pagination.size, 
+                sortBy
+            );
             if (response.success && response.data) {
+                // Use server-side pagination data
                 setPendingCases(response.data.content);
+                setPagination({
+                    page: response.data.number,
+                    size: response.data.size,
+                    totalElements: response.data.totalElements || response.data.numberOfElement,
+                    totalPages: response.data.totalPages || Math.ceil((response.data.totalElements || response.data.numberOfElement) / response.data.size),
+                    hasNext: response.data.hasNext,
+                    hasPrevious: response.data.hasPrevious,
+                    isFirst: response.data.isFirst,
+                    isLast: response.data.isLast,
+                });
+                
                 setSelectedCases([]);
             } else {
                 addToast({
@@ -94,6 +194,27 @@ const RandomAssignment = () => {
         } finally {
             setSearchLoading(false);
         }
+    };
+
+    // Pagination handlers
+    const handlePageChange = (page: number) => {
+        searchPendingCases(page);
+    };
+
+    const handlePageSizeChange = (size: number) => {
+        setPagination((prev) => ({ ...prev, page: 0, size }));
+        // Use the new size directly in the search call
+        searchPendingCases(0, size);
+    };
+
+    const handleSortByChange = (newSortBy: string) => {
+        setSortBy(newSortBy);
+        setPagination((prev) => ({ ...prev, page: 0 }));
+        searchPendingCases(0);
+    };
+
+    const handleSearchClick = () => {
+        searchPendingCases(0);
     };
 
     const loadAllJudges = async () => {
@@ -183,10 +304,26 @@ const RandomAssignment = () => {
     };
 
     const handleSelectAll = () => {
-        setSelectedCases(pendingCases.map(c => c.legalCaseId));
+        // Select all cases on current page
+        const currentPageIds = pendingCases.map(c => c.legalCaseId);
+        setSelectedCases(prev => {
+            const newSelected = [...prev];
+            currentPageIds.forEach(id => {
+                if (!newSelected.includes(id)) {
+                    newSelected.push(id);
+                }
+            });
+            return newSelected;
+        });
     };
 
     const handleDeselectAll = () => {
+        // Deselect all cases on current page
+        const currentPageIds = pendingCases.map(c => c.legalCaseId);
+        setSelectedCases(prev => prev.filter(id => !currentPageIds.includes(id)));
+    };
+
+    const handleDeselectAllPages = () => {
         setSelectedCases([]);
     };
 
@@ -208,7 +345,7 @@ const RandomAssignment = () => {
                             <div className="text-sm text-gray-500">
                                 <span className="font-medium">Tổng số án chờ:</span>
                                 <span className="ml-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full font-semibold">
-                                    {pendingCases.length}
+                                    {pagination.totalElements > 0 ? pagination.totalElements : pendingCases.length}
                                 </span>
                             </div>
                             <div className="text-sm text-gray-500">
@@ -217,6 +354,14 @@ const RandomAssignment = () => {
                                     {selectedCases.length}
                                 </span>
                             </div>
+                            {pagination.totalElements > pagination.size && (
+                                <div className="text-sm text-gray-500">
+                                    <span className="font-medium">Trang:</span>
+                                    <span className="ml-1 px-2 py-1 bg-gray-100 text-gray-800 rounded-full font-semibold">
+                                        {pagination.page + 1}/{pagination.totalPages}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -289,7 +434,7 @@ const RandomAssignment = () => {
                                 )}
                             </div>
                             <button
-                                onClick={searchPendingCases}
+                                onClick={handleSearchClick}
                                 disabled={searchLoading || (!hasMediator && !selectedGroupId)}
                             className="w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
                         >
@@ -311,25 +456,49 @@ const RandomAssignment = () => {
                     </div>
                 </div>
 
+                {/* Pagination Component */}
+                {!searchLoading && pendingCases.length > 0 && pagination.totalPages > 1 && (
+                    <Pagination
+                        currentPage={pagination.page}
+                        totalPages={pagination.totalPages}
+                        totalElements={pagination.totalElements}
+                        pageSize={pagination.size}
+                        hasNext={pagination.hasNext}
+                        hasPrevious={pagination.hasPrevious}
+                        isFirst={pagination.isFirst}
+                        isLast={pagination.isLast}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
+                        onSortChange={handleSortByChange}
+                        pageSizeOptions={pageSizeOptions}
+                        sortOptions={sortByOptions}
+                        currentSort={sortBy}
+                        showPageInfo={true}
+                        showPageSizeSelector={true}
+                        showSortSelector={true}
+                        className="mb-4"
+                    />
+                )}
+
                 {/* Danh sách án chờ phân công */}
                 {pendingCases.length > 0 && (
                     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <h2 className="text-xl font-semibold text-gray-900">
-                                Danh sách án chờ phân công ({pendingCases.length})
+                                Danh sách án chờ phân công
                             </h2>
                             <div className="flex flex-wrap gap-2">
                                 <button
                                     onClick={handleSelectAll}
-                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-200"
                                 >
-                                    Chọn tất cả
+                                    Chọn trang này
                                 </button>
                                 <button
                                     onClick={handleDeselectAll}
-                                    className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                    className="px-3 py-1.5 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors duration-200"
                                 >
-                                    Bỏ chọn tất cả
+                                    Bỏ chọn trang này
                                 </button>
                             </div>
                         </div>
