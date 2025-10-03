@@ -19,8 +19,8 @@ const BatchManagement = () => {
       batchId: criteria.batchId?.trim() || null,
       batchName: criteria.batchName?.trim() || null,
       note: criteria.note?.trim() || null,
-      storageDateStart: criteria.storageDateStart || null,
-      storageDateEnd: criteria.storageDateEnd || null,
+      startStorageDate: criteria.startStorageDate ? criteria.startStorageDate + ' 00:00:00' : null,
+      endStorageDate: criteria.endStorageDate ? criteria.endStorageDate + ' 23:59:59' : null,
     }
   };
 
@@ -63,8 +63,8 @@ const BatchManagement = () => {
     batchId: null,
     batchName: null,
     note: null,
-    storageDateStart: null,
-    storageDateEnd: null
+    startStorageDate: null,
+    endStorageDate: null
   });
 
   // States for form modal
@@ -250,8 +250,8 @@ const BatchManagement = () => {
       batchId: null,
       batchName: null,
       note: null,
-      storageDateStart: null,
-      storageDateEnd: null
+      startStorageDate: null,
+      endStorageDate: null
     };
     setBatchSearch(clearedSearch);
     setPagination((prev) => ({ ...prev, page: 0 }));
@@ -651,11 +651,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="date"
-                value={batchSearch.storageDateStart || ""}
+                value={batchSearch.startStorageDate || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    storageDateStart: e.target.value || null,
+                    startStorageDate: e.target.value || null,
                   }))
                 }
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -669,11 +669,11 @@ const BatchManagement = () => {
               </label>
               <input
                 type="date"
-                value={batchSearch.storageDateEnd || ""}
+                value={batchSearch.endStorageDate || ""}
                 onChange={(e) =>
                   setBatchSearch((prev) => ({
                     ...prev,
-                    storageDateEnd: e.target.value || null,
+                    endStorageDate: e.target.value || null,
                   }))
                 }
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
