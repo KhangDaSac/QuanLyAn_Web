@@ -104,9 +104,9 @@ export class LegalCaseService {
 
   static async randomAssignment(
     request: RandomAssignmentRequest
-  ): Promise<ApiResponse<LegalCaseResponse[]>> {
+  ): Promise<ApiResponse<void>> {
     const token = localStorage.getItem("token");
-    return Connect.request<LegalCaseResponse[]>(
+    return Connect.request<void>(
       `${this.api}/random-assignment`,
       "POST",
       request,

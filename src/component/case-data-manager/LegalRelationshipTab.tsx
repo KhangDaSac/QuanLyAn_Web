@@ -57,7 +57,7 @@ const LegalRelationshipTab = () => {
   const sortByOptions: Option[] = [
     { value: "legalRelationshipName", label: "Tên quan hệ pháp luật" },
     { value: "legalRelationshipId", label: "Mã quan hệ pháp luật" },
-    { value: "typeOfLegalCaseId", label: "Loại vụ án" },
+    { value: "typeOfLegalCase.typeOfLegalCaseId", label: "Loại vụ án" },
   ];
 
   const toast = useToast();

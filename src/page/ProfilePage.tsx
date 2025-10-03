@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AuthService } from "../services/AuthService";
 import type { AccountResponse } from "../types/response/auth/AccountResponse";
 import type ChangePasswordRequest from "../types/request/auth/ChangePasswordRequest";
+import { useToast, ToastContainer } from "../component/basic-component/Toast";
 
 const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState<AccountResponse | null>(null);
@@ -9,10 +10,8 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Toast states
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [showToast, setShowToast] = useState(false);
+  // Toast hook
+  const { toasts, removeToast, success, error: showError } = useToast();
 
   // Edit profile form states
   const [editForm, setEditForm] = useState({
@@ -33,17 +32,6 @@ const ProfilePage = () => {
     [key: string]: string;
   }>({});
 
-  const showToastMessage = (message: string, type: "success" | "error") => {
-    setToastMessage(message);
-    setToastType(type);
-    setShowToast(true);
-
-    // Auto hide after 3 seconds
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
-  };
-
   // Fetch user info
   const fetchUserInfo = async () => {
     try {
@@ -56,11 +44,11 @@ const ProfilePage = () => {
           email: response.data.email,
         });
       } else {
-        showToastMessage("Không thể tải thông tin người dùng", "error");
+        showError("Thông báo", "Không thể tải thông tin người dùng");
       }
     } catch (error) {
       console.error("Error fetching user info:", error);
-      showToastMessage("Có lỗi xảy ra khi tải thông tin", "error");
+      showError("Có lỗi xảy ra", "Có lỗi xảy ra khi tải thông tin");
     } finally {
       setLoading(false);
     }
@@ -119,12 +107,14 @@ const ProfilePage = () => {
 
     try {
       setLoading(true);
+      
+      // Create update request with only changed fields
       const updateRequest = {
-        username: editForm.username,
-        email: editForm.email,
-        password: "", // Not changing password
-        role: userInfo.role,
-        statusOfAccount: userInfo.statusOfAccount,
+        username: editForm.username !== userInfo.username ? editForm.username : null,
+        email: editForm.email !== userInfo.email ? editForm.email : null,
+        password: null, // Password is always null for profile updates
+        role: null, // Role cannot be changed in profile
+        statusOfAccount: null, // Status cannot be changed in profile
       };
 
       const response = await AuthService.updateAccount(
@@ -133,18 +123,18 @@ const ProfilePage = () => {
       );
 
       if (response.status === 200) {
-        showToastMessage("Cập nhật thông tin thành công", "success");
+        success("Thành công", "Cập nhật thông tin thành công");
         setIsEditing(false);
         fetchUserInfo(); // Reload user info
       } else {
-        showToastMessage(
-          response.message || "Có lỗi xảy ra khi cập nhật thông tin",
-          "error"
+        showError(
+          "Có lỗi xảy ra",
+          response.message || "Có lỗi xảy ra khi cập nhật thông tin"
         );
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      showToastMessage("Có lỗi xảy ra khi cập nhật thông tin", "error");
+      showError("Có lỗi xảy ra", "Có lỗi xảy ra khi cập nhật thông tin");
     } finally {
       setLoading(false);
     }
@@ -165,7 +155,7 @@ const ProfilePage = () => {
       const response = await AuthService.changePassword(changePasswordRequest);
 
       if (response.status === 200) {
-        showToastMessage("Đổi mật khẩu thành công", "success");
+        success("Thành công", "Đổi mật khẩu thành công");
         setIsChangingPassword(false);
         setPasswordForm({
           currentPassword: "",
@@ -173,14 +163,14 @@ const ProfilePage = () => {
           confirmNewPassword: "",
         });
       } else {
-        showToastMessage(
-          response.message || "Có lỗi xảy ra khi đổi mật khẩu",
-          "error"
+        showError(
+          "Có lỗi xảy ra",
+          response.message || "Có lỗi xảy ra khi đổi mật khẩu"
         );
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      showToastMessage("Có lỗi xảy ra khi đổi mật khẩu", "error");
+      showError("Có lỗi xảy ra", "Có lỗi xảy ra khi đổi mật khẩu");
     } finally {
       setLoading(false);
     }
@@ -416,11 +406,6 @@ const ProfilePage = () => {
                   Bảo mật tài khoản
                 </h2>
                 {!isChangingPassword && (
-                  // <button
-                  //   onClick={() => setIsChangingPassword(true)}
-                  //   className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                  //   Đổi mật khẩu
-                  // </button>
                   <button
                     onClick={() => setIsChangingPassword(true)}
                     className="inline-flex items-center px-4 py-2 border border-red-300 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
@@ -550,77 +535,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-
-      {/* Toast Notification */}
-      {showToast && (
-        <div className="fixed top-6 right-6 z-50">
-          <div
-            className={`max-w-sm bg-white rounded-lg shadow-lg border-l-4 ${
-              toastType === "success"
-                ? "border-l-green-500"
-                : "border-l-red-500"
-            }`}>
-            <div className="p-4">
-              <div className="flex items-center">
-                <div
-                  className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                    toastType === "success" ? "bg-green-100" : "bg-red-100"
-                  }`}>
-                  {toastType === "success" ? (
-                    <svg
-                      className="w-5 h-5 text-green-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-5 h-5 text-red-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  )}
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {toastType === "success" ? "Thành công!" : "Có lỗi xảy ra!"}
-                  </p>
-                  <p className="text-sm text-gray-600">{toastMessage}</p>
-                </div>
-                <button
-                  onClick={() => setShowToast(false)}
-                  className="ml-4 text-gray-400 hover:text-gray-600">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };

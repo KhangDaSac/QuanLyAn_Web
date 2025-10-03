@@ -21,11 +21,9 @@ const RandomAssignment = () => {
     const [assignableJudges, setAssignableJudges] = useState<JudgeResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
-
-    // Load danh sách nhóm quan hệ pháp luật và thẩm phán khi component mount
     useEffect(() => {
         loadLegalRelationshipGroups();
-        loadAllJudges(); // Load tất cả thẩm phán ngay từ đầu
+        loadAllJudges(); 
     }, []);
 
     const loadLegalRelationshipGroups = async () => {
@@ -148,10 +146,10 @@ const RandomAssignment = () => {
               legalCaseIds: selectedCases
           };
             const response = await LegalCaseService.randomAssignment(request);
-            if (response.success && response.data) {
+            if (response.success) {
                 addToast({
                     title: "Thành công",
-                    message: `Đã phân công thành công ${response.data.length} án`,
+                    message: `Đã phân công thành công`,
                     type: "success"
                 });
                 setPendingCases([]);
