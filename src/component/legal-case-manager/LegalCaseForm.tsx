@@ -239,6 +239,13 @@ const LegalCaseForm = ({
         }
     };
 
+    const handleButtonSubmit = () => {
+        if (validateForm()) {
+            const cleanedData = cleanFormData(formData);
+            onSubmit(cleanedData);
+        }
+    };
+
     const handleInputChange = (field: keyof typeof formData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         // Xóa lỗi khi user bắt đầu nhập
@@ -265,26 +272,25 @@ const LegalCaseForm = ({
             }}
         >
             <div 
-                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto"
+                className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] relative z-[10000] mx-auto flex flex-col"
             >
-                <div className="overflow-y-auto max-h-[90vh] p-6"
-                     style={{ position: 'relative' }}>
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            {legalCase ? 'Cập nhật án' : 'Thêm án mới'}
-                        </h2>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+                {/* Fixed Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 rounded-t-xl bg-white">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                        {legalCase ? 'Cập nhật án' : 'Thêm án mới'}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
 
-                    {/* Form */}
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-6">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Số thụ lý */}
@@ -465,36 +471,39 @@ const LegalCaseForm = ({
                                 rows={3}
                             />
                         </div>
-
-                        {/* Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-6">
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isLoading ? (
-                                    <span className="flex items-center justify-center">
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Đang xử lý...
-                                    </span>
-                                ) : (
-                                    legalCase ? 'Cập nhật' : 'Thêm mới'
-                                )}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                disabled={isLoading}
-                                className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
-                            >
-                                Hủy
-                            </button>
-                        </div>
                     </form>
+                </div>
+
+                {/* Fixed Footer */}
+                <div className="border-t border-gray-200 p-6 bg-white rounded-b-xl">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                            type="button"
+                            onClick={handleButtonSubmit}
+                            disabled={isLoading}
+                            className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isLoading ? (
+                                <span className="flex items-center justify-center">
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Đang xử lý...
+                                </span>
+                            ) : (
+                                legalCase ? 'Cập nhật' : 'Thêm mới'
+                            )}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={isLoading}
+                            className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+                        >
+                            Hủy
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

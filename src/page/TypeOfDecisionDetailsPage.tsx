@@ -6,6 +6,7 @@ import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
 import type TypeOfDecisionResponse from "../types/response/type-of-decision/TypeOfDecisionResponse";
 import type HandleTypeOfDecisionResponse from "../types/response/handle-type-of-decision/HandleTypeOfDecisionResponse";
 import type TypeOfDecisionRequest from "../types/request/type-of-decision/TypeOfDecisionRequest";
+import type { HandleTypeOfDecisionRequest } from "../types/request/handle-type-of-decision/HandleTypeOfDecisionRequest";
 import type { Option } from "../component/basic-component/ComboboxSearch";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import TypeOfDecisionForm from "../component/type-of-decision-manager/TypeOfDecisionForm";
@@ -105,6 +106,13 @@ const TypeOfDecisionDetailsPage = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Handle type of decision edit/delete states
+  const [selectedHandle, setSelectedHandle] = useState<HandleTypeOfDecisionResponse | null>(null);
+  const [showHandleEditForm, setShowHandleEditForm] = useState(false);
+  const [showHandleConfirmModal, setShowHandleConfirmModal] = useState(false);
+  const [showHandleCreateForm, setShowHandleCreateForm] = useState(false);
+  const [handleFormLoading, setHandleFormLoading] = useState(false);
 
   useEffect(() => {
     if (typeOfDecisionId) {
@@ -224,6 +232,113 @@ const TypeOfDecisionDetailsPage = () => {
     setShowConfirmModal(false);
   };
 
+  // Handle type of decision functions
+  const handleEditHandle = (handle: HandleTypeOfDecisionResponse) => {
+    setSelectedHandle(handle);
+    setShowHandleEditForm(true);
+  };
+
+  const handleDeleteHandle = (handle: HandleTypeOfDecisionResponse) => {
+    setSelectedHandle(handle);
+    setShowHandleConfirmModal(true);
+  };
+
+    const handleHandleFormSubmit = async (data: any) => {
+    if (!selectedHandle || !typeOfDecision) return;
+
+    // Validation: preStatus and postStatus should be different
+    if (data.preStatus === data.postStatus) {
+      toast.error("Lỗi", "Trạng thái trước và sau phải khác nhau!");
+      return;
+    }
+
+    try {
+      setHandleFormLoading(true);
+      
+      // Create request with only changed fields, null for unchanged fields
+      const request: Partial<HandleTypeOfDecisionRequest> = {};
+      
+      if (selectedHandle.typeOfDecision.typeOfDecisionId !== data.typeOfDecisionId) {
+        request.typeOfDecisionId = data.typeOfDecisionId;
+      }
+      if (selectedHandle.preStatus !== data.preStatus) {
+        request.preStatus = data.preStatus;
+      }
+      if (selectedHandle.postStatus !== data.postStatus) {
+        request.postStatus = data.postStatus;
+      }
+      if (selectedHandle.extensionPeriod !== data.extensionPeriod) {
+        request.extensionPeriod = data.extensionPeriod;
+      }
+
+      await HandleTypeOfDecisionService.update(
+        typeOfDecision.typeOfDecisionId,
+        selectedHandle.preStatus,
+        request as HandleTypeOfDecisionRequest
+      );
+      
+      toast.success("Cập nhật thành công", "Xử lý loại quyết định đã được cập nhật!");
+      setShowHandleEditForm(false);
+      setSelectedHandle(null);
+      await fetchHandleTypeOfDecisions();
+    } catch (error) {
+      console.error("Error updating handle type of decision:", error);
+      toast.error("Có lỗi xảy ra", "Không thể cập nhật thông tin xử lý. Vui lòng thử lại!");
+    } finally {
+      setHandleFormLoading(false);
+    }
+  };
+
+  const confirmDeleteHandle = async () => {
+    if (!selectedHandle || !typeOfDecision) return;
+
+    try {
+      await HandleTypeOfDecisionService.delete(
+        typeOfDecision.typeOfDecisionId,
+        selectedHandle.preStatus
+      );
+      toast.success("Xóa thành công", "Xử lý loại quyết định đã được xóa!");
+      setShowHandleConfirmModal(false);
+      setSelectedHandle(null);
+      await fetchHandleTypeOfDecisions();
+    } catch (error) {
+      console.error("Error deleting handle type of decision:", error);
+      toast.error("Xóa thất bại", "Có lỗi xảy ra khi xóa xử lý. Vui lòng thử lại!");
+    }
+  };
+
+  const handleCreateHandle = async (data: any) => {
+    if (!typeOfDecision) return;
+
+    // Validation: preStatus and postStatus should be different
+    if (data.preStatus === data.postStatus) {
+      toast.error("Lỗi", "Trạng thái trước và sau phải khác nhau!");
+      return;
+    }
+
+    try {
+      setHandleFormLoading(true);
+      
+      const request: HandleTypeOfDecisionRequest = {
+        typeOfDecisionId: typeOfDecision.typeOfDecisionId,
+        preStatus: data.preStatus,
+        postStatus: data.postStatus,
+        extensionPeriod: data.extensionPeriod,
+      };
+
+      await HandleTypeOfDecisionService.create(request);
+      
+      toast.success("Thêm thành công", "Xử lý loại quyết định đã được thêm!");
+      setShowHandleCreateForm(false);
+      await fetchHandleTypeOfDecisions();
+    } catch (error) {
+      console.error("Error creating handle type of decision:", error);
+      toast.error("Có lỗi xảy ra", "Không thể thêm xử lý mới. Vui lòng thử lại!");
+    } finally {
+      setHandleFormLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -274,6 +389,24 @@ const TypeOfDecisionDetailsPage = () => {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={() => setShowHandleCreateForm(true)}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Thêm xử lý
+          </button>
           <button
             onClick={handleEdit}
             className="inline-flex items-center px-4 py-2 border border-yellow-600 text-yellow-600 text-sm font-medium rounded-lg bg-yellow-50 hover:bg-yellow-100 transition-colors">
@@ -414,9 +547,11 @@ const TypeOfDecisionDetailsPage = () => {
 
       {/* Handle Type of Decisions List */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Danh sách xử lý loại quyết định
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Danh sách xử lý loại quyết định
+          </h3>
+        </div>
         {handlesLoading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -485,7 +620,7 @@ const TypeOfDecisionDetailsPage = () => {
                         />
                       </svg>
                       <span className="text-base text-gray-900 font-semibold">
-                        {handle.extensionPeriod} ngày
+                        {handle.extensionPeriod} tháng
                       </span>
                     </div>
                   </div>
@@ -522,6 +657,48 @@ const TypeOfDecisionDetailsPage = () => {
                     </span>
                   </div>
                 </div>
+
+                {/* Action Buttons */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={() => handleEditHandle(handle)}
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      Sửa
+                    </button>
+                    <button
+                      onClick={() => handleDeleteHandle(handle)}
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      Xóa
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -544,6 +721,232 @@ const TypeOfDecisionDetailsPage = () => {
         onConfirm={confirmDelete}
         title="Xác nhận xóa loại quyết định"
         message={`Bạn có chắc chắn muốn xóa loại quyết định "${typeOfDecision.typeOfDecisionName}"? Hành động này không thể hoàn tác.`}
+        type="danger"
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
+
+      {/* Handle Edit Modal */}
+      {showHandleEditForm && selectedHandle && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Sửa xử lý loại quyết định
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowHandleEditForm(false);
+                    setSelectedHandle(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const data = {
+                  typeOfDecisionId: selectedHandle.typeOfDecision.typeOfDecisionId,
+                  preStatus: formData.get('preStatus') as StatusOfLegalCase,
+                  postStatus: formData.get('postStatus') as StatusOfLegalCase,
+                  extensionPeriod: parseInt(formData.get('extensionPeriod') as string)
+                };
+                handleHandleFormSubmit(data);
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Trạng thái trước
+                  </label>
+                  <select
+                    name="preStatus"
+                    defaultValue={selectedHandle.preStatus}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                    required
+                  >
+                    {Object.values(StatusOfLegalCase).map((status) => (
+                      <option key={status} value={status}>
+                        {getStatusText(status)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Trạng thái sau
+                  </label>
+                  <select
+                    name="postStatus"
+                    defaultValue={selectedHandle.postStatus}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                    required
+                  >
+                    {Object.values(StatusOfLegalCase).map((status) => (
+                      <option key={status} value={status}>
+                        {getStatusText(status)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Thời gian gia hạn (tháng)
+                  </label>
+                  <input
+                    type="number"
+                    name="extensionPeriod"
+                    defaultValue={selectedHandle.extensionPeriod}
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                    required
+                  />
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={handleFormLoading}
+                    className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                  >
+                    {handleFormLoading ? "Đang cập nhật..." : "Cập nhật"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowHandleEditForm(false);
+                      setSelectedHandle(null);
+                    }}
+                    disabled={handleFormLoading}
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Handle Create Modal */}
+      {showHandleCreateForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Thêm xử lý loại quyết định
+                </h3>
+                <button
+                  onClick={() => setShowHandleCreateForm(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const data = {
+                  preStatus: formData.get('preStatus') as StatusOfLegalCase,
+                  postStatus: formData.get('postStatus') as StatusOfLegalCase,
+                  extensionPeriod: parseInt(formData.get('extensionPeriod') as string)
+                };
+                handleCreateHandle(data);
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Trạng thái trước <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="preStatus"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                    required
+                  >
+                    <option value="">-- Chọn trạng thái trước --</option>
+                    {Object.values(StatusOfLegalCase).map((status) => (
+                      <option key={status} value={status}>
+                        {getStatusText(status)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Trạng thái sau <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="postStatus"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                    required
+                  >
+                    <option value="">-- Chọn trạng thái sau --</option>
+                    {Object.values(StatusOfLegalCase).map((status) => (
+                      <option key={status} value={status}>
+                        {getStatusText(status)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Thời gian gia hạn (tháng) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="extensionPeriod"
+                    min="0"
+                    placeholder="Nhập số tháng gia hạn"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                    required
+                  />
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={handleFormLoading}
+                    className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                  >
+                    {handleFormLoading ? "Đang thêm..." : "Thêm mới"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowHandleCreateForm(false)}
+                    disabled={handleFormLoading}
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Handle Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showHandleConfirmModal}
+        onClose={() => {
+          setShowHandleConfirmModal(false);
+          setSelectedHandle(null);
+        }}
+        onConfirm={confirmDeleteHandle}
+        title="Xác nhận xóa xử lý"
+        message={selectedHandle ? `Bạn có chắc chắn muốn xóa xử lý từ "${getStatusText(selectedHandle.preStatus)}" thành "${getStatusText(selectedHandle.postStatus)}"? Hành động này không thể hoàn tác.` : ''}
         type="danger"
         confirmText="Xác nhận"
         cancelText="Hủy"

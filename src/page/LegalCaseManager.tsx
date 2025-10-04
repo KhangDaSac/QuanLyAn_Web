@@ -793,7 +793,6 @@ const LegalCaseManager = () => {
       const legalCasesRequest: LegalCasesRequest = {
         legalCases: jsonData
           .map((row, index) => {
-            // row[0] là STT, bỏ qua
             const acceptanceNumber = row[1]?.toString().trim() || "";
             const acceptanceDate = XLSX.SSF.format("yyyy-mm-dd", row[2]) || "";
             const plaintiff = row[3]?.toString().trim() || "";
@@ -801,6 +800,8 @@ const LegalCaseManager = () => {
             const defendant = row[5]?.toString().trim() || "";
             const defendantAddress = row[6]?.toString().trim() || "";
             const legalRelationshipId = row[7]?.toString().trim() || "";
+            const judgeId = row[8]?.toString().trim() || "";
+            const mediatorId = row[9]?.toString().trim() || "";
 
             // Kiểm tra dữ liệu bắt buộc
             if (!acceptanceNumber || !acceptanceDate || !plaintiff) {
@@ -816,13 +817,14 @@ const LegalCaseManager = () => {
               defendant,
               defendantAddress,
               legalRelationshipId,
+              judgeId,
+              mediatorId,
             } as LegalCaseRequest;
           })
-          .filter(Boolean) as LegalCaseRequest[], // Lọc bỏ các dòng null
-        batch: batchData,
+          .filter(Boolean) as LegalCaseRequest[],
+        batchId: jsonData.map((row) => row[10]?.toString().trim() || "")[0] || "",
       };
 
-      // Gửi dữ liệu lên API
       const response = await LegalCaseService.importFromExcel(
         legalCasesRequest
       );
@@ -851,7 +853,6 @@ const LegalCaseManager = () => {
   const handleCloseBatchForm = () => {
     setShowBatchForm(false);
     setSelectedFile(null);
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
