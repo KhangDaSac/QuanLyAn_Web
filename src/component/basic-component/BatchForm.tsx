@@ -1,32 +1,56 @@
-import { useState } from 'react';
-import type { BatchRequest } from '../../types/request/batch/BatchRequest';
+import { useState, useEffect } from 'react';
+import type { BatchResponse } from '../../types/response/batch/BatchResponse';
+import ComboboxSearchForm from './ComboboxSearchForm';
+import type { Option } from './ComboboxSearch';
+import { BatchService } from '../../services/BatchService';
 
 interface BatchFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (batchData: BatchRequest, file: File) => void;
+  onSubmit: (batchId: string, file: File) => void;
   file: File | null;
   loading?: boolean;
 }
 
 const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFormProps) => {
-  const [batchData, setBatchData] = useState<BatchRequest>({
-    batchName: '',
-    note: ''
-  });
+  const [selectedBatchId, setSelectedBatchId] = useState<string>('');
+  const [batchOptions, setBatchOptions] = useState<Option[]>([]);
+  const [loadingBatches, setLoadingBatches] = useState(false);
 
   const [errors, setErrors] = useState<{
-    batchName?: string;
-    note?: string;
+    batchId?: string;
   }>({});
+
+  // Fetch batch options when form opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchBatches();
+    }
+  }, [isOpen]);
+
+  const fetchBatches = async () => {
+    setLoadingBatches(true);
+    try {
+      const response = await BatchService.getAll()
+      if (response.success && response.data) {
+        const options: Option[] = response.data.content.map((batch: BatchResponse) => ({
+          value: batch.batchId,
+          label: `${batch.batchName} - ${batch.batchId}`
+        }));
+        setBatchOptions(options);
+      }
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+    } finally {
+      setLoadingBatches(false);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
 
-    if (!batchData.batchName.trim()) {
-      newErrors.batchName = 'Tên batch là bắt buộc';
-    } else if (batchData.batchName.trim().length < 3) {
-      newErrors.batchName = 'Tên batch phải có ít nhất 3 ký tự';
+    if (!selectedBatchId.trim()) {
+      newErrors.batchId = 'Vui lòng chọn đợt nhập án';
     }
 
     setErrors(newErrors);
@@ -41,12 +65,12 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
     }
 
     if (validateForm()) {
-      onSubmit(batchData, file);
+      onSubmit(selectedBatchId, file);
     }
   };
 
   const handleClose = () => {
-    setBatchData({ batchName: '', note: '' });
+    setSelectedBatchId('');
     setErrors({});
     onClose();
   };
@@ -81,49 +105,34 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Batch Name */}
+            {/* Batch Selection */}
             <div>
-              <label htmlFor="batchName" className="block text-sm font-medium text-gray-700 mb-1">
-                Tên đợt nhập án <span className="text-red-500">*</span>
+              <label htmlFor="batchId" className="block text-sm font-medium text-gray-700 mb-1">
+                Chọn đợt nhập án <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                id="batchName"
-                value={batchData.batchName}
-                onChange={(e) => setBatchData(prev => ({ ...prev, batchName: e.target.value }))}
-                disabled={loading}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors disabled:bg-gray-50 disabled:opacity-50 ${
-                  errors.batchName 
-                    ? 'border-red-300 focus:ring-red-500' 
-                    : 'border-gray-300 focus:ring-blue-500'
-                }`}
-                placeholder="Tên đợt nhập"
-              />
-              {errors.batchName && (
-                <p className="text-red-500 text-xs mt-1">{errors.batchName}</p>
+              {loadingBatches ? (
+                <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <svg className="animate-spin h-4 w-4 mr-2 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="text-sm text-gray-500">Đang tải danh sách đợt nhập...</span>
+                </div>
+              ) : (
+                <ComboboxSearchForm
+                  options={batchOptions}
+                  value={selectedBatchId}
+                  onChange={setSelectedBatchId}
+                  placeholder="-- Chọn đợt nhập án --"
+                  className={`w-full ${
+                    errors.batchId 
+                      ? 'border-red-300 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                />
               )}
-            </div>
-
-            {/* Note */}
-            <div>
-              <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
-                Ghi chú
-              </label>
-              <textarea
-                id="note"
-                value={batchData.note}
-                onChange={(e) => setBatchData(prev => ({ ...prev, note: e.target.value }))}
-                disabled={loading}
-                rows={3}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors disabled:bg-gray-50 disabled:opacity-50 resize-none ${
-                  errors.note 
-                    ? 'border-red-300 focus:ring-red-500' 
-                    : 'border-gray-300 focus:ring-blue-500'
-                }`}
-                placeholder="Ghi chú"
-              />
-              {errors.note && (
-                <p className="text-red-500 text-xs mt-1">{errors.note}</p>
+              {errors.batchId && (
+                <p className="text-red-500 text-xs mt-1">{errors.batchId}</p>
               )}
             </div>
 
@@ -148,7 +157,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
               </button>
               <button
                 type="submit"
-                disabled={loading || !file}
+                disabled={loading || !file || !selectedBatchId.trim()}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
                 {loading ? (

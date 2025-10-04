@@ -770,7 +770,7 @@ const LegalCaseManager = () => {
     setShowBatchForm(true);
   };
 
-  const handleBatchSubmit = async (batchData: BatchRequest, file: File) => {
+  const handleBatchSubmit = async (batchId: String, file: File) => {
     try {
       setShowBatchForm(false);
       setImportLoading(true);
@@ -792,7 +792,7 @@ const LegalCaseManager = () => {
       // Chuyển dữ liệu thành LegalCasesRequest
       const legalCasesRequest: LegalCasesRequest = {
         legalCases: jsonData
-          .map((row) => {
+          .map((row, index) => {
             const acceptanceNumber = row[1]?.toString().trim() || "";
             const acceptanceDate = XLSX.SSF.format("yyyy-mm-dd", row[2]) || "";
             const plaintiff = row[3]?.toString().trim() || "";
@@ -803,6 +803,11 @@ const LegalCaseManager = () => {
             const legalRelationshipId = row[8]?.toString().trim() || "";
             const judgeId = row[9]?.toString().trim() || "";
             const mediatorId = row[10]?.toString().trim() || "";
+
+            if (!acceptanceNumber || !acceptanceDate || !plaintiff) {
+              console.warn(`⚠️ Bỏ qua dòng ${index + 2} vì thiếu dữ liệu`);
+              return null;
+            }
 
             return {
               acceptanceNumber,
@@ -818,7 +823,7 @@ const LegalCaseManager = () => {
             } as LegalCaseRequest;
           })
           .filter(Boolean) as LegalCaseRequest[],
-        batch: batchData,
+        batchId: batchId,
       };
 
       const response = await LegalCaseService.importFromExcel(
@@ -886,7 +891,8 @@ const LegalCaseManager = () => {
         "Loại vụ án",
         "Quan hệ pháp luật",
         "Thẩm phán",
-        "Hòa giải viên"
+        "Trạng thái",
+        "Mã đợt nhập",
       ];
 
       // Chuẩn bị dữ liệu rows từ TẤT CẢ dữ liệu
@@ -901,7 +907,8 @@ const LegalCaseManager = () => {
         legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
         legalCase.legalRelationship?.legalRelationshipName || "",
         legalCase.judge?.fullName || "",
-        legalCase.mediator?.fullName || ""
+        legalCase.statusOfLegalCase || "",
+        legalCase.batch?.batchId || "",
       ]);
 
       // Tạo data array với header và rows
