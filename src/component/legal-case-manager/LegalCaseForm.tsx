@@ -88,20 +88,26 @@ const LegalCaseForm = ({
                 // Load judges
                 const judgeResponse = await JudgeService.getAll();
                 if (judgeResponse.success && judgeResponse.data) {
-                    const judgeOptions: Option[] = judgeResponse.data.map(judge => ({
-                        value: judge.officerId,
-                        label: judge.fullName
-                    }));
+                    const judgeOptions: Option[] = [
+                        { value: '', label: 'Không chọn' },
+                        ...judgeResponse.data.map(judge => ({
+                            value: judge.officerId,
+                            label: judge.fullName
+                        }))
+                    ];
                     setJudges(judgeOptions);
                 }
 
                 // Load mediators
                 const mediatorResponse = await MediatorService.getAll();
                 if (mediatorResponse.success && mediatorResponse.data) {
-                    const mediatorOptions: Option[] = mediatorResponse.data.map(mediator => ({
-                        value: mediator.officerId,
-                        label: mediator.fullName
-                    }));
+                    const mediatorOptions: Option[] = [
+                        { value: '', label: 'Không chọn' },
+                        ...mediatorResponse.data.map(mediator => ({
+                            value: mediator.officerId,
+                            label: mediator.fullName
+                        }))
+                    ];
                     setMediators(mediatorOptions);
                 }
             } catch (error) {

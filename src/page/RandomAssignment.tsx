@@ -44,6 +44,7 @@ const RandomAssignment = () => {
         { value: "10", label: "10" },
         { value: "20", label: "20" },
         { value: "50", label: "50" },
+        { value: "100", label: "100" },
     ];
 
     // Sort by options
@@ -57,6 +58,11 @@ const RandomAssignment = () => {
         loadLegalRelationshipGroups();
         loadAllJudges(); 
     }, []);
+
+    // Reset selection when search criteria changes
+    useEffect(() => {
+        setSelectedCases([]);
+    }, [selectedGroupId, hasMediator]);
 
     // Keyboard navigation for pagination
     useEffect(() => {
@@ -130,7 +136,7 @@ const RandomAssignment = () => {
         }
     };
 
-    const searchPendingCases = async (page: number = 0, customSize?: number) => {
+    const searchPendingCases = async (page: number = 0, customSize?: number, resetSelection: boolean = true) => {
         // Validate input theo quy tắc: có mediator HOẶC có legalRelationshipGroupId
         if (hasMediator && selectedGroupId) {
             addToast({
@@ -176,7 +182,10 @@ const RandomAssignment = () => {
                     isLast: response.data.isLast,
                 });
                 
-                setSelectedCases([]);
+                // Only reset selection when it's a new search, not pagination
+                if (resetSelection) {
+                    setSelectedCases([]);
+                }
             } else {
                 addToast({
                     title: "Thông báo",
@@ -198,23 +207,23 @@ const RandomAssignment = () => {
 
     // Pagination handlers
     const handlePageChange = (page: number) => {
-        searchPendingCases(page);
+        searchPendingCases(page, undefined, false); // Don't reset selection when changing page
     };
 
     const handlePageSizeChange = (size: number) => {
         setPagination((prev) => ({ ...prev, page: 0, size }));
         // Use the new size directly in the search call
-        searchPendingCases(0, size);
+        searchPendingCases(0, size, false); // Don't reset selection when changing page size
     };
 
     const handleSortByChange = (newSortBy: string) => {
         setSortBy(newSortBy);
         setPagination((prev) => ({ ...prev, page: 0 }));
-        searchPendingCases(0);
+        searchPendingCases(0, undefined, false); // Don't reset selection when changing sort
     };
 
     const handleSearchClick = () => {
-        searchPendingCases(0);
+        searchPendingCases(0, undefined, true); // Reset selection only for new search
     };
 
     const loadAllJudges = async () => {
@@ -321,10 +330,6 @@ const RandomAssignment = () => {
         // Deselect all cases on current page
         const currentPageIds = pendingCases.map(c => c.legalCaseId);
         setSelectedCases(prev => prev.filter(id => !currentPageIds.includes(id)));
-    };
-
-    const handleDeselectAllPages = () => {
-        setSelectedCases([]);
     };
 
     return (
