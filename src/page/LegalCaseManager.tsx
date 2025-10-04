@@ -14,7 +14,6 @@ import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseRe
 import type { LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import type { AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
-import type { BatchRequest } from "../types/request/batch/BatchRequest";
 import ComboboxSearch, {
   type Option,
 } from "../component/basic-component/ComboboxSearch";
@@ -740,6 +739,100 @@ const LegalCaseManager = () => {
     fileInputRef.current?.click();
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      // Kiểm tra xem file có tồn tại không
+      const response = await fetch('/import_excel_example.xlsx', { method: 'HEAD' });
+      
+      if (!response.ok) {
+        // Nếu file không tồn tại, tạo file mẫu động
+        createAndDownloadTemplate();
+        return;
+      }
+
+      // Tạo link để download file mẫu từ thư mục public
+      const link = document.createElement('a');
+      link.href = '/import_excel_example.xlsx';
+      link.download = 'Mẫu_Import_Vụ_Án.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Hiển thị toast thông báo
+      toast.success('Tải xuống thành công', 'File mẫu import đã được tải về máy của bạn');
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      // Fallback: tạo file mẫu động
+      createAndDownloadTemplate();
+    }
+  };
+
+  const createAndDownloadTemplate = () => {
+    try {
+      // Tạo workbook mới
+      const wb = XLSX.utils.book_new();
+      
+      // Tạo dữ liệu mẫu
+      const sampleData = [
+        {
+          'Số vụ án': 'VV001/2024',
+          'Ngày thụ lý': '2024-01-01',
+          'Nguyên đơn': 'Nguyễn Văn A',
+          'Địa chỉ nguyên đơn': '123 Nguyễn Trãi, Hà Nội',
+          'Bị đơn': 'Trần Thị B',
+          'Địa chỉ bị đơn': '456 Lê Lợi, TP.HCM',
+          'Loại vụ án': 'DS01',
+          'Quan hệ pháp luật': 'QL001',
+          'Nhóm quan hệ pháp luật': 'NQL001',
+          'Trạng thái': 'Chờ được phân công',
+          'Thẩm phán': '',
+          'Hòa giải viên': '',
+          'Ghi chú': 'Đây là dữ liệu mẫu'
+        },
+        {
+          'Số vụ án': 'VV002/2024',
+          'Ngày thụ lý': '2024-01-02',
+          'Nguyên đơn': 'Phạm Văn C',
+          'Địa chỉ nguyên đơn': '789 Trường Chinh, Đà Nẵng',
+          'Bị đơn': 'Lê Thị D',
+          'Địa chỉ bị đơn': '321 Hai Bà Trưng, Huế',
+          'Loại vụ án': 'HS02',
+          'Quan hệ pháp luật': 'QL002',
+          'Nhóm quan hệ pháp luật': 'NQL002',
+          'Trạng thái': 'Đang giải quyết',
+          'Thẩm phán': 'Thẩm phán Nguyễn E',
+          'Hòa giải viên': '',
+          'Ghi chú': ''
+        }
+      ];
+      
+      // Tạo worksheet
+      const ws = XLSX.utils.json_to_sheet(sampleData);
+      
+      // Thêm worksheet vào workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Danh sách vụ án');
+      
+      // Tạo buffer và download
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/octet-stream' });
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'Mẫu_Import_Vụ_Án.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Cleanup
+      URL.revokeObjectURL(link.href);
+      
+      toast.success('Tạo mẫu thành công', 'File mẫu import đã được tạo và tải về máy của bạn');
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast.error('Lỗi', 'Không thể tạo file mẫu. Vui lòng thử lại sau.');
+    }
+  };
+
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -1001,8 +1094,29 @@ const LegalCaseManager = () => {
           )}
           {auth?.hasPermission(Permission.CREATE_LEGAL_CASE) && (
             <button
+              onClick={handleDownloadTemplate}
+              title="Tải xuống file Excel mẫu để xem định dạng import"
+              className="inline-flex items-center px-4 py-2 border border-blue-300 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors">
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Tải mẫu Excel
+            </button>
+          )}
+          {auth?.hasPermission(Permission.CREATE_LEGAL_CASE) && (
+            <button
               onClick={handleImportExcel}
               disabled={importLoading}
+              title="Nhập dữ liệu vụ án từ file Excel (Tải mẫu trước để xem định dạng)"
               className="inline-flex items-center px-4 py-2 border border-red-300 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {importLoading ? (
                 <>

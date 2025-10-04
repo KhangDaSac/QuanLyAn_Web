@@ -61,7 +61,7 @@ const getTypeOfLegalCaseColor = (codeName: string) => {
   }
 };
 
-const TypeOfDecisionCard = ({ typeOfDecision, onEdit, onDelete, onViewDetails }: TypeOfDecisionCardProps) => {
+const TypeOfDecisionCard = ({ typeOfDecision, onViewDetails }: TypeOfDecisionCardProps) => {
   const courtColor = getCourtIssuedColor(typeOfDecision.courtIssued);
 
   return (
