@@ -10,6 +10,7 @@ import type { HandleTypeOfDecisionRequest } from "../types/request/handle-type-o
 import type { Option } from "../component/basic-component/ComboboxSearch";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import TypeOfDecisionForm from "../component/type-of-decision-manager/TypeOfDecisionForm";
+import ComboboxSearchForm from "../component/basic-component/ComboboxSearchForm";
 import ConfirmModal from "../component/basic-component/ConfirmModal";
 import { CourtIssued } from "../types/enum/CourtIssued";
 import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
@@ -68,6 +69,17 @@ const getStatusText = (status: string) => {
   return (StatusOfLegalCase as any)[status] || status;
 };
 
+// Helper function to get enum key from value
+const getStatusKey = (statusValue: string): string => {
+  const entry = Object.entries(StatusOfLegalCase).find(([_, value]) => value === statusValue);
+  return entry ? entry[0] : statusValue;
+};
+
+// Helper function to get enum value from key
+const getStatusValue = (statusKey: string): string => {
+  return (StatusOfLegalCase as any)[statusKey] || statusKey;
+};
+
 const getStatusColor = (status: string) => {
   const statusText = getStatusText(status);
 
@@ -114,6 +126,22 @@ const TypeOfDecisionDetailsPage = () => {
   const [showHandleCreateForm, setShowHandleCreateForm] = useState(false);
   const [handleFormLoading, setHandleFormLoading] = useState(false);
 
+  // Form state for ComboboxSearchForm
+  const [selectedPreStatus, setSelectedPreStatus] = useState<string>('');
+  const [selectedPostStatus, setSelectedPostStatus] = useState<string>('');
+  const [extensionPeriod, setExtensionPeriod] = useState<number>(0);
+
+  // Store original values for comparison
+  const [originalPreStatus, setOriginalPreStatus] = useState<string>('');
+  const [originalPostStatus, setOriginalPostStatus] = useState<string>('');
+  const [originalExtensionPeriod, setOriginalExtensionPeriod] = useState<number>(0);
+
+  // Create status options for ComboboxSearchForm
+  const statusOptions: Option[] = Object.entries(StatusOfLegalCase).map(([key, value]) => ({
+    value: key, // Use enum key as value
+    label: value // Use enum value as label
+  }));
+
   useEffect(() => {
     if (typeOfDecisionId) {
       fetchTypeOfDecisionDetails();
@@ -123,6 +151,24 @@ const TypeOfDecisionDetailsPage = () => {
       navigate("/decision-type");
     }
   }, [typeOfDecisionId]);
+
+  // Effect to update form when selectedHandle changes
+  useEffect(() => {
+    if (selectedHandle && showHandleEditForm) {
+      // Convert enum values to keys for ComboboxSearchForm
+      const preStatusKey = getStatusKey(selectedHandle.preStatus);
+      const postStatusKey = getStatusKey(selectedHandle.postStatus);
+      
+      setSelectedPreStatus(preStatusKey);
+      setSelectedPostStatus(postStatusKey);
+      setExtensionPeriod(selectedHandle.extensionPeriod);
+      
+      // Store original values for comparison
+      setOriginalPreStatus(preStatusKey);
+      setOriginalPostStatus(postStatusKey);
+      setOriginalExtensionPeriod(selectedHandle.extensionPeriod);
+    }
+  }, [selectedHandle, showHandleEditForm]);
 
   const fetchTypeOfDecisionDetails = async () => {
     if (!typeOfDecisionId) return;
@@ -236,6 +282,13 @@ const TypeOfDecisionDetailsPage = () => {
   const handleEditHandle = (handle: HandleTypeOfDecisionResponse) => {
     setSelectedHandle(handle);
     setShowHandleEditForm(true);
+    // Form values will be set by useEffect
+  };
+
+  const resetHandleForm = () => {
+    setSelectedPreStatus('');
+    setSelectedPostStatus('');
+    setExtensionPeriod(0);
   };
 
   const handleDeleteHandle = (handle: HandleTypeOfDecisionResponse) => {
@@ -280,6 +333,7 @@ const TypeOfDecisionDetailsPage = () => {
       toast.success("Cập nhật thành công", "Xử lý loại quyết định đã được cập nhật!");
       setShowHandleEditForm(false);
       setSelectedHandle(null);
+      resetHandleForm();
       await fetchHandleTypeOfDecisions();
     } catch (error) {
       console.error("Error updating handle type of decision:", error);
@@ -330,6 +384,7 @@ const TypeOfDecisionDetailsPage = () => {
       
       toast.success("Thêm thành công", "Xử lý loại quyết định đã được thêm!");
       setShowHandleCreateForm(false);
+      resetHandleForm();
       await fetchHandleTypeOfDecisions();
     } catch (error) {
       console.error("Error creating handle type of decision:", error);
@@ -390,7 +445,10 @@ const TypeOfDecisionDetailsPage = () => {
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button
-            onClick={() => setShowHandleCreateForm(true)}
+            onClick={() => {
+              resetHandleForm();
+              setShowHandleCreateForm(true);
+            }}
             className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
           >
             <svg
@@ -739,6 +797,7 @@ const TypeOfDecisionDetailsPage = () => {
                   onClick={() => {
                     setShowHandleEditForm(false);
                     setSelectedHandle(null);
+                    resetHandleForm();
                   }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
@@ -750,49 +809,64 @@ const TypeOfDecisionDetailsPage = () => {
 
               <form onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const data = {
+                if (!selectedPreStatus || !selectedPostStatus) {
+                  toast.error('Lỗi', 'Vui lòng chọn đầy đủ trạng thái trước và sau');
+                  return;
+                }
+                
+                // Only send changed fields
+                const data: any = {
                   typeOfDecisionId: selectedHandle.typeOfDecision.typeOfDecisionId,
-                  preStatus: formData.get('preStatus') as StatusOfLegalCase,
-                  postStatus: formData.get('postStatus') as StatusOfLegalCase,
-                  extensionPeriod: parseInt(formData.get('extensionPeriod') as string)
                 };
+                
+                // Check if preStatus changed
+                if (selectedPreStatus !== originalPreStatus) {
+                  data.preStatus = getStatusValue(selectedPreStatus) as StatusOfLegalCase;
+                } else {
+                  data.preStatus = null;
+                }
+                
+                // Check if postStatus changed
+                if (selectedPostStatus !== originalPostStatus) {
+                  data.postStatus = getStatusValue(selectedPostStatus) as StatusOfLegalCase;
+                } else {
+                  data.postStatus = null;
+                }
+                
+                // Check if extensionPeriod changed
+                if (extensionPeriod !== originalExtensionPeriod) {
+                  data.extensionPeriod = extensionPeriod;
+                } else {
+                  data.extensionPeriod = null;
+                }
+                
+                console.log('Update data:', data); // Debug log
                 handleHandleFormSubmit(data);
               }} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Trạng thái trước
                   </label>
-                  <select
-                    name="preStatus"
-                    defaultValue={selectedHandle.preStatus}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                    required
-                  >
-                    {Object.values(StatusOfLegalCase).map((status) => (
-                      <option key={status} value={status}>
-                        {getStatusText(status)}
-                      </option>
-                    ))}
-                  </select>
+                  <ComboboxSearchForm
+                    options={statusOptions}
+                    value={selectedPreStatus}
+                    onChange={setSelectedPreStatus}
+                    placeholder="Chọn trạng thái trước"
+                    className="w-full"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Trạng thái sau
                   </label>
-                  <select
-                    name="postStatus"
-                    defaultValue={selectedHandle.postStatus}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                    required
-                  >
-                    {Object.values(StatusOfLegalCase).map((status) => (
-                      <option key={status} value={status}>
-                        {getStatusText(status)}
-                      </option>
-                    ))}
-                  </select>
+                  <ComboboxSearchForm
+                    options={statusOptions}
+                    value={selectedPostStatus}
+                    onChange={setSelectedPostStatus}
+                    placeholder="Chọn trạng thái sau"
+                    className="w-full"
+                  />
                 </div>
 
                 <div>
@@ -801,8 +875,8 @@ const TypeOfDecisionDetailsPage = () => {
                   </label>
                   <input
                     type="number"
-                    name="extensionPeriod"
-                    defaultValue={selectedHandle.extensionPeriod}
+                    value={extensionPeriod}
+                    onChange={(e) => setExtensionPeriod(parseInt(e.target.value) || 0)}
                     min="0"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
                     required
@@ -822,6 +896,7 @@ const TypeOfDecisionDetailsPage = () => {
                     onClick={() => {
                       setShowHandleEditForm(false);
                       setSelectedHandle(null);
+                      resetHandleForm();
                     }}
                     disabled={handleFormLoading}
                     className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
@@ -845,7 +920,10 @@ const TypeOfDecisionDetailsPage = () => {
                   Thêm xử lý loại quyết định
                 </h3>
                 <button
-                  onClick={() => setShowHandleCreateForm(false)}
+                  onClick={() => {
+                    setShowHandleCreateForm(false);
+                    resetHandleForm();
+                  }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -856,48 +934,42 @@ const TypeOfDecisionDetailsPage = () => {
 
               <form onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.currentTarget);
+                if (!selectedPreStatus || !selectedPostStatus) {
+                  toast.error('Lỗi', 'Vui lòng chọn đầy đủ trạng thái trước và sau');
+                  return;
+                }
                 const data = {
-                  preStatus: formData.get('preStatus') as StatusOfLegalCase,
-                  postStatus: formData.get('postStatus') as StatusOfLegalCase,
-                  extensionPeriod: parseInt(formData.get('extensionPeriod') as string)
+                  preStatus: getStatusValue(selectedPreStatus) as StatusOfLegalCase,
+                  postStatus: getStatusValue(selectedPostStatus) as StatusOfLegalCase,
+                  extensionPeriod: extensionPeriod
                 };
+                console.log('Create data:', data); // Debug log
                 handleCreateHandle(data);
               }} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Trạng thái trước <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    name="preStatus"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                    required
-                  >
-                    <option value="">-- Chọn trạng thái trước --</option>
-                    {Object.values(StatusOfLegalCase).map((status) => (
-                      <option key={status} value={status}>
-                        {getStatusText(status)}
-                      </option>
-                    ))}
-                  </select>
+                  <ComboboxSearchForm
+                    options={statusOptions}
+                    value={selectedPreStatus}
+                    onChange={setSelectedPreStatus}
+                    placeholder="-- Chọn trạng thái trước --"
+                    className="w-full"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Trạng thái sau <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    name="postStatus"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                    required
-                  >
-                    <option value="">-- Chọn trạng thái sau --</option>
-                    {Object.values(StatusOfLegalCase).map((status) => (
-                      <option key={status} value={status}>
-                        {getStatusText(status)}
-                      </option>
-                    ))}
-                  </select>
+                  <ComboboxSearchForm
+                    options={statusOptions}
+                    value={selectedPostStatus}
+                    onChange={setSelectedPostStatus}
+                    placeholder="-- Chọn trạng thái sau --"
+                    className="w-full"
+                  />
                 </div>
 
                 <div>
@@ -906,7 +978,8 @@ const TypeOfDecisionDetailsPage = () => {
                   </label>
                   <input
                     type="number"
-                    name="extensionPeriod"
+                    value={extensionPeriod}
+                    onChange={(e) => setExtensionPeriod(parseInt(e.target.value) || 0)}
                     min="0"
                     placeholder="Nhập số tháng gia hạn"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
@@ -924,7 +997,10 @@ const TypeOfDecisionDetailsPage = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowHandleCreateForm(false)}
+                    onClick={() => {
+                      setShowHandleCreateForm(false);
+                      resetHandleForm();
+                    }}
                     disabled={handleFormLoading}
                     className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                   >
