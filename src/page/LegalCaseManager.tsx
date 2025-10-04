@@ -889,8 +889,7 @@ const LegalCaseManager = () => {
         "Loại vụ án",
         "Quan hệ pháp luật",
         "Thẩm phán",
-        "Trạng thái",
-        "Mã đợt nhập",
+        "Hòa giải viên"
       ];
 
       // Chuẩn bị dữ liệu rows từ TẤT CẢ dữ liệu
@@ -905,8 +904,7 @@ const LegalCaseManager = () => {
         legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
         legalCase.legalRelationship?.legalRelationshipName || "",
         legalCase.judge?.fullName || "",
-        legalCase.statusOfLegalCase || "",
-        legalCase.batch?.batchId || "",
+        legalCase.mediator?.fullName || ""
       ]);
 
       // Tạo data array với header và rows
