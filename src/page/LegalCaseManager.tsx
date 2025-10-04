@@ -792,22 +792,17 @@ const LegalCaseManager = () => {
       // Chuyển dữ liệu thành LegalCasesRequest
       const legalCasesRequest: LegalCasesRequest = {
         legalCases: jsonData
-          .map((row, index) => {
+          .map((row) => {
             const acceptanceNumber = row[1]?.toString().trim() || "";
             const acceptanceDate = XLSX.SSF.format("yyyy-mm-dd", row[2]) || "";
             const plaintiff = row[3]?.toString().trim() || "";
             const plaintiffAddress = row[4]?.toString().trim() || "";
             const defendant = row[5]?.toString().trim() || "";
             const defendantAddress = row[6]?.toString().trim() || "";
-            const legalRelationshipId = row[7]?.toString().trim() || "";
-            const judgeId = row[8]?.toString().trim() || "";
-            const mediatorId = row[9]?.toString().trim() || "";
-
-            // Kiểm tra dữ liệu bắt buộc
-            if (!acceptanceNumber || !acceptanceDate || !plaintiff) {
-              console.warn(`⚠️ Bỏ qua dòng ${index + 2} vì thiếu dữ liệu`);
-              return null;
-            }
+            const note = row[7]?.toString().trim() || "";
+            const legalRelationshipId = row[8]?.toString().trim() || "";
+            const judgeId = row[9]?.toString().trim() || "";
+            const mediatorId = row[10]?.toString().trim() || "";
 
             return {
               acceptanceNumber,
@@ -816,13 +811,14 @@ const LegalCaseManager = () => {
               plaintiffAddress,
               defendant,
               defendantAddress,
+              note,
               legalRelationshipId,
               judgeId,
               mediatorId,
             } as LegalCaseRequest;
           })
           .filter(Boolean) as LegalCaseRequest[],
-        batchId: jsonData.map((row) => row[10]?.toString().trim() || "")[0] || "",
+        batch: batchData,
       };
 
       const response = await LegalCaseService.importFromExcel(

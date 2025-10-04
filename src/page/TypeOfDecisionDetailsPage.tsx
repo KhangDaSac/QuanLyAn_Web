@@ -306,13 +306,7 @@ const TypeOfDecisionDetailsPage = () => {
     if (!selectedHandle || !typeOfDecision) return;
 
     // Validation: preStatus and postStatus should be different (only if both are being changed)
-    console.log('Validation check:', { 
-      preStatus: data.preStatus, 
-      postStatus: data.postStatus,
-      shouldValidate: data.preStatus !== null && data.postStatus !== null,
-      areEqual: data.preStatus === data.postStatus 
-    });
-    
+
     if (data.preStatus !== null && data.postStatus !== null && data.preStatus === data.postStatus) {
       toast.error("Lỗi", "Trạng thái trước và sau phải khác nhau!");
       return;
@@ -333,9 +327,8 @@ const TypeOfDecisionDetailsPage = () => {
       if (selectedHandle.postStatus !== data.postStatus) {
         request.postStatus = data.postStatus;
       }
-      if (selectedHandle.extensionPeriod !== data.extensionPeriod) {
-        request.extensionPeriod = data.extensionPeriod;
-      }
+      
+      request.extensionPeriod = data.extensionPeriod;
 
       await HandleTypeOfDecisionService.update(
         typeOfDecision.typeOfDecisionId,
@@ -810,7 +803,6 @@ const TypeOfDecisionDetailsPage = () => {
                   onClick={() => {
                     setShowHandleEditForm(false);
                     setSelectedHandle(null);
-                    // Don't reset form here - useEffect will handle it next time
                   }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
@@ -850,10 +842,9 @@ const TypeOfDecisionDetailsPage = () => {
                 if (extensionPeriod !== originalExtensionPeriod) {
                   data.extensionPeriod = extensionPeriod;
                 } else {
-                  data.extensionPeriod = null;
+                  data.extensionPeriod = originalExtensionPeriod;
                 }
-                
-                console.log('Update data:', data); // Debug log
+              
                 handleHandleFormSubmit(data);
               }} className="space-y-4">
                 <div>
