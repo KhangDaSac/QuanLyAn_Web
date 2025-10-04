@@ -75,11 +75,6 @@ const getStatusKey = (statusValue: string): string => {
   return entry ? entry[0] : statusValue;
 };
 
-// Helper function to get enum value from key
-const getStatusValue = (statusKey: string): string => {
-  return (StatusOfLegalCase as any)[statusKey] || statusKey;
-};
-
 const getStatusColor = (status: string) => {
   const statusText = getStatusText(status);
 
@@ -142,6 +137,10 @@ const TypeOfDecisionDetailsPage = () => {
     label: value // Use enum value as label
   }));
 
+  // Debug log to show enum mapping
+  console.log('Status Options:', statusOptions);
+  console.log('StatusOfLegalCase enum:', StatusOfLegalCase);
+
   useEffect(() => {
     if (typeOfDecisionId) {
       fetchTypeOfDecisionDetails();
@@ -158,6 +157,13 @@ const TypeOfDecisionDetailsPage = () => {
       // Convert enum values to keys for ComboboxSearchForm
       const preStatusKey = getStatusKey(selectedHandle.preStatus);
       const postStatusKey = getStatusKey(selectedHandle.postStatus);
+      
+      console.log('Setting form values:', {
+        preStatusKey,
+        postStatusKey,
+        extensionPeriod: selectedHandle.extensionPeriod,
+        selectedHandle: selectedHandle
+      });
       
       setSelectedPreStatus(preStatusKey);
       setSelectedPostStatus(postStatusKey);
@@ -299,8 +305,15 @@ const TypeOfDecisionDetailsPage = () => {
     const handleHandleFormSubmit = async (data: any) => {
     if (!selectedHandle || !typeOfDecision) return;
 
-    // Validation: preStatus and postStatus should be different
-    if (data.preStatus === data.postStatus) {
+    // Validation: preStatus and postStatus should be different (only if both are being changed)
+    console.log('Validation check:', { 
+      preStatus: data.preStatus, 
+      postStatus: data.postStatus,
+      shouldValidate: data.preStatus !== null && data.postStatus !== null,
+      areEqual: data.preStatus === data.postStatus 
+    });
+    
+    if (data.preStatus !== null && data.postStatus !== null && data.preStatus === data.postStatus) {
       toast.error("Lỗi", "Trạng thái trước và sau phải khác nhau!");
       return;
     }
@@ -333,7 +346,7 @@ const TypeOfDecisionDetailsPage = () => {
       toast.success("Cập nhật thành công", "Xử lý loại quyết định đã được cập nhật!");
       setShowHandleEditForm(false);
       setSelectedHandle(null);
-      resetHandleForm();
+      // Don't reset form here - it will be handled by useEffect next time modal opens
       await fetchHandleTypeOfDecisions();
     } catch (error) {
       console.error("Error updating handle type of decision:", error);
@@ -365,7 +378,7 @@ const TypeOfDecisionDetailsPage = () => {
     if (!typeOfDecision) return;
 
     // Validation: preStatus and postStatus should be different
-    if (data.preStatus === data.postStatus) {
+    if (data.preStatus && data.postStatus && data.preStatus === data.postStatus) {
       toast.error("Lỗi", "Trạng thái trước và sau phải khác nhau!");
       return;
     }
@@ -786,7 +799,7 @@ const TypeOfDecisionDetailsPage = () => {
 
       {/* Handle Edit Modal */}
       {showHandleEditForm && selectedHandle && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+        <div key={`${selectedHandle.preStatus}-${selectedHandle.postStatus}-${selectedHandle.extensionPeriod}`} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -797,7 +810,7 @@ const TypeOfDecisionDetailsPage = () => {
                   onClick={() => {
                     setShowHandleEditForm(false);
                     setSelectedHandle(null);
-                    resetHandleForm();
+                    // Don't reset form here - useEffect will handle it next time
                   }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
@@ -821,14 +834,14 @@ const TypeOfDecisionDetailsPage = () => {
                 
                 // Check if preStatus changed
                 if (selectedPreStatus !== originalPreStatus) {
-                  data.preStatus = getStatusValue(selectedPreStatus) as StatusOfLegalCase;
+                  data.preStatus = selectedPreStatus; // Send enum key directly
                 } else {
                   data.preStatus = null;
                 }
                 
                 // Check if postStatus changed
                 if (selectedPostStatus !== originalPostStatus) {
-                  data.postStatus = getStatusValue(selectedPostStatus) as StatusOfLegalCase;
+                  data.postStatus = selectedPostStatus; // Send enum key directly
                 } else {
                   data.postStatus = null;
                 }
@@ -875,9 +888,10 @@ const TypeOfDecisionDetailsPage = () => {
                   </label>
                   <input
                     type="number"
-                    value={extensionPeriod}
+                    value={extensionPeriod || ''}
                     onChange={(e) => setExtensionPeriod(parseInt(e.target.value) || 0)}
                     min="0"
+                    placeholder={selectedHandle ? selectedHandle.extensionPeriod.toString() : '0'}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500"
                     required
                   />
@@ -896,7 +910,7 @@ const TypeOfDecisionDetailsPage = () => {
                     onClick={() => {
                       setShowHandleEditForm(false);
                       setSelectedHandle(null);
-                      resetHandleForm();
+                      // Don't reset form here - useEffect will handle it next time
                     }}
                     disabled={handleFormLoading}
                     className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
@@ -939,8 +953,8 @@ const TypeOfDecisionDetailsPage = () => {
                   return;
                 }
                 const data = {
-                  preStatus: getStatusValue(selectedPreStatus) as StatusOfLegalCase,
-                  postStatus: getStatusValue(selectedPostStatus) as StatusOfLegalCase,
+                  preStatus: selectedPreStatus, // Send enum key directly
+                  postStatus: selectedPostStatus, // Send enum key directly
                   extensionPeriod: extensionPeriod
                 };
                 console.log('Create data:', data); // Debug log
