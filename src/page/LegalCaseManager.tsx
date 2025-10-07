@@ -216,7 +216,7 @@ const LegalCaseManager = () => {
             isLast: data.isLast,
           });
         }
-        console.log("Initial search response:", data); // Debug log
+        console.log("Initial search response:", data);
       } catch (error) {
         console.error("Error searching legal cases:", error);
       } finally {
@@ -886,16 +886,16 @@ const LegalCaseManager = () => {
       const legalCasesRequest: LegalCasesRequest = {
         legalCases: jsonData
           .map((row, index) => {
-            const acceptanceNumber = row[1]?.toString().trim() || "";
-            const acceptanceDate = XLSX.SSF.format("yyyy-mm-dd", row[2]) || "";
-            const plaintiff = row[3]?.toString().trim() || "";
-            const plaintiffAddress = row[4]?.toString().trim() || "";
-            const defendant = row[5]?.toString().trim() || "";
-            const defendantAddress = row[6]?.toString().trim() || "";
-            const note = row[7]?.toString().trim() || "";
-            const legalRelationshipId = row[8]?.toString().trim() || "";
-            const judgeId = row[9]?.toString().trim() || "";
-            const mediatorId = row[10]?.toString().trim() || "";
+            const acceptanceNumber = row[1]?.toString().trim() || null;
+            const acceptanceDate = excelDateToISO(row[2]);
+            const plaintiff = row[3]?.toString().trim() || null;
+            const plaintiffAddress = row[4]?.toString().trim() || null;
+            const defendant = row[5]?.toString().trim() || null;
+            const defendantAddress = row[6]?.toString().trim() || null;
+            const note = row[7]?.toString().trim() || null;
+            const legalRelationshipId = row[8]?.toString().trim() || null;
+            const judgeId = row[9]?.toString().trim() || null;
+            const mediatorId = row[10]?.toString().trim() || null;
 
             if (!acceptanceNumber || !acceptanceDate || !plaintiff) {
               console.warn(`⚠️ Bỏ qua dòng ${index + 2} vì thiếu dữ liệu`);
@@ -1042,6 +1042,27 @@ const LegalCaseManager = () => {
       setExportLoading(false);
     }
   };
+
+  const excelDateToISO = (excelValue: any): string => {
+  if (!excelValue) return "";
+
+  // Trường hợp Excel lưu ngày dạng số (serial)
+  if (typeof excelValue === "number") {
+    const date = XLSX.SSF.parse_date_code(excelValue);
+    if (!date) return "";
+    const jsDate = new Date(date.y, date.m - 1, date.d);
+    return jsDate.toISOString().split("T")[0]; // yyyy-MM-dd
+  }
+
+  // Trường hợp Excel lưu chuỗi dạng "dd/MM/yyyy"
+  if (typeof excelValue === "string") {
+    const [day, month, year] = excelValue.split("/");
+    if (!day || !month || !year) return "";
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  return "";
+};
 
   return (
     <div className="space-y-4 md:space-y-6 p-4 md:p-0">

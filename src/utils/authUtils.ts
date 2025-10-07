@@ -54,6 +54,7 @@ export enum Permission {
   VIEW_RANDOM_ASSIGNMENT = 'VIEW_RANDOM_ASSIGNMENT',
   VIEW_LEGAL_CASE = 'VIEW_LEGAL_CASE',
   VIEW_CASE_DATA_MANAGER = 'VIEW_CASE_DATA_MANAGER',
+  VIEW_BATCH_MANAGER = 'VIEW_BATCH_MANAGER',
   VIEW_DECISION_TYPE = 'VIEW_DECISION_TYPE',
   VIEW_OFFICER_MANAGER = 'VIEW_OFFICER_MANAGER',
   VIEW_ACCOUNT_MANAGER = 'VIEW_ACCOUNT_MANAGER',
@@ -81,6 +82,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_LEGAL_CASE,
     Permission.VIEW_CASE_DATA_MANAGER,
     Permission.VIEW_DECISION_TYPE,
+    Permission.VIEW_BATCH_MANAGER,
     Permission.VIEW_OFFICER_MANAGER,
     Permission.VIEW_ACCOUNT_MANAGER,
     Permission.VIEW_REPORTS,
@@ -91,7 +93,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.MANAGE_OFFICERS,
     Permission.MANAGE_ACCOUNTS,
     Permission.MANAGE_DECISION_TYPES,
-    Permission.MANAGE_CASE_DATA
+    Permission.MANAGE_CASE_DATA,
   ],
   
   [UserRole.MANAGER]: [

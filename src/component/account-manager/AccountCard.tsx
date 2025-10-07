@@ -16,7 +16,6 @@ const AccountCard = ({
   onDelete,
   onToggleStatus,
 }: AccountCardProps) => {
-  console.log(account);
 
   const isActiveStatus = (status: any) => {
     return (
