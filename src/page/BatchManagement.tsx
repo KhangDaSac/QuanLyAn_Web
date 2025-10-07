@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import BatchCard from "../component/batch-manager/BatchCard";
 import BatchForm from "../component/batch-manager/BatchForm";
 import ConfirmModal from "../component/basic-component/ConfirmModal";
@@ -13,6 +14,12 @@ import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
 
 const BatchManagement = () => {
+  const auth = useAuth();
+
+  // Kiểm tra quyền truy cập - chỉ Admin và Manager được phép
+  if (!auth?.hasPermission(Permission.VIEW_BATCH_MANAGER)) {
+    return <Navigate to="/" replace />;
+  }
   // Helper function to clean search criteria
   const cleanSearchCriteria = (criteria: BatchSearchRequest): BatchSearchRequest => {
     return {
@@ -24,7 +31,6 @@ const BatchManagement = () => {
     }
   };
 
-  const auth = useAuth();
   const [batches, setBatches] = useState<BatchResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);

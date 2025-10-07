@@ -97,10 +97,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
   
   [UserRole.MANAGER]: [
-    // Manager không được truy cập case-data-manager, officer-manager, decision-type, account-manager
+    // Manager được truy cập batch-manager nhưng không được truy cập case-data-manager, officer-manager, decision-type, account-manager
     Permission.VIEW_HOME,
     Permission.VIEW_RANDOM_ASSIGNMENT,
     Permission.VIEW_LEGAL_CASE,
+    Permission.VIEW_BATCH_MANAGER,
     Permission.VIEW_REPORTS,
     Permission.CREATE_LEGAL_CASE,
     Permission.EDIT_LEGAL_CASE,

@@ -139,7 +139,7 @@ const MainLayout = ({
         </svg>
       ),
       href: "/batch-management",
-      requiredPermissions: [Permission.MANAGE_CASE_DATA] as Permission[],
+      requiredPermissions: [Permission.VIEW_BATCH_MANAGER] as Permission[],
     },
     {
       name: "Quản lý loại QĐ",
