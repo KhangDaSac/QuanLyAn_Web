@@ -1,8 +1,8 @@
 import { type ApiResponse } from "../types/ApiResponse";
 // const server_url = "http://192.168.222.189:8081"; //KhangDaSac
 // const server_url = "http://192.168.2.43:8081" // 1_5G
-// const server_url = "https://quanlyan-server.onrender.com";
-const server_url = "http://localhost:8081"
+const server_url = import.meta.env.VITE_SERVER_URL as string;
+// const server_url = "http://localhost:8081"
 
 export class Connect {
     static async request<T>(
