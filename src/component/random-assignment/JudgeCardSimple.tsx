@@ -39,7 +39,7 @@ const JudgeCardSimple = ({ judge }: JudgeCardSimpleProps) => {
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 mb-1">
             {judge.maxNumberOfLegalCase === -1 ? '∞' : judge.maxNumberOfLegalCase}
           </p>
-          <p className="text-xs text-blue-700 font-medium leading-tight">Số án tối đa</p>
+          <p className="text-xs text-blue-700 font-medium leading-tight">Số án tối đa trong năm</p>
         </div>
         
         {/* Án hiện tại */}
@@ -47,7 +47,7 @@ const JudgeCardSimple = ({ judge }: JudgeCardSimpleProps) => {
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-1">
             {judge.numberOfLegalCases}
           </p>
-          <p className="text-xs text-green-700 font-medium leading-tight">Án hiện tại</p>
+          <p className="text-xs text-green-700 font-medium leading-tight">Số án trong năm hiện tại</p>
         </div>
         
         {/* Án tạm đình chỉ */}

@@ -107,7 +107,7 @@ const JudgeForm = ({
         }
 
         if (formData.maxNumberOfLegalCase !== -1 && formData.maxNumberOfLegalCase <= 0) {
-            newErrors.maxNumberOfLegalCase = 'Số án tối đa phải lớn hơn 0 hoặc chọn không giới hạn';
+            newErrors.maxNumberOfLegalCase = 'Số án tối đa trong năm phải lớn hơn 0 hoặc chọn không giới hạn';
         }
 
         if (!judge && !formData.email?.trim()) {
@@ -290,7 +290,7 @@ const JudgeForm = ({
                         {/* Số án tối đa */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Số án tối đa <span className="text-red-500">*</span>
+                                Số án tối đa trong năm <span className="text-red-500">*</span>
                             </label>
                             <div className="space-y-3">
                                 <div className="flex items-center space-x-3">

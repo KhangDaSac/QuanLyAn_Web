@@ -330,18 +330,18 @@ const LegalCaseForm = ({
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Địa chỉ nguyên đơn */}
+                            {/* Nguyên đơn */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Nguyên đơn/Bị cáo <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={formData.plaintiff}
                                     onChange={(e) => handleInputChange('plaintiff', e.target.value)}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${errors.plaintiff ? 'border-red-500' : 'border-gray-300'
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical ${errors.plaintiff ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                     placeholder="Nhập tên nguyên đơn/bị cáo"
+                                    rows={2}
                                 />
                                 {errors.plaintiff && (
                                     <p className="text-red-500 text-xs mt-1">{errors.plaintiff}</p>
@@ -353,13 +353,13 @@ const LegalCaseForm = ({
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Địa chỉ nguyên đơn 
                                 </label>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={formData.plaintiffAddress}
                                     onChange={(e) => handleInputChange('plaintiffAddress', e.target.value)}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${errors.plaintiffAddress ? 'border-red-500' : 'border-gray-300'
+                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical ${errors.plaintiffAddress ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                     placeholder="Nhập địa chỉ nguyên đơn"
+                                    rows={2}
                                 />
                                 {errors.plaintiffAddress && (
                                     <p className="text-red-500 text-xs mt-1">{errors.plaintiffAddress}</p>
@@ -373,12 +373,12 @@ const LegalCaseForm = ({
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Bị đơn
                                 </label>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={formData.defendant}
                                     onChange={(e) => handleInputChange('defendant', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical"
                                     placeholder="Nhập tên bị đơn"
+                                    rows={2}
                                 />
                             </div>
 
@@ -387,12 +387,12 @@ const LegalCaseForm = ({
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Địa chỉ bị đơn
                                 </label>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={formData.defendantAddress}
                                     onChange={(e) => handleInputChange('defendantAddress', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical"
                                     placeholder="Nhập địa chỉ bị đơn"
+                                    rows={2}
                                 />
                             </div>
                         </div>
