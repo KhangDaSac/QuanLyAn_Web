@@ -361,7 +361,7 @@ const LegalCaseManager = () => {
     setLoading(true);
     try {
       const response = await BatchService.getAll();
-      const content = response.data?.content;
+      const content = response.data;
       if (content) {
         setBatches([
           ...batches,

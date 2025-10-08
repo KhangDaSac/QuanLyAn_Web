@@ -33,21 +33,29 @@ const JudgeCardSimple = ({ judge }: JudgeCardSimpleProps) => {
       </div>
 
       {/* Thống kê án */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
         {/* Số án tối đa */}
-        <div className="bg-blue-50 rounded-lg p-2 sm:p-3 text-center">
-          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 mb-1">
+        <div className="bg-pink-50 rounded-lg p-2 sm:p-3 text-center">
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-pink-600 mb-1">
             {judge.maxNumberOfLegalCase === -1 ? '∞' : judge.maxNumberOfLegalCase}
           </p>
-          <p className="text-xs text-blue-700 font-medium leading-tight">Số án tối đa trong năm</p>
+          <p className="text-xs text-pink-700 font-medium leading-tight">Số án tối đa trong năm</p>
         </div>
         
         {/* Án hiện tại */}
         <div className="bg-green-50 rounded-lg p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-1">
-            {judge.numberOfLegalCases}
+            {judge.numberOfLegalCase}
           </p>
           <p className="text-xs text-green-700 font-medium leading-tight">Số án trong năm hiện tại</p>
+        </div>
+
+        {/* Án đang giải quyết */}
+        <div className="bg-blue-50 rounded-lg p-2 sm:p-3 text-center">
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 mb-1">
+            {judge.numberOfInProcess}
+          </p>
+          <p className="text-xs text-blue-700 font-medium leading-tight">Số án đang giải quyết</p>
         </div>
         
         {/* Án tạm đình chỉ */}
@@ -81,8 +89,8 @@ const JudgeCardSimple = ({ judge }: JudgeCardSimpleProps) => {
           <span className="text-sm text-gray-600">Tỷ lệ công việc</span>
           <span className="text-sm font-semibold text-gray-900">
             {judge.maxNumberOfLegalCase === -1 
-              ? `${judge.numberOfLegalCases} án`
-              : `${judge.numberOfLegalCases}/${judge.maxNumberOfLegalCase}`
+              ? `${judge.numberOfLegalCase} án`
+              : `${judge.numberOfLegalCase}/${judge.maxNumberOfLegalCase}`
             }
           </span>
         </div>
@@ -90,14 +98,14 @@ const JudgeCardSimple = ({ judge }: JudgeCardSimpleProps) => {
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
             <div
               className={`h-2 rounded-full transition-all duration-300 ${
-                (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) >= 0.8 
+                (judge.numberOfLegalCase / judge.maxNumberOfLegalCase) >= 0.8 
                   ? 'bg-gradient-to-r from-red-400 to-red-600'
-                  : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) >= 0.6
+                  : (judge.numberOfLegalCase / judge.maxNumberOfLegalCase) >= 0.6
                   ? 'bg-gradient-to-r from-yellow-400 to-yellow-600'
                   : 'bg-gradient-to-r from-green-400 to-green-600'
               }`}
               style={{
-                width: `${Math.min((judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100, 100)}%`
+                width: `${Math.min((judge.numberOfLegalCase / judge.maxNumberOfLegalCase) * 100, 100)}%`
               }}
             ></div>
           </div>

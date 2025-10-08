@@ -82,6 +82,7 @@ const getStatusColor = (status: string) => {
 };
 
 const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
+  console.log("Rendering LegalCaseCard for case ID:", legalCase.plaintiff);
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 hover:shadow-xl transition-all duration-300">
       {/* Horizontal Layout */}
@@ -160,10 +161,10 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                     ? "Bị cáo"
                     : "Nguyên đơn"}
                 </p>
-                <p className="text-md font-semibold text-gray-900 truncate">
+                <p className="text-md font-semibold text-gray-900 whitespace-pre-line ">
                   {legalCase.plaintiff}
                 </p>
-                <p className="text-sm text-gray-600 truncate">
+                <p className="text-sm text-gray-600 whitespace-pre-line">
                   {legalCase.plaintiffAddress}
                 </p>
               </div>
@@ -188,10 +189,10 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
 
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-500 mb-1">Bị đơn</p>
-                  <p className="text-md font-semibold text-gray-900 truncate">
+                  <p className="text-md font-semibold text-gray-900 whitespace-pre-line">
                     {legalCase.defendant}
                   </p>
-                  <p className="text-sm text-gray-600 truncate">
+                  <p className="text-sm text-gray-600 whitespace-pre-line">
                     {legalCase.defendantAddress}
                   </p>
                 </div>

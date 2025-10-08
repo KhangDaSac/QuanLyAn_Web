@@ -77,8 +77,8 @@ const LegalCaseForm = ({
             try {
                 // Load batches
                 const batchResponse = await BatchService.getAll();
-                if (batchResponse.success && batchResponse?.data?.content) {
-                    const batchOptions: Option[] = batchResponse.data.content.map(batch => ({
+                if (batchResponse.success && batchResponse?.data) {
+                    const batchOptions: Option[] = batchResponse.data.map(batch => ({
                         value: batch.batchId,
                         label: batch.batchId + " - " + batch.batchName
                     }));

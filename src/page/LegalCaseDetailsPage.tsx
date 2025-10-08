@@ -503,10 +503,10 @@ const LegalCaseDetailsPage = () => {
                       ? "Bị cáo"
                       : "Nguyên đơn"}
                   </p>
-                  <p className="text-md font-semibold text-gray-900">
+                  <p className="text-md font-semibold text-gray-900 whitespace-pre-line">
                     {legalCase.plaintiff}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 whitespace-pre-line">
                     {legalCase.plaintiffAddress}
                   </p>
                 </div>
@@ -531,10 +531,10 @@ const LegalCaseDetailsPage = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-500 mb-1">Bị đơn</p>
-                    <p className="text-md font-semibold text-gray-900">
+                    <p className="text-md font-semibold text-gray-900 whitespace-pre-line">
                       {legalCase.defendant}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 whitespace-pre-line">
                       {legalCase.defendantAddress}
                     </p>
                   </div>

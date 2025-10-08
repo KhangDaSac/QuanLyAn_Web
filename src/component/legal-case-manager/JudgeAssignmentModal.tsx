@@ -56,7 +56,7 @@ const JudgeAssignmentModal = ({
             if (response.success && response.data) {
                 const availableJudges = response.data.content.filter(judge => 
                     isOfficerWorking(judge.statusOfOfficer as any) && 
-                    (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCases < judge.maxNumberOfLegalCase)
+                    (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCase < judge.maxNumberOfLegalCase)
                 );
                 setJudges(availableJudges);
             }
@@ -211,8 +211,8 @@ const JudgeAssignmentModal = ({
                                                 <p className="text-sm text-gray-600 mb-1">
                                                     Đang xử lý: <span className="font-medium">
                                                         {judge.maxNumberOfLegalCase === -1 
-                                                            ? `${judge.numberOfLegalCases} án` 
-                                                            : `${judge.numberOfLegalCases}/${judge.maxNumberOfLegalCase} án`
+                                                            ? `${judge.numberOfLegalCase} án` 
+                                                            : `${judge.numberOfLegalCase}/${judge.maxNumberOfLegalCase} án`
                                                         }
                                                     </span>
                                                 </p>
@@ -220,13 +220,13 @@ const JudgeAssignmentModal = ({
                                                     <div className="w-32 bg-gray-200 rounded-full h-2">
                                                         <div 
                                                             className={`h-2 rounded-full ${
-                                                                (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.8 
+                                                                (judge.numberOfLegalCase / judge.maxNumberOfLegalCase) > 0.8 
                                                                     ? 'bg-red-500' 
-                                                                    : (judge.numberOfLegalCases / judge.maxNumberOfLegalCase) > 0.6 
+                                                                    : (judge.numberOfLegalCase / judge.maxNumberOfLegalCase) > 0.6 
                                                                     ? 'bg-yellow-500' 
                                                                     : 'bg-green-500'
                                                             }`}
-                                                            style={{ width: `${(judge.numberOfLegalCases / judge.maxNumberOfLegalCase) * 100}%` }}
+                                                            style={{ width: `${(judge.numberOfLegalCase / judge.maxNumberOfLegalCase) * 100}%` }}
                                                         ></div>
                                                     </div>
                                                 )}

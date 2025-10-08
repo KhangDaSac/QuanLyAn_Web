@@ -7,19 +7,19 @@ import type { PageResponse } from "../types/response/PageResponse";
 
 export class BatchService {
   static api = "/batch";
-  static async getAll(): Promise<ApiResponse<PageResponse<BatchResponse>>> {
+  static async getAll(): Promise<ApiResponse<BatchResponse[]>> {
     const token = localStorage.getItem("token");
-    const batch = {
-      batchId: null,
-      batchName: null,
-      note: null,
-      startStorageDate: null,
-      endStorageDate: null,
-    };
-    return Connect.request<PageResponse<BatchResponse>>(
-      `${this.api}/search?page=0&size=999`,
-      "POST",
-      batch,
+    // const batch = {
+    //   batchId: null,
+    //   batchName: null,
+    //   note: null,
+    //   startStorageDate: null,
+    //   endStorageDate: null,
+    // };
+    return Connect.request<BatchResponse[]>(
+      `${this.api}/all`,
+      "GET",
+      null,
       token
     );
   }

@@ -33,7 +33,7 @@ const BatchForm = ({ isOpen, onClose, onSubmit, file, loading = false }: BatchFo
     try {
       const response = await BatchService.getAll()
       if (response.success && response.data) {
-        const options: Option[] = response.data.content.map((batch: BatchResponse) => ({
+        const options: Option[] = response.data.map((batch: BatchResponse) => ({
           value: batch.batchId,
           label: `${batch.batchName} - ${batch.batchId}`
         }));
