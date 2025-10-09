@@ -882,40 +882,86 @@ const LegalCaseManager = () => {
       // Bỏ dòng đầu tiên (tiêu đề)
       jsonData.shift();
 
+      // Mảng để lưu các lỗi validation
+      const validationErrors: string[] = [];
+      const validLegalCases: LegalCaseRequest[] = [];
+
       // Chuyển dữ liệu thành LegalCasesRequest
+      jsonData.forEach((row, index) => {
+        const rowNumber = index + 2; // +2 vì bỏ header và index bắt đầu từ 0
+        
+        const acceptanceNumber = row[1]?.toString().trim() || null;
+        const plaintiff = row[3]?.toString().trim() || null;
+        
+        // Xử lý ngày với validation
+        const dateResult = excelDateToISO(row[2], rowNumber);
+        const acceptanceDate = dateResult.date || null;
+        
+        // Thêm lỗi ngày nếu có
+        if (dateResult.error) {
+          validationErrors.push(dateResult.error);
+        }
+        
+        const plaintiffAddress = row[4]?.toString().trim() || null;
+        const defendant = row[5]?.toString().trim() || null;
+        const defendantAddress = row[6]?.toString().trim() || null;
+        const note = row[7]?.toString().trim() || null;
+        const legalRelationshipId = row[8]?.toString().trim() || null;
+        const judgeId = row[9]?.toString().trim() || null;
+        const mediatorId = row[10]?.toString().trim() || null;
+
+        // Validation dữ liệu bắt buộc
+        if (!acceptanceNumber) {
+          validationErrors.push(`Dòng ${rowNumber}: Thiếu số thụ lý`);
+        }
+        if (!acceptanceDate && !dateResult.error) {
+          validationErrors.push(`Dòng ${rowNumber}: Thiếu ngày thụ lý`);
+        }
+        if (!plaintiff) {
+          validationErrors.push(`Dòng ${rowNumber}: Thiếu tên nguyên đơn`);
+        }
+        if (!legalRelationshipId) {
+          validationErrors.push(`Dòng ${rowNumber}: Thiếu mã quan hệ pháp luật`);
+        }
+
+        // Chỉ thêm vào danh sách hợp lệ nếu không có lỗi nghiêm trọng và có đủ dữ liệu bắt buộc
+        if (acceptanceNumber && acceptanceDate && plaintiff && legalRelationshipId && !dateResult.error) {
+          validLegalCases.push({
+            acceptanceNumber,
+            acceptanceDate,
+            plaintiff,
+            plaintiffAddress,
+            defendant,
+            defendantAddress,
+            note,
+            legalRelationshipId,
+            judgeId,
+            mediatorId,
+            batchId: batchId as string,
+          });
+        }
+      });
+
+      // Nếu có lỗi validation, hiển thị tất cả lỗi
+      if (validationErrors.length > 0) {
+        const errorMessage = validationErrors.slice(0, 5).join('\n'); // Hiển thị tối đa 5 lỗi đầu tiên
+        const additionalErrors = validationErrors.length > 5 ? `\n... và ${validationErrors.length - 5} lỗi khác` : '';
+        
+        toast.error(
+          "Dữ liệu không hợp lệ", 
+          errorMessage + additionalErrors
+        );
+        return;
+      }
+
+      // Nếu không có dữ liệu hợp lệ nào
+      if (validLegalCases.length === 0) {
+        toast.error("Nhập án thất bại", "Không có dữ liệu hợp lệ để nhập");
+        return;
+      }
+
       const legalCasesRequest: LegalCasesRequest = {
-        legalCases: jsonData
-          .map((row, index) => {
-            const acceptanceNumber = row[1]?.toString().trim() || null;
-            const acceptanceDate = excelDateToISO(row[2]);
-            const plaintiff = row[3]?.toString().trim() || null;
-            const plaintiffAddress = row[4]?.toString().trim() || null;
-            const defendant = row[5]?.toString().trim() || null;
-            const defendantAddress = row[6]?.toString().trim() || null;
-            const note = row[7]?.toString().trim() || null;
-            const legalRelationshipId = row[8]?.toString().trim() || null;
-            const judgeId = row[9]?.toString().trim() || null;
-            const mediatorId = row[10]?.toString().trim() || null;
-
-            if (!acceptanceNumber || !acceptanceDate || !plaintiff) {
-              console.warn(`⚠️ Bỏ qua dòng ${index + 2} vì thiếu dữ liệu`);
-              return null;
-            }
-
-            return {
-              acceptanceNumber,
-              acceptanceDate,
-              plaintiff,
-              plaintiffAddress,
-              defendant,
-              defendantAddress,
-              note,
-              legalRelationshipId,
-              judgeId,
-              mediatorId,
-            } as LegalCaseRequest;
-          })
-          .filter(Boolean) as LegalCaseRequest[],
+        legalCases: validLegalCases,
         batchId: batchId,
       };
 
@@ -1043,26 +1089,67 @@ const LegalCaseManager = () => {
     }
   };
 
-  const excelDateToISO = (excelValue: any): string => {
-  if (!excelValue) return "";
+  const excelDateToISO = (excelValue: any, rowIndex?: number): { date: string; error?: string } => {
+    if (!excelValue) return { date: "" };
 
-  // Trường hợp Excel lưu ngày dạng số (serial)
-  if (typeof excelValue === "number") {
-    const date = XLSX.SSF.parse_date_code(excelValue);
-    if (!date) return "";
-    const jsDate = new Date(date.y, date.m - 1, date.d);
-    return jsDate.toISOString().split("T")[0]; // yyyy-MM-dd
-  }
+    // Trường hợp Excel lưu ngày dạng số (serial)
+    if (typeof excelValue === "number") {
+      try {
+        const date = XLSX.SSF.parse_date_code(excelValue);
+        if (!date) return { date: "", error: `Dòng ${rowIndex}: Không thể đọc định dạng ngày số` };
+        const jsDate = new Date(date.y, date.m - 1, date.d);
+        return { date: jsDate.toISOString().split("T")[0] }; // yyyy-MM-dd
+      } catch (error) {
+        return { date: "", error: `Dòng ${rowIndex}: Lỗi xử lý ngày số` };
+      }
+    }
 
-  // Trường hợp Excel lưu chuỗi dạng "dd/MM/yyyy"
-  if (typeof excelValue === "string") {
-    const [day, month, year] = excelValue.split("/");
-    if (!day || !month || !year) return "";
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-  }
+    // Trường hợp Excel lưu chuỗi dạng "dd/MM/yyyy" hoặc có dấu cách
+    if (typeof excelValue === "string") {
+      // Loại bỏ tất cả dấu cách
+      const cleanValue = excelValue.trim().replace(/\s+/g, '');
+      
+      // Kiểm tra định dạng dd/MM/yyyy hoặc dd-MM-yyyy hoặc dd.MM.yyyy
+      const datePattern = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/;
+      const match = cleanValue.match(datePattern);
+      
+      if (!match) {
+        return { 
+          date: "", 
+          error: `Dòng ${rowIndex}: Ngày phải có định dạng dd/MM/yyyy (ví dụ: 15/03/2024)` 
+        };
+      }
+      
+      const [, day, month, year] = match;
+      
+      // Validate day, month, year
+      const dayNum = parseInt(day);
+      const monthNum = parseInt(month);
+      const yearNum = parseInt(year);
+      
+      if (dayNum < 1 || dayNum > 31) {
+        return { date: "", error: `Dòng ${rowIndex}: Ngày không hợp lệ (${dayNum})` };
+      }
+      
+      if (monthNum < 1 || monthNum > 12) {
+        return { date: "", error: `Dòng ${rowIndex}: Tháng không hợp lệ (${monthNum})` };
+      }
+      
+      if (yearNum < 1900 || yearNum > 2100) {
+        return { date: "", error: `Dòng ${rowIndex}: Năm không hợp lệ (${yearNum})` };
+      }
+      
+      // Kiểm tra ngày có tồn tại thực tế không
+      const testDate = new Date(yearNum, monthNum - 1, dayNum);
+      if (testDate.getDate() !== dayNum || testDate.getMonth() !== monthNum - 1 || testDate.getFullYear() !== yearNum) {
+        return { date: "", error: `Dòng ${rowIndex}: Ngày không tồn tại (${day}/${month}/${year})` };
+      }
+      
+      return { date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}` };
+    }
 
-  return "";
-};
+    return { date: "", error: `Dòng ${rowIndex}: Định dạng ngày không được hỗ trợ` };
+  };
 
   return (
     <div className="space-y-4 md:space-y-6 p-4 md:p-0">
