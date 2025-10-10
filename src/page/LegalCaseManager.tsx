@@ -8,6 +8,7 @@ import BatchForm from "../component/basic-component/BatchForm";
 import Pagination from "../component/basic-component/Pagination";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import { LegalCaseService } from "../services/LegalCaseService";
+import { JudgeService } from "../services/JudgeService";
 import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
 import { BatchService } from "../services/BatchService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
@@ -40,7 +41,7 @@ const LegalCaseManager = () => {
       legalRelationshipId: criteria.legalRelationshipId || null,
       legalRelationshipGroupId: criteria.legalRelationshipGroupId || null,
       statusOfLegalCase: criteria.statusOfLegalCase || null,
-      judgeName: criteria.judgeName?.trim() || null,
+      judgeId: criteria.judgeId || null,
       batchId: criteria.batchId || null,
       startStorageDate: criteria.startStorageDate || null,
       endStorageDate: criteria.endStorageDate || null,
@@ -81,7 +82,7 @@ const LegalCaseManager = () => {
       legalRelationshipId: null,
       legalRelationshipGroupId: null,
       statusOfLegalCase: null,
-      judgeName: null,
+      judgeId: null,
       batchId: null,
       startStorageDate: null,
       endStorageDate: null,
@@ -146,6 +147,14 @@ const LegalCaseManager = () => {
   });
   const [batches, setBatches] = useState<Option[]>([
     { value: "", label: "Tất cả đợt nhập" },
+  ]);
+
+  // Judge filters state
+  const [judgeFilters, setJudgeFilters] = useState({
+    judgeId: "",
+  });
+  const [judges, setJudges] = useState<Option[]>([
+    { value: "", label: "Tất cả thẩm phán" },
   ]);
 
   // States for form modal
@@ -229,6 +238,7 @@ const LegalCaseManager = () => {
     fetchLegalRelationships();
     fetchLegalRelationshipGroups();
     fetchBatches();
+    fetchJudges();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array for initial load only
 
@@ -380,6 +390,28 @@ const LegalCaseManager = () => {
     }
   };
 
+  const fetchJudges = async () => {
+    setLoading(true);
+    try {
+      const response = await JudgeService.getAll();
+      if (response.success && response.data) {
+        setJudges([
+          ...judges,
+          ...response.data.map(
+            (item): Option => ({
+              value: item.officerId,
+              label: item.fullName,
+            })
+          ),
+        ]);
+      }
+    } catch (error) {
+      console.error("Error fetching judges:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = async () => {
     setLoading(true);
     try {
@@ -426,7 +458,7 @@ const LegalCaseManager = () => {
       legalRelationshipId: null,
       legalRelationshipGroupId: null,
       statusOfLegalCase: null,
-      judgeName: null,
+      judgeId: null,
       batchId: null,
       startStorageDate: null,
       endStorageDate: null,
@@ -439,6 +471,7 @@ const LegalCaseManager = () => {
     setLegalRelationshipFilters({ legalRelationshipId: "" });
     setLegalRelationshipGroupFilters({ legalRelationshipGroupId: "" });
     setBatchFilters({ batchId: "" });
+    setJudgeFilters({ judgeId: "" });
 
     // Reset pagination to first page but keep size and sortBy
     setPagination((prev) => ({ ...prev, page: 0 }));
@@ -1538,22 +1571,25 @@ const LegalCaseManager = () => {
               />
             </div>
 
-            {/* Tên thẩm phán */}
+            {/* Thẩm phán */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tên thẩm phán
+                Thẩm phán
               </label>
-              <input
-                type="text"
-                value={legalCaseSearch?.judgeName ?? ""}
-                onChange={(e) =>
-                  setLegalCaseSearch((prev) => ({
+              <ComboboxSearch
+                options={judges}
+                value={judgeFilters.judgeId}
+                onChange={(val) => {
+                  setJudgeFilters((prev) => ({
                     ...prev,
-                    judgeName: e.target.value || null,
-                  }))
-                }
-                placeholder="Tên thẩm phán"
-                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                    judgeId: val,
+                  }));
+                  setLegalCaseSearch({
+                    ...legalCaseSearch,
+                    judgeId: val != "" ? val : null,
+                  });
+                }}
+                placeholder="Chọn thẩm phán"
               />
             </div>
 

@@ -12,7 +12,7 @@ export interface LegalCaseSearchRequest {
   legalRelationshipId: string | null;
   legalRelationshipGroupId: string | null;
   statusOfLegalCase: StatusOfLegalCase | null;
-  judgeName: string | null;
+  judgeId: string | null;
   batchId: string | null;
   startStorageDate: string | null;
   endStorageDate: string | null;

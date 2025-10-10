@@ -553,7 +553,7 @@ const LegalRelationshipTab = () => {
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    legalRelationshipName: e.target.value.trim() || null,
+                    legalRelationshipName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập tên quan hệ pháp luật"
