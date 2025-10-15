@@ -12,7 +12,6 @@ export class Connect {
         token?: string | null
     ): Promise<ApiResponse<T>> {
         try {
-          
             const accessToken = token ?? localStorage.getItem("token");
             const response = await fetch(`${server_url}${endpoint}`, {
                 method,

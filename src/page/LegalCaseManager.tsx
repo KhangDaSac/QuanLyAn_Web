@@ -28,7 +28,9 @@ import { Permission } from "../utils/authUtils";
 
 const LegalCaseManager = () => {
   // Helper function to clean search criteria
-  const cleanSearchCriteria = (criteria: LegalCaseSearchRequest): LegalCaseSearchRequest => {
+  const cleanSearchCriteria = (
+    criteria: LegalCaseSearchRequest
+  ): LegalCaseSearchRequest => {
     return {
       acceptanceNumber: criteria.acceptanceNumber?.trim() || null,
       startAcceptanceDate: criteria.startAcceptanceDate || null,
@@ -45,7 +47,7 @@ const LegalCaseManager = () => {
       batchId: criteria.batchId || null,
       startStorageDate: criteria.startStorageDate || null,
       endStorageDate: criteria.endStorageDate || null,
-    }
+    };
   };
 
   const auth = useAuth();
@@ -201,7 +203,6 @@ const LegalCaseManager = () => {
     const initialSearch = async () => {
       setLoading(true);
       try {
-      
         const { data } = await LegalCaseService.search(
           legalCaseSearch,
           pagination.page,
@@ -775,8 +776,10 @@ const LegalCaseManager = () => {
   const handleDownloadTemplate = async () => {
     try {
       // Kiểm tra xem file có tồn tại không
-      const response = await fetch('/import_excel_example.xlsx', { method: 'HEAD' });
-      
+      const response = await fetch("/import_excel_example.xlsx", {
+        method: "HEAD",
+      });
+
       if (!response.ok) {
         // Nếu file không tồn tại, tạo file mẫu động
         createAndDownloadTemplate();
@@ -784,17 +787,20 @@ const LegalCaseManager = () => {
       }
 
       // Tạo link để download file mẫu từ thư mục public
-      const link = document.createElement('a');
-      link.href = '/import_excel_example.xlsx';
-      link.download = 'Mẫu_Import_Vụ_Án.xlsx';
+      const link = document.createElement("a");
+      link.href = "/import_excel_example.xlsx";
+      link.download = "Mẫu_Import_Vụ_Án.xlsx";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Hiển thị toast thông báo
-      toast.success('Tải xuống thành công', 'File mẫu import đã được tải về máy của bạn');
+      toast.success(
+        "Tải xuống thành công",
+        "File mẫu import đã được tải về máy của bạn"
+      );
     } catch (error) {
-      console.error('Error downloading template:', error);
+      console.error("Error downloading template:", error);
       // Fallback: tạo file mẫu động
       createAndDownloadTemplate();
     }
@@ -804,65 +810,68 @@ const LegalCaseManager = () => {
     try {
       // Tạo workbook mới
       const wb = XLSX.utils.book_new();
-      
+
       // Tạo dữ liệu mẫu
       const sampleData = [
         {
-          'Số vụ án': 'VV001/2024',
-          'Ngày thụ lý': '2024-01-01',
-          'Nguyên đơn': 'Nguyễn Văn A',
-          'Địa chỉ nguyên đơn': '123 Nguyễn Trãi, Hà Nội',
-          'Bị đơn': 'Trần Thị B',
-          'Địa chỉ bị đơn': '456 Lê Lợi, TP.HCM',
-          'Loại vụ án': 'DS01',
-          'Quan hệ pháp luật': 'QL001',
-          'Nhóm quan hệ pháp luật': 'NQL001',
-          'Trạng thái': 'Chờ được phân công',
-          'Thẩm phán': '',
-          'Hòa giải viên': '',
-          'Ghi chú': 'Đây là dữ liệu mẫu'
+          "Số vụ án": "VV001/2024",
+          "Ngày thụ lý": "2024-01-01",
+          "Nguyên đơn": "Nguyễn Văn A",
+          "Địa chỉ nguyên đơn": "123 Nguyễn Trãi, Hà Nội",
+          "Bị đơn": "Trần Thị B",
+          "Địa chỉ bị đơn": "456 Lê Lợi, TP.HCM",
+          "Loại vụ án": "DS01",
+          "Quan hệ pháp luật": "QL001",
+          "Nhóm quan hệ pháp luật": "NQL001",
+          "Trạng thái": "Chờ được phân công",
+          "Thẩm phán": "",
+          "Hòa giải viên": "",
+          "Ghi chú": "Đây là dữ liệu mẫu",
         },
         {
-          'Số vụ án': 'VV002/2024',
-          'Ngày thụ lý': '2024-01-02',
-          'Nguyên đơn': 'Phạm Văn C',
-          'Địa chỉ nguyên đơn': '789 Trường Chinh, Đà Nẵng',
-          'Bị đơn': 'Lê Thị D',
-          'Địa chỉ bị đơn': '321 Hai Bà Trưng, Huế',
-          'Loại vụ án': 'HS02',
-          'Quan hệ pháp luật': 'QL002',
-          'Nhóm quan hệ pháp luật': 'NQL002',
-          'Trạng thái': 'Đang giải quyết',
-          'Thẩm phán': 'Thẩm phán Nguyễn E',
-          'Hòa giải viên': '',
-          'Ghi chú': ''
-        }
+          "Số vụ án": "VV002/2024",
+          "Ngày thụ lý": "2024-01-02",
+          "Nguyên đơn": "Phạm Văn C",
+          "Địa chỉ nguyên đơn": "789 Trường Chinh, Đà Nẵng",
+          "Bị đơn": "Lê Thị D",
+          "Địa chỉ bị đơn": "321 Hai Bà Trưng, Huế",
+          "Loại vụ án": "HS02",
+          "Quan hệ pháp luật": "QL002",
+          "Nhóm quan hệ pháp luật": "NQL002",
+          "Trạng thái": "Đang giải quyết",
+          "Thẩm phán": "Thẩm phán Nguyễn E",
+          "Hòa giải viên": "",
+          "Ghi chú": "",
+        },
       ];
-      
+
       // Tạo worksheet
       const ws = XLSX.utils.json_to_sheet(sampleData);
-      
+
       // Thêm worksheet vào workbook
-      XLSX.utils.book_append_sheet(wb, ws, 'Danh sách vụ án');
-      
+      XLSX.utils.book_append_sheet(wb, ws, "Danh sách vụ án");
+
       // Tạo buffer và download
-      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([wbout], { type: 'application/octet-stream' });
-      
-      const link = document.createElement('a');
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([wbout], { type: "application/octet-stream" });
+
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = 'Mẫu_Import_Vụ_Án.xlsx';
+      link.download = "Mẫu_Import_Vụ_Án.xlsx";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Cleanup
       URL.revokeObjectURL(link.href);
-      
-      toast.success('Tạo mẫu thành công', 'File mẫu import đã được tạo và tải về máy của bạn');
+
+      toast.success(
+        "Tạo mẫu thành công",
+        "File mẫu import đã được tạo và tải về máy của bạn"
+      );
     } catch (error) {
-      console.error('Error creating template:', error);
-      toast.error('Lỗi', 'Không thể tạo file mẫu. Vui lòng thử lại sau.');
+      console.error("Error creating template:", error);
+      toast.error("Lỗi", "Không thể tạo file mẫu. Vui lòng thử lại sau.");
     }
   };
 
@@ -922,19 +931,19 @@ const LegalCaseManager = () => {
       // Chuyển dữ liệu thành LegalCasesRequest
       jsonData.forEach((row, index) => {
         const rowNumber = index + 2; // +2 vì bỏ header và index bắt đầu từ 0
-        
+
         const acceptanceNumber = row[1]?.toString().trim() || null;
         const plaintiff = row[3]?.toString().trim() || null;
-        
+
         // Xử lý ngày với validation
         const dateResult = excelDateToISO(row[2], rowNumber);
         const acceptanceDate = dateResult.date || null;
-        
+
         // Thêm lỗi ngày nếu có
         if (dateResult.error) {
           validationErrors.push(dateResult.error);
         }
-        
+
         const plaintiffAddress = row[4]?.toString().trim() || null;
         const defendant = row[5]?.toString().trim() || null;
         const defendantAddress = row[6]?.toString().trim() || null;
@@ -954,11 +963,19 @@ const LegalCaseManager = () => {
           validationErrors.push(`Dòng ${rowNumber}: Thiếu tên nguyên đơn`);
         }
         if (!legalRelationshipId) {
-          validationErrors.push(`Dòng ${rowNumber}: Thiếu mã quan hệ pháp luật`);
+          validationErrors.push(
+            `Dòng ${rowNumber}: Thiếu mã quan hệ pháp luật`
+          );
         }
 
         // Chỉ thêm vào danh sách hợp lệ nếu không có lỗi nghiêm trọng và có đủ dữ liệu bắt buộc
-        if (acceptanceNumber && acceptanceDate && plaintiff && legalRelationshipId && !dateResult.error) {
+        if (
+          acceptanceNumber &&
+          acceptanceDate &&
+          plaintiff &&
+          legalRelationshipId &&
+          !dateResult.error
+        ) {
           validLegalCases.push({
             acceptanceNumber,
             acceptanceDate,
@@ -977,13 +994,13 @@ const LegalCaseManager = () => {
 
       // Nếu có lỗi validation, hiển thị tất cả lỗi
       if (validationErrors.length > 0) {
-        const errorMessage = validationErrors.slice(0, 5).join('\n'); // Hiển thị tối đa 5 lỗi đầu tiên
-        const additionalErrors = validationErrors.length > 5 ? `\n... và ${validationErrors.length - 5} lỗi khác` : '';
-        
-        toast.error(
-          "Dữ liệu không hợp lệ", 
-          errorMessage + additionalErrors
-        );
+        const errorMessage = validationErrors.slice(0, 5).join("\n"); // Hiển thị tối đa 5 lỗi đầu tiên
+        const additionalErrors =
+          validationErrors.length > 5
+            ? `\n... và ${validationErrors.length - 5} lỗi khác`
+            : "";
+
+        toast.error("Dữ liệu không hợp lệ", errorMessage + additionalErrors);
         return;
       }
 
@@ -1037,7 +1054,7 @@ const LegalCaseManager = () => {
       const cleanedCriteria = cleanSearchCriteria(legalCaseSearch);
       const { data } = await LegalCaseService.search(
         cleanedCriteria,
-        0, 
+        0,
         pagination.totalElements || 10000,
         sortBy
       );
@@ -1122,66 +1139,112 @@ const LegalCaseManager = () => {
     }
   };
 
-  const excelDateToISO = (excelValue: any, rowIndex?: number): { date: string; error?: string } => {
-    if (!excelValue) return { date: "" };
+  const excelDateToISO = (
+    excelValue: any,
+    rowIndex?: number
+  ): { date: string; error?: string } => {
+    if (excelValue === null || excelValue === undefined || excelValue === "") {
+      return { date: "" };
+    }
 
+    // -----------------------
     // Trường hợp Excel lưu ngày dạng số (serial)
+    // -----------------------
     if (typeof excelValue === "number") {
       try {
-        const date = XLSX.SSF.parse_date_code(excelValue);
-        if (!date) return { date: "", error: `Dòng ${rowIndex}: Không thể đọc định dạng ngày số` };
-        const jsDate = new Date(date.y, date.m - 1, date.d);
-        return { date: jsDate.toISOString().split("T")[0] }; // yyyy-MM-dd
+        const dateObj = XLSX.SSF.parse_date_code(excelValue);
+        if (!dateObj) {
+          return {
+            date: "",
+            error: `Dòng ${rowIndex}: Không thể đọc định dạng ngày số`,
+          };
+        }
+
+        // Tạo Date chỉ dựa trên năm, tháng, ngày (ignore timezone)
+        const jsDate = new Date(dateObj.y, dateObj.m - 1, dateObj.d);
+
+        // Lấy yyyy-MM-dd theo local (không dùng toISOString() để tránh lệch ngày)
+        const isoDate = `${jsDate.getFullYear()}-${String(
+          jsDate.getMonth() + 1
+        ).padStart(2, "0")}-${String(jsDate.getDate()).padStart(2, "0")}`;
+
+        return { date: isoDate };
       } catch (error) {
         return { date: "", error: `Dòng ${rowIndex}: Lỗi xử lý ngày số` };
       }
     }
 
-    // Trường hợp Excel lưu chuỗi dạng "dd/MM/yyyy" hoặc có dấu cách
+    // -----------------------
+    // Trường hợp Excel lưu chuỗi dạng "dd/MM/yyyy", "dd-MM-yyyy", "dd.MM.yyyy"
+    // -----------------------
     if (typeof excelValue === "string") {
-      // Loại bỏ tất cả dấu cách
-      const cleanValue = excelValue.trim().replace(/\s+/g, '');
-      
-      // Kiểm tra định dạng dd/MM/yyyy hoặc dd-MM-yyyy hoặc dd.MM.yyyy
+      const cleanValue = excelValue.trim(); // loại bỏ khoảng trắng đầu/cuối
+
+      // Regex kiểm tra định dạng dd/MM/yyyy, dd-MM-yyyy, dd.MM.yyyy
       const datePattern = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/;
       const match = cleanValue.match(datePattern);
-      
+
       if (!match) {
-        return { 
-          date: "", 
-          error: `Dòng ${rowIndex}: Ngày phải có định dạng dd/MM/yyyy (ví dụ: 15/03/2024)` 
+        return {
+          date: "",
+          error: `Dòng ${rowIndex}: Ngày phải có định dạng dd/MM/yyyy (ví dụ: 15/03/2024)`,
         };
       }
-      
-      const [, day, month, year] = match;
-      
+
+      const [, dayStr, monthStr, yearStr] = match;
+      const dayNum = parseInt(dayStr, 10);
+      const monthNum = parseInt(monthStr, 10);
+      const yearNum = parseInt(yearStr, 10);
+
       // Validate day, month, year
-      const dayNum = parseInt(day);
-      const monthNum = parseInt(month);
-      const yearNum = parseInt(year);
-      
       if (dayNum < 1 || dayNum > 31) {
-        return { date: "", error: `Dòng ${rowIndex}: Ngày không hợp lệ (${dayNum})` };
+        return {
+          date: "",
+          error: `Dòng ${rowIndex}: Ngày không hợp lệ (${dayNum})`,
+        };
       }
-      
+
       if (monthNum < 1 || monthNum > 12) {
-        return { date: "", error: `Dòng ${rowIndex}: Tháng không hợp lệ (${monthNum})` };
+        return {
+          date: "",
+          error: `Dòng ${rowIndex}: Tháng không hợp lệ (${monthNum})`,
+        };
       }
-      
+
       if (yearNum < 1900 || yearNum > 2100) {
-        return { date: "", error: `Dòng ${rowIndex}: Năm không hợp lệ (${yearNum})` };
+        return {
+          date: "",
+          error: `Dòng ${rowIndex}: Năm không hợp lệ (${yearNum})`,
+        };
       }
-      
-      // Kiểm tra ngày có tồn tại thực tế không
+
+      // Kiểm tra ngày tồn tại thực tế
       const testDate = new Date(yearNum, monthNum - 1, dayNum);
-      if (testDate.getDate() !== dayNum || testDate.getMonth() !== monthNum - 1 || testDate.getFullYear() !== yearNum) {
-        return { date: "", error: `Dòng ${rowIndex}: Ngày không tồn tại (${day}/${month}/${year})` };
+      if (
+        testDate.getFullYear() !== yearNum ||
+        testDate.getMonth() !== monthNum - 1 ||
+        testDate.getDate() !== dayNum
+      ) {
+        return {
+          date: "",
+          error: `Dòng ${rowIndex}: Ngày không tồn tại (${dayNum}/${monthNum}/${yearNum})`,
+        };
       }
-      
-      return { date: `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}` };
+
+      return {
+        date: `${yearNum}-${String(monthNum).padStart(2, "0")}-${String(
+          dayNum
+        ).padStart(2, "0")}`,
+      };
     }
 
-    return { date: "", error: `Dòng ${rowIndex}: Định dạng ngày không được hỗ trợ` };
+    // -----------------------
+    // Các loại dữ liệu khác
+    // -----------------------
+    return {
+      date: "",
+      error: `Dòng ${rowIndex}: Định dạng ngày không được hỗ trợ`,
+    };
   };
 
   return (
@@ -1619,18 +1682,18 @@ const LegalCaseManager = () => {
                 Ngày nhập án từ
               </label>
               <input
-                  type="date"
-                  value={legalCaseSearch?.startStorageDate ?? ""}
-                  onChange={(e) =>
-                    setLegalCaseSearch((prev) => ({
-                      ...prev,
-                      startStorageDate: e.target.value || null,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-                />
-                
-                {/* <input
+                type="date"
+                value={legalCaseSearch?.startStorageDate ?? ""}
+                onChange={(e) =>
+                  setLegalCaseSearch((prev) => ({
+                    ...prev,
+                    startStorageDate: e.target.value || null,
+                  }))
+                }
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+
+              {/* <input
                   type="date"
                   value={legalCaseSearch?.endStorageDate ?? ""}
                   onChange={(e) =>
@@ -1645,18 +1708,18 @@ const LegalCaseManager = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Ngày nhập án đến
-              </label>   
-                <input
-                  type="date"
-                  value={legalCaseSearch?.endStorageDate ?? ""}
-                  onChange={(e) =>
-                    setLegalCaseSearch((prev) => ({
-                      ...prev,
-                      endStorageDate: e.target.value || null,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-                />
+              </label>
+              <input
+                type="date"
+                value={legalCaseSearch?.endStorageDate ?? ""}
+                onChange={(e) =>
+                  setLegalCaseSearch((prev) => ({
+                    ...prev,
+                    endStorageDate: e.target.value || null,
+                  }))
+                }
+                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+              />
             </div>
           </div>
 
