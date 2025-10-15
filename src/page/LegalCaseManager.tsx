@@ -25,6 +25,7 @@ import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRe
 import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
 import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
+import { StatusOfOfficer } from "../types/enum/StatusOfOfficer";
 
 const LegalCaseManager = () => {
   // Helper function to clean search criteria
@@ -300,6 +301,12 @@ const LegalCaseManager = () => {
     await handleSearch();
   };
 
+  const getStatusLegalCaseText = (status: string) => {
+    if (Object.values(StatusOfLegalCase).includes(status as StatusOfLegalCase)) {
+      return status;
+    }
+    return (StatusOfLegalCase as any)[status] || status;
+  };
   // Helper function is no longer needed since we separate pagination params
 
   const fetchTypeOfLegalCases = async () => {
@@ -1048,6 +1055,15 @@ const LegalCaseManager = () => {
     }
   };
 
+  function isoToDMY(isoDate: string): string {
+  if (!isoDate) return "";
+  
+  const parts = isoDate.split("-");
+  if (parts.length !== 3) return isoDate; 
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+}
+
   const handleExportExcel = async () => {
     try {
       setExportLoading(true);
@@ -1088,7 +1104,7 @@ const LegalCaseManager = () => {
       const rows = allLegalCases.map((legalCase, index) => [
         index + 1, // STT
         legalCase.acceptanceNumber || "",
-        legalCase.acceptanceDate || "",
+        isoToDMY(legalCase.acceptanceDate) || "",
         legalCase.plaintiff || "",
         legalCase.plaintiffAddress || "",
         legalCase.defendant || "",
@@ -1096,7 +1112,7 @@ const LegalCaseManager = () => {
         legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
         legalCase.legalRelationship?.legalRelationshipName || "",
         legalCase.judge?.fullName || "",
-        legalCase.statusOfLegalCase || "",
+        getStatusLegalCaseText(legalCase.statusOfLegalCase) || "",
         legalCase.batch?.batchId || "",
       ]);
 
