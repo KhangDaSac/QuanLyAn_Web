@@ -54,14 +54,14 @@ const LegalCaseCardSimple = ({ legalCase, isSelected, onSelect }: LegalCaseCardS
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-gray-500 mb-1">
-              {legalCase.legalRelationship.typeOfLegalCase.codeName == 'HS' ? 'Bị cáo' : 'Nguyên đơn'}
+              {legalCase.legalRelationship.legalCaseType.codeName == 'HS' ? 'Bị cáo' : 'Nguyên đơn'}
             </p>
             <p className="text-base font-semibold text-gray-900 truncate">{legalCase.plaintiff}</p>
             <p className="text-sm text-gray-600 truncate">{legalCase.plaintiffAddress}</p>
           </div>
         </div>
 
-        {legalCase.legalRelationship.typeOfLegalCase.codeName != 'HS' && (
+        {legalCase.legalRelationship.legalCaseType.codeName != 'HS' && (
           <div className="flex items-start space-x-3">
             <div className="w-17 h-17 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@ const LegalCaseCardSimple = ({ legalCase, isSelected, onSelect }: LegalCaseCardS
       {/* Quan hệ pháp luật */}
       <div className="bg-blue-50 rounded-lg p-3 mb-4">
         <p className="text-sm text-blue-600 mb-1">
-          {legalCase.legalRelationship.typeOfLegalCase.codeName == 'HS' ? 'Tội' : 'Quan hệ pháp luật'}
+          {legalCase.legalRelationship.legalCaseType.codeName == 'HS' ? 'Tội' : 'Quan hệ pháp luật'}
         </p>
         <p className="text-base font-semibold text-blue-900 mb-1">
           {legalCase.legalRelationship.legalRelationshipName}

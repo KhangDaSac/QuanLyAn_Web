@@ -1,9 +1,9 @@
 import type { LegalRelationshipGroupResponse } from "../legal-relationship-group/LegalRelationshipGroupResponse";
-import type { TypeOfLegalCaseResponse } from "../type-of-legal-case/TypeOfLegalCaseResponse";
+import type { LegalCaseTypeResponse } from "../legal-case-type/LegalCaseTypeResponse";
 
 export interface LegalRelationshipResponse {
     legalRelationshipId: string;
     legalRelationshipName: string;
-    typeOfLegalCase: TypeOfLegalCaseResponse;
+    legalCaseType: LegalCaseTypeResponse;
     legalRelationshipGroup: LegalRelationshipGroupResponse;
 }

@@ -1,43 +1,43 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TypeOfDecisionCard from '../component/type-of-decision-manager/TypeOfDecisionCard';
-import TypeOfDecisionForm from '../component/type-of-decision-manager/TypeOfDecisionForm';
+import TypeOfDecisionCard from '../component/decision-type-manager/DecisionTypeCard';
+import DecisionTypeForm from '../component/decision-type-manager/DecisionTypeForm';
 import ConfirmModal from '../component/basic-component/ConfirmModal';
 import Pagination from '../component/basic-component/Pagination';
 import { ToastContainer, useToast } from '../component/basic-component/Toast';
-import { TypeOfDecisionService } from '../services/TypeOfDecisionService';
-import { TypeOfLegalCaseService } from '../services/TypeOfLegalCaseService';
-import type TypeOfDecisionResponse from '../types/response/type-of-decision/TypeOfDecisionResponse';
-import type TypeOfDecisionSearchRequest from '../types/request/type-of-decision/TypeOfDecisionSearchRequest';
-import type TypeOfDecisionRequest from '../types/request/type-of-decision/TypeOfDecisionRequest';
+import { DecisionTypeService } from '../services/DecisionTypeService';
+import { LegalCaseTypeService } from '../services/LegalCaseTypeService';
+import type DecisionTypeResponse from '../types/response/decision-type/DecisionTypeResponse';
+import type DecisionTypeSearchRequest from '../types/request/tdecision-type/DecisionTypeSearchRequest';
+import type DecisionTypeRequest from '../types/request/tdecision-type/DecisionTypeRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { CourtIssued } from '../types/enum/CourtIssued';
 
-const TypeOfDecisionManager = () => {
+const DecisionTypeManager = () => {
   // Helper function to clean search criteria
-  const cleanSearchCriteria = (criteria: TypeOfDecisionSearchRequest): TypeOfDecisionSearchRequest => {
+  const cleanSearchCriteria = (criteria: DecisionTypeSearchRequest): DecisionTypeSearchRequest => {
     return {
-      typeOfDecisionId: criteria.typeOfDecisionId?.trim() || null,
-      typeOfDecisionName: criteria.typeOfDecisionName?.trim() || null,
-      typeOfLegalCaseId: criteria.typeOfLegalCaseId || null,
+      decisionTypeId: criteria.decisionTypeId?.trim() || null,
+      decisionTypeName: criteria.decisionTypeName?.trim() || null,
+      legalCaseTypeId: criteria.legalCaseTypeId || null,
       courtIssued: criteria.courtIssued || null,
       theEndDecision: criteria.theEndDecision !== null ? criteria.theEndDecision : null
     }
   };
 
   const navigate = useNavigate();
-  const [typeOfDecisions, setTypeOfDecisions] = useState<TypeOfDecisionResponse[]>([]);
+  const [decisionTypes, setDecisionTypes] = useState<DecisionTypeResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [typeOfDecisionSearch, setTypeOfDecisionSearch] = useState<TypeOfDecisionSearchRequest>({
-    typeOfDecisionId: null,
-    typeOfDecisionName: null,
-    typeOfLegalCaseId: null,
+  const [decisionTypeSearch, setDecisionTypeSearch] = useState<DecisionTypeSearchRequest>({
+    decisionTypeId: null,
+    decisionTypeName: null,
+    legalCaseTypeId: null,
     courtIssued: null,
     theEndDecision: null
   });
 
-  const [typeOfLegalCaseOptions, setTypeOfLegalCaseOptions] = useState<Option[]>([]);
+  const [legalCaseTypeOptions, setLegalCaseTypeOptions] = useState<Option[]>([]);
   
   const courtIssuedOptions: Option[] = [
     { value: '', label: 'Tất cả cấp tòa' },
@@ -49,7 +49,7 @@ const TypeOfDecisionManager = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [selectedTypeOfDecision, setSelectedTypeOfDecision] = useState<TypeOfDecisionResponse | null>(null);
+  const [selectedDecisionType, setSelectedDecisionType] = useState<DecisionTypeResponse | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
   const toast = useToast();
@@ -95,27 +95,27 @@ const TypeOfDecisionManager = () => {
     page: number = 0, 
     size: number = 10, 
     sort: string = "typeOfDecisionId",
-    searchRequest?: TypeOfDecisionSearchRequest
+    searchRequest?: DecisionTypeSearchRequest
   ) => {
     setLoading(true);
     try {
       // Use provided search request or empty object for initial load
       const requestToUse = searchRequest || {
-        typeOfDecisionId: null,
-        typeOfDecisionName: null,
-        typeOfLegalCaseId: null,
+        decisionTypeId: null,
+        decisionTypeName: null,
+        legalCaseTypeId: null,
         courtIssued: null,
         theEndDecision: null
       };
       
-      const response = await TypeOfDecisionService.search(
+      const response = await DecisionTypeService.search(
         requestToUse,
         page,
         size,
         sort
       );
       if (response.success && response.data) {
-        setTypeOfDecisions(response.data.content);
+        setDecisionTypes(response.data.content);
         setPagination({
           page: response.data.number,
           size: response.data.size,
@@ -139,13 +139,13 @@ const TypeOfDecisionManager = () => {
 
   const loadTypeOfLegalCases = async () => {
     try {
-      const response = await TypeOfLegalCaseService.getAll();
+      const response = await LegalCaseTypeService.getAll();
       if (response.success && response.data) {
         const options: Option[] = response.data.map(item => ({
-          value: item.typeOfLegalCaseId,
-          label: item.typeOfLegalCaseName
+          value: item.legalCaseTypeId,
+          label: item.legalCaseTypeName
         }));
-        setTypeOfLegalCaseOptions([{ value: '', label: 'Tất cả loại án' }, ...options]);
+        setLegalCaseTypeOptions([{ value: '', label: 'Tất cả loại án' }, ...options]);
       }
     } catch (error) {
       console.error('Error loading type of legal cases:', error);
@@ -155,7 +155,7 @@ const TypeOfDecisionManager = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+      const cleanedCriteria = cleanSearchCriteria(decisionTypeSearch);
       await loadTypeOfDecisions(0, pagination.size, sortBy, cleanedCriteria);
     } catch (error) {
       console.error('Error searching type of decisions:', error);
@@ -167,57 +167,57 @@ const TypeOfDecisionManager = () => {
 
   const handleReset = () => {
     const clearedSearch = {
-      typeOfDecisionId: null,
-      typeOfDecisionName: null,
-      typeOfLegalCaseId: null,
+      decisionTypeId: null,
+      decisionTypeName: null,
+      legalCaseTypeId: null,
       courtIssued: null,
       theEndDecision: null
     };
-    setTypeOfDecisionSearch(clearedSearch);
+    setDecisionTypeSearch(clearedSearch);
     const cleanedCriteria = cleanSearchCriteria(clearedSearch);
     loadTypeOfDecisions(0, pagination.size, sortBy, cleanedCriteria);
   };
 
   const handleCreate = () => {
-    setSelectedTypeOfDecision(null);
+    setSelectedDecisionType(null);
     setShowCreateForm(true);
   };
 
-  const handleEdit = (typeOfDecision: TypeOfDecisionResponse) => {
-    setSelectedTypeOfDecision(typeOfDecision);
+  const handleEdit = (typeOfDecision: DecisionTypeResponse) => {
+    setSelectedDecisionType(typeOfDecision);
     setShowEditForm(true);
   };
 
-  const handleDelete = (typeOfDecision: TypeOfDecisionResponse) => {
-    setSelectedTypeOfDecision(typeOfDecision);
+  const handleDelete = (typeOfDecision: DecisionTypeResponse) => {
+    setSelectedDecisionType(typeOfDecision);
     setShowConfirmModal(true);
   };
 
-  const handleViewDetails = (typeOfDecision: TypeOfDecisionResponse) => {
-    navigate(`/type-of-decision-details/${typeOfDecision.typeOfDecisionId}`);
+  const handleViewDetails = (typeOfDecision: DecisionTypeResponse) => {
+    navigate(`/type-of-decision-details/${typeOfDecision.decisionTypeId}`);
   };
 
-  const handleFormSubmit = async (data: TypeOfDecisionRequest) => {
+  const handleFormSubmit = async (data: DecisionTypeRequest) => {
     try {
       setFormLoading(true);
       
-      if (selectedTypeOfDecision) {
+      if (selectedDecisionType) {
         // Update
-        const response = await TypeOfDecisionService.update(selectedTypeOfDecision.typeOfDecisionId, data as TypeOfDecisionRequest);
+        const response = await DecisionTypeService.update(selectedDecisionType.decisionTypeId, data as DecisionTypeRequest);
         if (response.success) {
           toast.success('Cập nhật thành công', 'Loại quyết định đã được cập nhật!');
           setShowEditForm(false);
-          await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, typeOfDecisionSearch);
+          await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, decisionTypeSearch);
         } else {
           toast.error('Cập nhật thất bại', response.error || 'Có lỗi xảy ra khi cập nhật loại quyết định');
         }
       } else {
         // Create
-        const response = await TypeOfDecisionService.create(data as TypeOfDecisionRequest);
+        const response = await DecisionTypeService.create(data as DecisionTypeRequest);
         if (response.success) {
           toast.success('Tạo thành công', 'Loại quyết định mới đã được tạo!');
           setShowCreateForm(false);
-          await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, typeOfDecisionSearch);
+          await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, decisionTypeSearch);
         } else {
           toast.error('Tạo thất bại', response.error || 'Có lỗi xảy ra khi tạo loại quyết định');
         }
@@ -231,13 +231,13 @@ const TypeOfDecisionManager = () => {
   };
 
   const confirmDelete = async () => {
-    if (!selectedTypeOfDecision) return;
+    if (!selectedDecisionType) return;
 
     try {
-      const response = await TypeOfDecisionService.delete(selectedTypeOfDecision.typeOfDecisionId);
+      const response = await DecisionTypeService.delete(selectedDecisionType.decisionTypeId);
       if (response.success) {
         toast.success('Xóa thành công', 'Loại quyết định đã được xóa khỏi hệ thống!');
-        await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, typeOfDecisionSearch);
+        await loadTypeOfDecisions(pagination.page, pagination.size, sortBy, decisionTypeSearch);
       } else {
         toast.error('Xóa thất bại', response.error || 'Có lỗi xảy ra khi xóa loại quyết định');
       }
@@ -246,23 +246,23 @@ const TypeOfDecisionManager = () => {
       toast.error('Xóa thất bại', 'Có lỗi xảy ra khi xóa loại quyết định');
     }
     setShowConfirmModal(false);
-    setSelectedTypeOfDecision(null);
+    setSelectedDecisionType(null);
   };
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
-    const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+    const cleanedCriteria = cleanSearchCriteria(decisionTypeSearch);
     loadTypeOfDecisions(page, pagination.size, sortBy, cleanedCriteria);
   };
 
   const handlePageSizeChange = (size: number) => {
-    const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+    const cleanedCriteria = cleanSearchCriteria(decisionTypeSearch);
     loadTypeOfDecisions(0, size, sortBy, cleanedCriteria);
   };
 
   const handleSortByChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    const cleanedCriteria = cleanSearchCriteria(typeOfDecisionSearch);
+    const cleanedCriteria = cleanSearchCriteria(decisionTypeSearch);
     loadTypeOfDecisions(0, pagination.size, newSortBy, cleanedCriteria);
   };
 
@@ -309,8 +309,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <input
                 type="text"
-                value={typeOfDecisionSearch.typeOfDecisionId || ''}
-                onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfDecisionId: e.target.value || null }))}
+                value={decisionTypeSearch.decisionTypeId || ''}
+                onChange={(e) => setDecisionTypeSearch(prev => ({ ...prev, decisionTypeId: e.target.value || null }))}
                 placeholder="Nhập mã loại quyết định"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
               />
@@ -321,8 +321,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <input
                 type="text"
-                value={typeOfDecisionSearch.typeOfDecisionName || ''}
-                onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfDecisionName: e.target.value || null }))}
+                value={decisionTypeSearch.decisionTypeName || ''}
+                onChange={(e) => setDecisionTypeSearch(prev => ({ ...prev, decisionTypeName: e.target.value || null }))}
                 placeholder="Nhập tên loại quyết định"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
               />
@@ -332,9 +332,9 @@ const TypeOfDecisionManager = () => {
                 Loại án
               </label>
               <ComboboxSearch
-                options={typeOfLegalCaseOptions}
-                value={typeOfDecisionSearch.typeOfLegalCaseId || ''}
-                onChange={(value) => setTypeOfDecisionSearch(prev => ({ ...prev, typeOfLegalCaseId: value || null }))}
+                options={legalCaseTypeOptions}
+                value={decisionTypeSearch.legalCaseTypeId || ''}
+                onChange={(value) => setDecisionTypeSearch(prev => ({ ...prev, legalCaseTypeId: value || null }))}
                 placeholder="Chọn loại án"
               />
             </div>
@@ -344,8 +344,8 @@ const TypeOfDecisionManager = () => {
               </label>
               <ComboboxSearch
                 options={courtIssuedOptions}
-                value={typeOfDecisionSearch.courtIssued || ''}
-                onChange={(value) => setTypeOfDecisionSearch(prev => ({ ...prev, courtIssued: value as CourtIssued || null }))}
+                value={decisionTypeSearch.courtIssued || ''}
+                onChange={(value) => setDecisionTypeSearch(prev => ({ ...prev, courtIssued: value as CourtIssued || null }))}
                 placeholder="Chọn cấp tòa"
               />
             </div>
@@ -353,8 +353,8 @@ const TypeOfDecisionManager = () => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={typeOfDecisionSearch.theEndDecision || false}
-                  onChange={(e) => setTypeOfDecisionSearch(prev => ({ ...prev, theEndDecision: e.target.checked }))}
+                  checked={decisionTypeSearch.theEndDecision || false}
+                  onChange={(e) => setDecisionTypeSearch(prev => ({ ...prev, theEndDecision: e.target.checked }))}
                   className="w-4 h-4 bg-gray-100 rounded"
                 />
                 <span className="ml-2 text-sm text-gray-700">Quyết định kết thúc</span>
@@ -379,7 +379,7 @@ const TypeOfDecisionManager = () => {
       )}
 
       {/* Pagination Component - Top */}
-      {!loading && typeOfDecisions.length > 0 && (
+      {!loading && decisionTypes.length > 0 && (
         <Pagination
           currentPage={pagination.page}
           totalPages={pagination.totalPages}
@@ -407,7 +407,7 @@ const TypeOfDecisionManager = () => {
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
         </div>
-      ) : typeOfDecisions.length === 0 ? (
+      ) : decisionTypes.length === 0 ? (
         <div className="text-center py-12">
           <svg className="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -427,10 +427,10 @@ const TypeOfDecisionManager = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {typeOfDecisions.map((typeOfDecision) => (
+            {decisionTypes.map((typeOfDecision) => (
               <TypeOfDecisionCard
-                key={typeOfDecision.typeOfDecisionId}
-                typeOfDecision={typeOfDecision}
+                key={typeOfDecision.decisionTypeId}
+                decisionType={typeOfDecision}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onViewDetails={handleViewDetails}
@@ -441,20 +441,20 @@ const TypeOfDecisionManager = () => {
       )}
 
       {/* Modals */}
-      <TypeOfDecisionForm
+      <DecisionTypeForm
         isOpen={showCreateForm}
         onClose={() => setShowCreateForm(false)}
         onSubmit={handleFormSubmit}
-        typeOfLegalCaseOptions={typeOfLegalCaseOptions}
+        typeOfLegalCaseOptions={legalCaseTypeOptions}
         isLoading={formLoading}
       />
 
-      <TypeOfDecisionForm
+      <DecisionTypeForm
         isOpen={showEditForm}
         onClose={() => setShowEditForm(false)}
         onSubmit={handleFormSubmit}
-        typeOfDecision={selectedTypeOfDecision}
-        typeOfLegalCaseOptions={typeOfLegalCaseOptions}
+        typeOfDecision={selectedDecisionType}
+        typeOfLegalCaseOptions={legalCaseTypeOptions}
         isLoading={formLoading}
       />
 
@@ -463,7 +463,7 @@ const TypeOfDecisionManager = () => {
         onClose={() => setShowConfirmModal(false)}
         onConfirm={confirmDelete}
         title="Xác nhận xóa loại quyết định"
-        message={`Bạn có chắc chắn muốn xóa loại quyết định "${selectedTypeOfDecision?.typeOfDecisionName}"? Hành động này không thể hoàn tác.`}
+        message={`Bạn có chắc chắn muốn xóa loại quyết định "${selectedDecisionType?.decisionTypeName}"? Hành động này không thể hoàn tác.`}
         type="danger"
         confirmText="Xác nhận"
         cancelText="Hủy"
@@ -475,4 +475,4 @@ const TypeOfDecisionManager = () => {
   );
 };
 
-export default TypeOfDecisionManager;
+export default DecisionTypeManager;

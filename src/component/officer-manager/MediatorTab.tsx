@@ -8,7 +8,7 @@ import { MediatorService } from '../../services/MediatorService';
 import type { MediatorResponse } from '../../types/response/mediator/MediatorResponse';
 import type { MediatorSearchRequest } from '../../types/request/mediator/MediatorSearchRequest';
 import type { MediatorRequest } from '../../types/request/mediator/MediatorRequest';
-import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
+import { OfficerStatus } from '../../types/enum/OfficerStatus';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 const MediatorTab = () => {
@@ -17,7 +17,7 @@ const MediatorTab = () => {
     return {
       officerId: criteria.officerId?.trim() === '' ? null : criteria.officerId,
       fullName: criteria.fullName?.trim() === '' ? null : criteria.fullName,
-      statusOfOfficer: criteria.statusOfOfficer || null
+      officerStatus: criteria.officerStatus || null
     }
   };
 
@@ -25,7 +25,7 @@ const MediatorTab = () => {
   const [mediatorSearch, setMediatorSearch] = useState<MediatorSearchRequest>({
     officerId: null,
     fullName: null,
-    statusOfOfficer: null
+    officerStatus: null
   });
   const [showMediatorForm, setShowMediatorForm] = useState(false);
   const [editingMediator, setEditingMediator] = useState<MediatorResponse | null>(null);
@@ -78,7 +78,7 @@ const MediatorTab = () => {
 
   const toast = useToast();
 
-  const statusOfOfficers = Object.values(StatusOfOfficer).map(status => ({
+  const statusOfOfficers = Object.values(OfficerStatus).map(status => ({
     value: status,
     label: status
   }));
@@ -98,7 +98,7 @@ const MediatorTab = () => {
       const requestToUse = searchRequest || {
         officerId: null,
         fullName: null,
-        statusOfOfficer: null
+        officerStatus: null
       };
       
       const response = await MediatorService.search(requestToUse, page, size, sort);
@@ -304,8 +304,8 @@ const MediatorTab = () => {
                 value={statusOfOfficerFilters.statusOfOfficer}
                 onChange={(value) => {
                   setStatusOfOfficerFilters({ statusOfOfficer: value });
-                  const status = value === "" ? null : (value as StatusOfOfficer);
-                  setMediatorSearch(prev => ({ ...prev, statusOfOfficer: status }));
+                  const status = value === "" ? null : (value as OfficerStatus);
+                  setMediatorSearch(prev => ({ ...prev, officerStatus: status }));
                 }}
                 placeholder="Chọn trạng thái"
               />

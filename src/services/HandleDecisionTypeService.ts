@@ -1,14 +1,14 @@
 import { Connect } from "../connect/Connect";
 import type { ApiResponse } from "../types/ApiResponse";
-import type { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
-import type { HandleTypeOfDecisionRequest } from "../types/request/handle-type-of-decision/HandleTypeOfDecisionRequest";
-import type HandleTypeOfDecisionResponse from "../types/response/handle-type-of-decision/HandleTypeOfDecisionResponse";
+import type { LegalCaseStatus } from "../types/enum/LegalCaseStatus";
+import type { HandleDecisionTypeRequest } from "../types/request/handle-decision-type/HandleDecisionTypeReques";
+import type HandleDecisionTypeResponse from "../types/response/handle-decision-type/HandleDecisionTypeResponse";
 
 
-export class HandleTypeOfDecisionService{
+export class HandleDecisionTypeService{
     static api = '/handle-type-of-decision';
 
-    static async create(request: HandleTypeOfDecisionRequest): Promise<ApiResponse<void>> {
+    static async create(request: HandleDecisionTypeRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
             `${this.api}`,
@@ -18,7 +18,7 @@ export class HandleTypeOfDecisionService{
         );
     }
 
-    static async update(typeOfDecisionId: string, preStatusOfLegalCase: StatusOfLegalCase, request: HandleTypeOfDecisionRequest): Promise<ApiResponse<void>> {
+    static async update(typeOfDecisionId: string, preStatusOfLegalCase: LegalCaseStatus, request: HandleDecisionTypeRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
             `${this.api}/${typeOfDecisionId}/${preStatusOfLegalCase}`,
@@ -28,7 +28,7 @@ export class HandleTypeOfDecisionService{
         );
     }
 
-    static async delete(typeOfDecisionId: string, preStatusOfLegalCase: StatusOfLegalCase): Promise<ApiResponse<void>> {
+    static async delete(typeOfDecisionId: string, preStatusOfLegalCase: LegalCaseStatus): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
             `${this.api}/${typeOfDecisionId}/${preStatusOfLegalCase}`,
@@ -38,9 +38,9 @@ export class HandleTypeOfDecisionService{
         );
     }
     
-    static async getByTypeOfDecision(typeOfDecisionId: string): Promise<ApiResponse<HandleTypeOfDecisionResponse[]>> {
+    static async getByTypeOfDecision(typeOfDecisionId: string): Promise<ApiResponse<HandleDecisionTypeResponse[]>> {
         const token = localStorage.getItem("token");
-        return Connect.request<HandleTypeOfDecisionResponse[]>(
+        return Connect.request<HandleDecisionTypeResponse[]>(
             `${this.api}/by-type-of-decision/${typeOfDecisionId}`,
             'GET',
             null,

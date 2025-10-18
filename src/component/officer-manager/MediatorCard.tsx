@@ -1,5 +1,5 @@
 import { type MediatorResponse } from "../../types/response/mediator/MediatorResponse";
-import { StatusOfOfficer } from "../../types/enum/StatusOfOfficer";
+import { OfficerStatus } from "../../types/enum/OfficerStatus";
 
 interface MediatorCardProps {
   mediator: MediatorResponse;
@@ -26,7 +26,7 @@ const MediatorCard = ({ mediator, onEdit, onDelete }: MediatorCardProps) => {
   };
 
   const getStatusText = (status: string) => {
-    return StatusOfOfficer[status as keyof typeof StatusOfOfficer] || status;
+    return OfficerStatus[status as keyof typeof OfficerStatus] || status;
   };
 
   return (
@@ -48,9 +48,9 @@ const MediatorCard = ({ mediator, onEdit, onDelete }: MediatorCardProps) => {
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={`text-sm px-4 py-2 rounded-full font-medium border ${getStatusColor(
-              mediator.statusOfOfficer
+              mediator.officerStatus
             )}`}>
-            {getStatusText(mediator.statusOfOfficer)}
+            {getStatusText(mediator.officerStatus)}
           </span>
         </div>
       </div>

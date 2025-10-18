@@ -1,4 +1,4 @@
-import type { StatusOfLegalCase } from "../../enum/StatusOfLegalCase";
+import type { LegalCaseStatus } from "../../enum/LegalCaseStatus";
 
 export interface LegalCaseSearchRequest {
   acceptanceNumber: string | null;
@@ -11,7 +11,7 @@ export interface LegalCaseSearchRequest {
   typeOfLegalCaseId: string | null;
   legalRelationshipId: string | null;
   legalRelationshipGroupId: string | null;
-  statusOfLegalCase: StatusOfLegalCase | null;
+  statusOfLegalCase: LegalCaseStatus | null;
   judgeId: string | null;
   batchId: string | null;
   startStorageDate: string | null;

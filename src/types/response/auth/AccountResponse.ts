@@ -1,5 +1,5 @@
 import type { Role } from "../../enum/Role";
-import type { StatusOfAccount } from "../../enum/StatusOfAccount";
+import type { AccountStatus } from "../../enum/AccountStatus";
 import type { OfficerResponse } from "../officer/OfficerResponse";
 
 export interface AccountResponse {
@@ -8,5 +8,5 @@ export interface AccountResponse {
     username: string;
     role: Role;
     officer: OfficerResponse;
-    statusOfAccount: StatusOfAccount;
+    accountStatus: AccountStatus;
 }

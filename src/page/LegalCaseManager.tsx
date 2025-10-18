@@ -9,7 +9,7 @@ import Pagination from "../component/basic-component/Pagination";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import { LegalCaseService } from "../services/LegalCaseService";
 import { JudgeService } from "../services/JudgeService";
-import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
+import { LegalCaseTypeService } from "../services/LegalCaseTypeService";
 import { BatchService } from "../services/BatchService";
 import type { LegalCaseResponse } from "../types/response/legal-case/LegalCaseResponse";
 import type { LegalCaseSearchRequest } from "../types/request/legal-case/LegalCaseSearchRequest";
@@ -22,10 +22,9 @@ import { LegalRelationshipService } from "../services/LegalRelationshipService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
 import * as XLSX from "xlsx";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
-import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
+import { LegalCaseStatus } from "../types/enum/LegalCaseStatus";
 import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
-import { StatusOfOfficer } from "../types/enum/StatusOfOfficer";
 
 const LegalCaseManager = () => {
   // Helper function to clean search criteria
@@ -115,7 +114,7 @@ const LegalCaseManager = () => {
 
   const statusOfLegalCases: Option[] = [
     { value: "", label: "Tất cả trạng thái" },
-    ...Object.entries(StatusOfLegalCase).map(([key, value]) => ({
+    ...Object.entries(LegalCaseStatus).map(([key, value]) => ({
       value: key,
       label: value,
     })),
@@ -302,24 +301,24 @@ const LegalCaseManager = () => {
   };
 
   const getStatusLegalCaseText = (status: string) => {
-    if (Object.values(StatusOfLegalCase).includes(status as StatusOfLegalCase)) {
+    if (Object.values(LegalCaseStatus).includes(status as LegalCaseStatus)) {
       return status;
     }
-    return (StatusOfLegalCase as any)[status] || status;
+    return (LegalCaseStatus as any)[status] || status;
   };
   // Helper function is no longer needed since we separate pagination params
 
   const fetchTypeOfLegalCases = async () => {
     setLoading(true);
     try {
-      const { data } = await TypeOfLegalCaseService.getAll();
+      const { data } = await LegalCaseTypeService.getAll();
       if (data) {
         setTypeOfLegalCases([
           ...typeOfLegalCases,
           ...data.map(
             (item): Option => ({
-              value: item.typeOfLegalCaseId,
-              label: item.typeOfLegalCaseName,
+              value: item.legalCaseTypeId,
+              label: item.legalCaseTypeName,
             })
           ),
         ]);
@@ -1109,10 +1108,10 @@ const LegalCaseManager = () => {
         legalCase.plaintiffAddress || "",
         legalCase.defendant || "",
         legalCase.defendantAddress || "",
-        legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
+        legalCase.legalRelationship?.legalCaseType?.legalCaseTypeName || "",
         legalCase.legalRelationship?.legalRelationshipName || "",
         legalCase.judge?.fullName || "",
-        getStatusLegalCaseText(legalCase.statusOfLegalCase) || "",
+        getStatusLegalCaseText(legalCase.legalCaseStatus) || "",
         legalCase.batch?.batchId || "",
       ]);
 
@@ -1643,7 +1642,7 @@ const LegalCaseManager = () => {
                   setLegalCaseSearch({
                     ...legalCaseSearch,
                     statusOfLegalCase:
-                      val != "" ? (val as StatusOfLegalCase) : null,
+                      val != "" ? (val as LegalCaseStatus) : null,
                   });
                 }}
                 placeholder="Chọn trạng thái"

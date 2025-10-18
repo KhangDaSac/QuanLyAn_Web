@@ -3,7 +3,7 @@ import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../../types/request/judge/JudgeSearchRequest';
 import { JudgeService } from '../../services/JudgeService';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
-import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
+import { OfficerStatus } from '../../types/enum/OfficerStatus';
 
 interface JudgeAssignmentModalProps {
     isOpen: boolean;
@@ -13,9 +13,9 @@ interface JudgeAssignmentModalProps {
     isLoading?: boolean;
 }
 
-const isOfficerWorking = (status: string | StatusOfOfficer): boolean => {
+const isOfficerWorking = (status: string | OfficerStatus): boolean => {
     // Kiểm tra cả key và value của enum
-    return status === 'WORKING' || status === StatusOfOfficer.WORKING || status === 'Đang làm việc';
+    return status === 'WORKING' || status === OfficerStatus.WORKING || status === 'Đang làm việc';
 };
 
 const JudgeAssignmentModal = ({
@@ -30,7 +30,7 @@ const JudgeAssignmentModal = ({
     const [searchParams, setSearchParams] = useState<JudgeSearchRequest>({
         officerId: null,
         fullName: null,
-        statusOfOfficer: null
+        officerStatus: null
     });
     const [isSearching, setIsSearching] = useState(false);
 
@@ -55,7 +55,7 @@ const JudgeAssignmentModal = ({
             const response = await JudgeService.search(searchParams);
             if (response.success && response.data) {
                 const availableJudges = response.data.content.filter(judge => 
-                    isOfficerWorking(judge.statusOfOfficer as any) && 
+                    isOfficerWorking(judge.officerStatus as any) && 
                     (judge.maxNumberOfLegalCase === -1 || judge.numberOfLegalCase < judge.maxNumberOfLegalCase)
                 );
                 setJudges(availableJudges);

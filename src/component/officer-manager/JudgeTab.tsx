@@ -8,7 +8,7 @@ import { JudgeService } from '../../services/JudgeService';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeSearchRequest } from '../../types/request/judge/JudgeSearchRequest';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
-import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
+import { OfficerStatus } from '../../types/enum/OfficerStatus';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 const JudgeTab = () => {
@@ -17,7 +17,7 @@ const JudgeTab = () => {
     return {
       officerId: criteria.officerId?.trim() || null,
       fullName: criteria.fullName?.trim() || null,
-      statusOfOfficer: criteria.statusOfOfficer || null
+      officerStatus: criteria.officerStatus || null
     }
   };
 
@@ -25,7 +25,7 @@ const JudgeTab = () => {
   const [judgeSearch, setJudgeSearch] = useState<JudgeSearchRequest>({
     officerId: null,
     fullName: null,
-    statusOfOfficer: null
+    officerStatus: null
   });
   const [showJudgeForm, setShowJudgeForm] = useState(false);
   const [editingJudge, setEditingJudge] = useState<JudgeResponse | null>(null);
@@ -78,7 +78,7 @@ const JudgeTab = () => {
 
   const toast = useToast();
 
-  const statusOfOfficers = Object.values(StatusOfOfficer).map(status => ({
+  const statusOfOfficers = Object.values(OfficerStatus).map(status => ({
     value: status,
     label: status
   }));
@@ -98,7 +98,7 @@ const JudgeTab = () => {
       const requestToUse = searchRequest || {
         officerId: null,
         fullName: null,
-        statusOfOfficer: null
+        officerStatus: null
       };
       
       const response = await JudgeService.search(requestToUse, page, size, sort);
@@ -304,8 +304,8 @@ const JudgeTab = () => {
                 value={statusOfOfficerFilters.statusOfOfficer}
                 onChange={(value) => {
                   setStatusOfOfficerFilters({ statusOfOfficer: value });
-                  const status = value === "" ? null : (value as StatusOfOfficer);
-                  setJudgeSearch(prev => ({ ...prev, statusOfOfficer: status }));
+                  const status = value === "" ? null : (value as OfficerStatus);
+                  setJudgeSearch(prev => ({ ...prev, officerStatus: status }));
                 }}
                 placeholder="Chọn trạng thái"
               />

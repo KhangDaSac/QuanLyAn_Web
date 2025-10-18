@@ -1,30 +1,30 @@
 import { useState, useEffect } from "react";
-import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
-import { type TypeOfLegalCaseSearchRequest } from "../../types/request/type-of-legal-case/TypeOfLegalCaseSearchRequest";
-import { TypeOfLegalCaseService } from "../../services/TypeOfLegalCaseService";
-import TypeOfLegalCaseForm from "./TypeOfLegalCaseForm";
-import TypeOfLegalCaseCard from "./TypeOfLegalCaseCard";
+import { type LegalCaseTypeResponse } from "../../types/response/legal-case-type/LegalCaseTypeResponse";
+import { type LegalCaseTypeSearchRequest } from "../../types/request/legal-case-type/LegalCaseTypeSearchRequest";
+import { LegalCaseTypeService } from "../../services/LegalCaseTypeService";
+import LegalCaseTypeForm from "./LegalCaseTypeForm";
+import LegalCaseTypeCard from "./LegalCaseTypeCard";
 import Pagination from "../basic-component/Pagination";
 import { useToast, ToastContainer } from "../basic-component/Toast";
-import type { TypeOfLegalCaseRequest } from "../../types/request/type-of-legal-case/TypeOfLegalCaseRequest";
+import type { LegalCaseTypeRequest } from "../../types/request/legal-case-type/LegalCaseTypeRequest";
 import ConfirmModal from "../basic-component/ConfirmModal";
 import { type Option } from "../basic-component/ComboboxSearch";
 
-const TypeOfLegalCaseTab = () => {
+const LegalCaseTypeTab = () => {
   // Helper function to clean search criteria
-  const cleanSearchCriteria = (criteria: TypeOfLegalCaseSearchRequest): TypeOfLegalCaseSearchRequest => {
-    const cleaned: TypeOfLegalCaseSearchRequest = {
-      typeOfLegalCaseId: null,
-      typeOfLegalCaseName: null,
+  const cleanSearchCriteria = (criteria: LegalCaseTypeSearchRequest): LegalCaseTypeSearchRequest => {
+    const cleaned: LegalCaseTypeSearchRequest = {
+      LegalCaseTypeId: null,
+      LegalCaseTypeName: null,
       codeName: null,
     };
     
-    if (criteria.typeOfLegalCaseId && criteria.typeOfLegalCaseId.trim() !== '') {
-      cleaned.typeOfLegalCaseId = criteria.typeOfLegalCaseId;
+    if (criteria.LegalCaseTypeId && criteria.LegalCaseTypeId.trim() !== '') {
+      cleaned.LegalCaseTypeId = criteria.LegalCaseTypeId;
     }
     
-    if (criteria.typeOfLegalCaseName && criteria.typeOfLegalCaseName.trim() !== '') {
-      cleaned.typeOfLegalCaseName = criteria.typeOfLegalCaseName;
+    if (criteria.LegalCaseTypeName && criteria.LegalCaseTypeName.trim() !== '') {
+      cleaned.LegalCaseTypeName = criteria.LegalCaseTypeName;
     }
     
     if (criteria.codeName && criteria.codeName.trim() !== '') {
@@ -34,17 +34,17 @@ const TypeOfLegalCaseTab = () => {
     return cleaned;
   };
 
-  const [typeOfLegalCases, setTypeOfLegalCases] = useState<
-    TypeOfLegalCaseResponse[]
+  const [legalCaseTypes, setLegalCaseTypes] = useState<
+    LegalCaseTypeResponse[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] =
-    useState<TypeOfLegalCaseResponse | null>(null);
+    useState<LegalCaseTypeResponse | null>(null);
   const [searchCriteria, setSearchCriteria] =
-    useState<TypeOfLegalCaseSearchRequest>({
-      typeOfLegalCaseId: null,
-      typeOfLegalCaseName: null,
+    useState<LegalCaseTypeSearchRequest>({
+      LegalCaseTypeId: null,
+      LegalCaseTypeName: null,
       codeName: null,
     });
   const [submitting, setSubmitting] = useState(false);
@@ -77,8 +77,8 @@ const TypeOfLegalCaseTab = () => {
 
   // Sort by options
   const sortByOptions: Option[] = [
-    { value: "typeOfLegalCaseName", label: "Tên loại vụ án" },
-    { value: "typeOfLegalCaseId", label: "Mã loại vụ án" },
+    { value: "legalCaseTypeName", label: "Tên loại vụ án" },
+    { value: "legalCaseTypeId", label: "Mã loại vụ án" },
   ];
 
   const [confirmModal, setConfirmModal] = useState<{
@@ -153,14 +153,14 @@ const TypeOfLegalCaseTab = () => {
     setLoading(true);
     try {
       const cleanedCriteria = cleanSearchCriteria(searchCriteria);
-      const { data } = await TypeOfLegalCaseService.search(
+      const { data } = await LegalCaseTypeService.search(
         cleanedCriteria,
         0,
         pagination.size,
         sortBy
       );
       if (data) {
-        setTypeOfLegalCases(data.content);
+        setLegalCaseTypes(data.content);
         setPagination({
           page: data.number,
           size: data.size,
@@ -189,14 +189,14 @@ const TypeOfLegalCaseTab = () => {
       setLoading(true);
       try {
         const cleanedCriteria = cleanSearchCriteria(searchCriteria);
-        const { data } = await TypeOfLegalCaseService.search(
+        const { data } = await LegalCaseTypeService.search(
           cleanedCriteria,
           page,
           pagination.size,
           sortBy
         );
         if (data) {
-          setTypeOfLegalCases(data.content);
+          setLegalCaseTypes(data.content);
           setPagination({
             page: data.number,
             size: data.size,
@@ -228,14 +228,14 @@ const TypeOfLegalCaseTab = () => {
       setLoading(true);
       try {
         const cleanedCriteria = cleanSearchCriteria(searchCriteria);
-        const { data } = await TypeOfLegalCaseService.search(
+        const { data } = await LegalCaseTypeService.search(
           cleanedCriteria,
           0,
           newSize,
           sortBy
         );
         if (data) {
-          setTypeOfLegalCases(data.content);
+          setLegalCaseTypes(data.content);
           setPagination({
             page: data.number,
             size: data.size,
@@ -267,14 +267,14 @@ const TypeOfLegalCaseTab = () => {
       setLoading(true);
       try {
         const cleanedCriteria = cleanSearchCriteria(searchCriteria);
-        const { data } = await TypeOfLegalCaseService.search(
+        const { data } = await LegalCaseTypeService.search(
           cleanedCriteria,
           0,
           pagination.size,
           newSortBy
         );
         if (data) {
-          setTypeOfLegalCases(data.content);
+          setLegalCaseTypes(data.content);
           setPagination({
             page: data.number,
             size: data.size,
@@ -299,12 +299,12 @@ const TypeOfLegalCaseTab = () => {
     searchWithNewSort();
   };
 
-  const handleSubmit = async (data: TypeOfLegalCaseRequest) => {
+  const handleSubmit = async (data: LegalCaseTypeRequest) => {
     try {
       setSubmitting(true);
       if (editingItem) {
-        const result = await TypeOfLegalCaseService.update(
-          editingItem.typeOfLegalCaseId,
+        const result = await LegalCaseTypeService.update(
+          editingItem.legalCaseTypeId,
           data
         );
         if (result.success) {
@@ -313,7 +313,7 @@ const TypeOfLegalCaseTab = () => {
           toast.error("Thất bại", `${result.error}`);
         }
       } else {
-        const result = await TypeOfLegalCaseService.create(data);
+        const result = await LegalCaseTypeService.create(data);
         if (result.success) {
           toast.success("Thành công", "Thêm mới loại vụ án thành công");
         } else {
@@ -331,36 +331,36 @@ const TypeOfLegalCaseTab = () => {
     }
   };
 
-  const handleEdit = (item: TypeOfLegalCaseResponse) => {
+  const handleEdit = (item: LegalCaseTypeResponse) => {
     setConfirmModal({
       isOpen: true,
       title: "Xác nhận chỉnh sửa",
-      message: `Bạn có muốn chỉnh sửa loại vụ án"${item.typeOfLegalCaseName}"?`,
+      message: `Bạn có muốn chỉnh sửa loại vụ án"${item.legalCaseTypeName}"?`,
       type: "danger",
       onConfirm: () => confirmEdit(item),
     });
   };
 
-  const confirmEdit = (item: TypeOfLegalCaseResponse) => {
+  const confirmEdit = (item: LegalCaseTypeResponse) => {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     setEditingItem(item);
     setShowForm(true);
     toast.info(
       "Bắt đầu chỉnh sửa",
-      `Đang mở form chỉnh sửa loại vụ án "${item.typeOfLegalCaseName}"`
+      `Đang mở form chỉnh sửa loại vụ án "${item.legalCaseTypeName}"`
     );
   };
 
   const handleDelete = async (id: string) => {
-    const item = typeOfLegalCases.find((item) => item.typeOfLegalCaseId === id);
+    const item = legalCaseTypes.find((item) => item.legalCaseTypeId === id);
     if (!item) return;
 
     setConfirmModal({
       isOpen: true,
       title: "Xác nhận xóa án",
-      message: `Bạn có chắc chắn muốn xóa án "${item.typeOfLegalCaseName}"? Hành động này không thể hoàn tác.`,
+      message: `Bạn có chắc chắn muốn xóa án "${item.legalCaseTypeName}"? Hành động này không thể hoàn tác.`,
       type: "danger",
-      onConfirm: () => confirmDelete(item.typeOfLegalCaseId),
+      onConfirm: () => confirmDelete(item.legalCaseTypeId),
     });
   };
 
@@ -368,7 +368,7 @@ const TypeOfLegalCaseTab = () => {
     try {
       setConfirmModal((prev) => ({ ...prev, isOpen: false }));
       setLoading(true);
-      const result = await TypeOfLegalCaseService.delete(id);
+      const result = await LegalCaseTypeService.delete(id);
       if (result.success) {
         toast.success(
           "Xóa thành công",
@@ -391,8 +391,8 @@ const TypeOfLegalCaseTab = () => {
 
   const resetSearch = () => {
     setSearchCriteria({
-      typeOfLegalCaseId: null,
-      typeOfLegalCaseName: null,
+      LegalCaseTypeId: null,
+      LegalCaseTypeName: null,
       codeName: null,
     });
     setPagination((prev) => ({ ...prev, page: 0 }));
@@ -400,18 +400,18 @@ const TypeOfLegalCaseTab = () => {
       setLoading(true);
       try {
         const cleanedCriteria = cleanSearchCriteria({
-          typeOfLegalCaseId: null,
-          typeOfLegalCaseName: null,
+          LegalCaseTypeId: null,
+          LegalCaseTypeName: null,
           codeName: null,
         });
-        const { data } = await TypeOfLegalCaseService.search(
+        const { data } = await LegalCaseTypeService.search(
           cleanedCriteria,
           0,
           pagination.size,
           sortBy
         );
         if (data) {
-          setTypeOfLegalCases(data.content);
+          setLegalCaseTypes(data.content);
           setPagination({
             page: data.number,
             size: data.size,
@@ -449,9 +449,9 @@ const TypeOfLegalCaseTab = () => {
 
   return (
     <div className="space-y-6">
-      <TypeOfLegalCaseForm
+      <LegalCaseTypeForm
         isOpen={showForm}
-        typeOfLegalCase={editingItem}
+        legalCaseType={editingItem}
         onSubmit={handleSubmit}
         onClose={() => {
           setShowForm(false);
@@ -525,11 +525,11 @@ const TypeOfLegalCaseTab = () => {
               </label>
               <input
                 type="text"
-                value={searchCriteria.typeOfLegalCaseId || ""}
+                value={searchCriteria.LegalCaseTypeId || ""}
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    typeOfLegalCaseId: e.target.value || null,
+                    LegalCaseTypeId: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập mã loại vụ án"
@@ -542,11 +542,11 @@ const TypeOfLegalCaseTab = () => {
               </label>
               <input
                 type="text"
-                value={searchCriteria.typeOfLegalCaseName || ""}
+                value={searchCriteria.LegalCaseTypeName || ""}
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    typeOfLegalCaseName: e.target.value || null,
+                    LegalCaseTypeName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập tên loại vụ án"
@@ -587,7 +587,7 @@ const TypeOfLegalCaseTab = () => {
       )}
 
       {/* Pagination Component */}
-      {!loading && typeOfLegalCases.length > 0 && (
+      {!loading && legalCaseTypes.length > 0 && (
         <Pagination
           currentPage={pagination.page}
           totalPages={pagination.totalPages}
@@ -614,16 +614,16 @@ const TypeOfLegalCaseTab = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">
-            Kết quả ({typeOfLegalCases.length} loại vụ án)
+            Kết quả ({legalCaseTypes.length} loại vụ án)
           </h3>
         </div>
 
-        {typeOfLegalCases.length > 0 ? (
+        {legalCaseTypes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {typeOfLegalCases.map((item) => (
-              <TypeOfLegalCaseCard
-                key={item.typeOfLegalCaseId}
-                typeOfLegalCase={item}
+            {legalCaseTypes.map((item) => (
+              <LegalCaseTypeCard
+                key={item.legalCaseTypeId}
+                legalCaseType={item}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
@@ -676,4 +676,4 @@ const TypeOfLegalCaseTab = () => {
   );
 };
 
-export default TypeOfLegalCaseTab;
+export default LegalCaseTypeTab;

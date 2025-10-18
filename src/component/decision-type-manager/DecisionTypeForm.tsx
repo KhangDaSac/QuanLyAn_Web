@@ -1,29 +1,29 @@
 import { useState, useEffect } from 'react';
-import type TypeOfDecisionResponse from '../../types/response/type-of-decision/TypeOfDecisionResponse';
-import type TypeOfDecisionRequest from '../../types/request/type-of-decision/TypeOfDecisionRequest';
+import type DecisionTypeResponse from '../../types/response/decision-type/DecisionTypeResponse';
+import type DecisionTypeRequest from '../../types/request/tdecision-type/DecisionTypeRequest';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 import { CourtIssued } from '../../types/enum/CourtIssued';
 
-interface TypeOfDecisionFormProps {
+interface DecisionTypeFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: TypeOfDecisionRequest) => void;
-    typeOfDecision?: TypeOfDecisionResponse | null;
+    onSubmit: (data: DecisionTypeRequest) => void;
+    typeOfDecision?: DecisionTypeResponse | null;
     typeOfLegalCaseOptions: Option[];
     isLoading?: boolean;
 }
 
-const TypeOfDecisionForm = ({
+const DecisionTypeForm = ({
     isOpen,
     onClose,
     onSubmit,
     typeOfDecision,
     typeOfLegalCaseOptions,
     isLoading = false
-}: TypeOfDecisionFormProps) => {
-    const [formData, setFormData] = useState<TypeOfDecisionRequest>({
-        typeOfDecisionName: '',
-        typeOfLegalCaseId: '',
+}: DecisionTypeFormProps) => {
+    const [formData, setFormData] = useState<DecisionTypeRequest>({
+        decisionTypeName: '',
+        LegalCaseTypeId: '',
         courtIssued: "CURRENT_COURT" as CourtIssued,
         theEndDecision: false
     });
@@ -51,16 +51,16 @@ const TypeOfDecisionForm = ({
             }
             
             setFormData({
-                typeOfDecisionName: typeOfDecision.typeOfDecisionName,
-                typeOfLegalCaseId: typeOfDecision.typeOfLegalCase.typeOfLegalCaseId,
+                decisionTypeName: typeOfDecision.decisionTypeName,
+                LegalCaseTypeId: typeOfDecision.legalCaseType.legalCaseTypeId,
                 courtIssued: courtIssuedValue as CourtIssued,
                 theEndDecision: typeOfDecision.theEndDecision
             });
         } else {
             // Reset form for create mode
             setFormData({
-                typeOfDecisionName: '',
-                typeOfLegalCaseId: '',
+                decisionTypeName: '',
+                LegalCaseTypeId: '',
                 courtIssued: "CURRENT_COURT" as CourtIssued,
                 theEndDecision: false
             });
@@ -84,11 +84,11 @@ const TypeOfDecisionForm = ({
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData?.typeOfDecisionName?.trim()) {
+        if (!formData?.decisionTypeName?.trim()) {
             newErrors.typeOfDecisionName = 'Tên loại quyết định là bắt buộc';
         }
 
-        if (!formData.typeOfLegalCaseId) {
+        if (!formData.LegalCaseTypeId) {
             newErrors.typeOfLegalCaseId = 'Loại án là bắt buộc';
         }
 
@@ -121,11 +121,11 @@ const TypeOfDecisionForm = ({
             console.log('Original courtIssued:', originalCourtIssued);
             console.log('CourtIssued changed:', formData.courtIssued !== originalCourtIssued);
             
-            const updateData: TypeOfDecisionRequest = {
-                typeOfDecisionName: formData.typeOfDecisionName !== typeOfDecision.typeOfDecisionName 
-                    ? formData.typeOfDecisionName : null,
-                typeOfLegalCaseId: formData.typeOfLegalCaseId !== typeOfDecision.typeOfLegalCase.typeOfLegalCaseId 
-                    ? formData.typeOfLegalCaseId : null,
+            const updateData: DecisionTypeRequest = {
+                decisionTypeName: formData.decisionTypeName !== typeOfDecision.decisionTypeName 
+                    ? formData.decisionTypeName : null,
+                LegalCaseTypeId: formData.LegalCaseTypeId !== typeOfDecision.legalCaseType.legalCaseTypeId 
+                    ? formData.LegalCaseTypeId : null,
                 courtIssued: formData.courtIssued !== originalCourtIssued 
                     ? formData.courtIssued as CourtIssued : null,
                 theEndDecision: formData.theEndDecision !== typeOfDecision.theEndDecision 
@@ -144,9 +144,9 @@ const TypeOfDecisionForm = ({
             onSubmit(updateData);
         } else {
             // Create new TypeOfDecision - gửi đầy đủ thông tin
-            const createData: TypeOfDecisionRequest = {
-                typeOfDecisionName: formData.typeOfDecisionName,
-                typeOfLegalCaseId: formData.typeOfLegalCaseId,
+            const createData: DecisionTypeRequest = {
+                decisionTypeName: formData.decisionTypeName,
+                LegalCaseTypeId: formData.LegalCaseTypeId,
                 courtIssued: formData.courtIssued,
                 theEndDecision: formData.theEndDecision
             };
@@ -154,7 +154,7 @@ const TypeOfDecisionForm = ({
         }
     };
 
-    const handleInputChange = (field: keyof TypeOfDecisionRequest, value: string | boolean) => {
+    const handleInputChange = (field: keyof DecisionTypeRequest, value: string | boolean) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
@@ -218,15 +218,15 @@ const TypeOfDecisionForm = ({
                                 </label>
                                 <input
                                     type="text"
-                                    value={formData.typeOfDecisionName || ""}
-                                    onChange={(e) => handleInputChange('typeOfDecisionName', e.target.value)}
+                                    value={formData.decisionTypeName || ""}
+                                    onChange={(e) => handleInputChange('decisionTypeName', e.target.value)}
                                     placeholder="Nhập tên loại quyết định"
                                     className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
-                                        errors.typeOfDecisionName ? 'border-red-500' : 'border-gray-300'
+                                        errors.decisionTypeName ? 'border-red-500' : 'border-gray-300'
                                     }`}
                                 />
-                                {errors.typeOfDecisionName && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.typeOfDecisionName}</p>
+                                {errors.decisionTypeName && (
+                                    <p className="mt-1 text-sm text-red-600">{errors.decisionTypeName}</p>
                                 )}
                             </div>
 
@@ -237,12 +237,12 @@ const TypeOfDecisionForm = ({
                                 </label>
                                 <ComboboxSearch
                                     options={typeOfLegalCaseOptions.filter(option => option.value !== '')}
-                                    value={formData.typeOfLegalCaseId || ""}
-                                    onChange={(value) => handleInputChange('typeOfLegalCaseId', value)}
+                                    value={formData.LegalCaseTypeId || ""}
+                                    onChange={(value) => handleInputChange('LegalCaseTypeId', value)}
                                     placeholder="Chọn loại án"
                                 />
-                                {errors.typeOfLegalCaseId && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.typeOfLegalCaseId}</p>
+                                {errors.LegalCaseTypeId && (
+                                    <p className="mt-1 text-sm text-red-600">{errors.LegalCaseTypeId}</p>
                                 )}
                             </div>
 
@@ -308,4 +308,4 @@ const TypeOfDecisionForm = ({
     );
 };
 
-export default TypeOfDecisionForm;
+export default DecisionTypeForm;

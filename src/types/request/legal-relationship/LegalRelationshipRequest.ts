@@ -1,8 +1,8 @@
-import { type TypeOfLegalCaseResponse } from "../../response/type-of-legal-case/TypeOfLegalCaseResponse";
+import { type LegalCaseTypeResponse } from "../../response/legal-case-type/LegalCaseTypeResponse";
 
 export interface LegalRelationshipRequest {
   legalRelationshipName: string;
-  typeOfLegalCase?: TypeOfLegalCaseResponse;
-  typeOfLegalCaseId: string;
+  legalCaseType?: LegalCaseTypeResponse;
+  legalCaseTypeId: string;
   legalRelationshipGroupId: string;
 }

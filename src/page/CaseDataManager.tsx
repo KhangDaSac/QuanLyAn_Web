@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import TypeOfLegalCaseTab from '../component/case-data-manager/TypeOfLegalCaseTab';
+import LegalCaseTypeTab from '../component/case-data-manager/LegalCaseTypeTab';
 import LegalRelationshipGroupTab from '../component/case-data-manager/LegalRelationshipGroupTab';
 import LegalRelationshipTab from '../component/case-data-manager/LegalRelationshipTab';
 
@@ -41,13 +41,13 @@ const CaseDataManager = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'typeOfLegalCase':
-        return <TypeOfLegalCaseTab />;
+        return <LegalCaseTypeTab />;
       case 'legalRelationshipGroup':
         return <LegalRelationshipGroupTab />;
       case 'legalRelationship':
         return <LegalRelationshipTab />;
       default:
-        return <TypeOfLegalCaseTab />;
+        return <LegalCaseTypeTab />;
     }
   };
 

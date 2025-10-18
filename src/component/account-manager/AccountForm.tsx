@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { AccountResponse } from "../../types/response/auth/AccountResponse";
 import type AccountRequest from "../../types/request/auth/AccountRequest";
 import { Role } from "../../types/enum/Role";
-import { StatusOfAccount } from "../../types/enum/StatusOfAccount";
+import { AccountStatus } from "../../types/enum/AccountStatus";
 import ComboboxSearchForm, {
   type Option,
 } from "../basic-component/ComboboxSearchForm";
@@ -151,7 +151,7 @@ const AccountForm = ({
         password: formData.password,
         email: formData.email,
         role: formData.role as Role,
-        statusOfAccount: "ACTIVE" as StatusOfAccount,
+        accountStatus: "ACTIVE" as AccountStatus,
       };
       onSubmit(createData);
     }

@@ -7,8 +7,8 @@ import LegalCaseManager from "./page/LegalCaseManager";
 import LegalCaseDetailsPage from "./page/LegalCaseDetailsPage";
 import JudgeManager from "./page/OfficerManager";
 import RandomAssignment from "./page/RandomAssignment";
-import TypeOfDecisionManager from "./page/TypeOfDecisionManager";
-import TypeOfDecisionDetailsPage from "./page/TypeOfDecisionDetailsPage";
+import DecisionTypeManager from "./page/DecisionTypeManager";
+import DecisionTypeDetailsPage from "./page/DecisionTypeDetailsPage";
 import BatchManagement from "./page/BatchManagement";
 import ProfilePage from "./page/ProfilePage";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
@@ -67,7 +67,7 @@ const App = () => {
           element={
             <ProtectedRoute>
               <MainLayout>
-                <TypeOfDecisionManager />
+                <DecisionTypeManager />
               </MainLayout>
             </ProtectedRoute>
           }
@@ -77,7 +77,7 @@ const App = () => {
           element={
             <ProtectedRoute>
               <MainLayout>
-                <TypeOfDecisionDetailsPage />
+                <DecisionTypeDetailsPage />
               </MainLayout>
             </ProtectedRoute>
           }

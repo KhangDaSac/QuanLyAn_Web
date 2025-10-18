@@ -1,15 +1,15 @@
 import { Connect } from "../connect/Connect";
 import type { ApiResponse } from "../types/ApiResponse";
-import type TypeOfDecisionRequest from "../types/request/type-of-decision/TypeOfDecisionRequest";
-import type TypeOfDecisionSearchRequest from "../types/request/type-of-decision/TypeOfDecisionSearchRequest";
-import type TypeOfDecisionResponse from "../types/response/type-of-decision/TypeOfDecisionResponse";
+import type DecisionTypeRequest from "../types/request/tdecision-type/DecisionTypeRequest";
+import type DecisionTypeSearchRequest from "../types/request/tdecision-type/DecisionTypeSearchRequest";
+import type DecisionTypeResponse from "../types/response/decision-type/DecisionTypeResponse";
 import type { PageResponse } from "../types/response/PageResponse";
 
-export class TypeOfDecisionService {
+export class DecisionTypeService {
     static api = '/type-of-decision';
-    static async getAll(): Promise<ApiResponse<TypeOfDecisionResponse[]>> {
+    static async getAll(): Promise<ApiResponse<DecisionTypeResponse[]>> {
         const token = localStorage.getItem("token");
-        return Connect.request<TypeOfDecisionResponse[]>(
+        return Connect.request<DecisionTypeResponse[]>(
             `${this.api}/all`,
             'GET',
             null,
@@ -17,9 +17,9 @@ export class TypeOfDecisionService {
         );
     }
 
-    static async getTop50(): Promise<ApiResponse<TypeOfDecisionResponse[]>> {
+    static async getTop50(): Promise<ApiResponse<DecisionTypeResponse[]>> {
         const token = localStorage.getItem("token");
-        return Connect.request<TypeOfDecisionResponse[]>(
+        return Connect.request<DecisionTypeResponse[]>(
             `${this.api}/limit-50`,
             'GET',
             null,
@@ -27,7 +27,7 @@ export class TypeOfDecisionService {
         );
     }
 
-    static async create(request: TypeOfDecisionRequest): Promise<ApiResponse<void>> {
+    static async create(request: DecisionTypeRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
             `${this.api}`,
@@ -37,7 +37,7 @@ export class TypeOfDecisionService {
         );
     }
 
-    static async update(id: string, request: TypeOfDecisionRequest): Promise<ApiResponse<void>> {
+    static async update(id: string, request: DecisionTypeRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");
         return Connect.request<void>(
             `${this.api}/${id}`,
@@ -57,9 +57,9 @@ export class TypeOfDecisionService {
         );
     }
 
-    static async getById(id: string): Promise<ApiResponse<TypeOfDecisionResponse>> {
+    static async getById(id: string): Promise<ApiResponse<DecisionTypeResponse>> {
         const token = localStorage.getItem("token");
-        return Connect.request<TypeOfDecisionResponse>(
+        return Connect.request<DecisionTypeResponse>(
             `${this.api}/${id}`,
             'GET',
             null,
@@ -79,11 +79,11 @@ export class TypeOfDecisionService {
 
     // Pagination-enabled search method for future backend support
     static async search(
-        request: TypeOfDecisionSearchRequest,
+        request: DecisionTypeSearchRequest,
         page: number = 0,
         size: number = 10,
         sortBy: string = "typeOfDecisionId"
-    ): Promise<ApiResponse<PageResponse<TypeOfDecisionResponse>>> {
+    ): Promise<ApiResponse<PageResponse<DecisionTypeResponse>>> {
         const token = localStorage.getItem("token");
         
         // Build query parameters
@@ -95,7 +95,7 @@ export class TypeOfDecisionService {
         
         const url = `${this.api}/search?${queryParams.toString()}`;
         
-        return Connect.request<PageResponse<TypeOfDecisionResponse>>(
+        return Connect.request<PageResponse<DecisionTypeResponse>>(
             url,
             'POST',
             request,

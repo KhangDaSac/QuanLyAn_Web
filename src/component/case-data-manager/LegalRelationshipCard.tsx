@@ -44,9 +44,9 @@ const LegalRelationshipCard = ({
           <p className="text-xs text-green-600 mb-1 font-medium">Loại vụ án</p>
           <p
             className="text-sm font-semibold text-green-900 line-clamp-1"
-            title={`${relationship.typeOfLegalCase.typeOfLegalCaseName} (${relationship.typeOfLegalCase.codeName})`}>
-            {relationship.typeOfLegalCase.typeOfLegalCaseName} (
-            {relationship.typeOfLegalCase.codeName})
+            title={`${relationship.legalCaseType.legalCaseTypeName} (${relationship.legalCaseType.codeName})`}>
+            {relationship.legalCaseType.legalCaseTypeName} (
+            {relationship.legalCaseType.codeName})
           </p>
         </div>
 

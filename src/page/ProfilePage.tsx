@@ -325,9 +325,9 @@ const ProfilePage = () => {
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <span
                         className={`inline-block px-3 py-1 rounded-lg text-sm font-medium ${getStatusColor(
-                          userInfo?.statusOfAccount || ""
+                          userInfo?.accountStatus || ""
                         )}`}>
-                        {getStatusText(userInfo?.statusOfAccount || "")}
+                        {getStatusText(userInfo?.accountStatus || "")}
                       </span>
                     </div>
                   </div>

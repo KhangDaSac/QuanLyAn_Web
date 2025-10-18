@@ -12,7 +12,7 @@ import { ToastContainer, useToast } from "../component/basic-component/Toast";
 import type { AssignAssignmentRequest } from "../types/request/legal-case/AssignAssignmentRequest";
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import type DecisionRequest from "../types/request/decision/DecisionRequest";
-import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
+import { LegalCaseStatus } from "../types/enum/LegalCaseStatus";
 import DecisionForm from "../component/decision-manager/DecisionForm";
 import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
@@ -28,11 +28,11 @@ const formatDate = (dateString: string) => {
 
 const getStatusText = (status: string) => {
   // Nếu status đã là tiếng Việt thì trả về luôn
-  if (Object.values(StatusOfLegalCase).includes(status as StatusOfLegalCase)) {
+  if (Object.values(LegalCaseStatus).includes(status as LegalCaseStatus)) {
     return status;
   }
   // Nếu status là key tiếng Anh thì chuyển sang tiếng Việt
-  return (StatusOfLegalCase as any)[status] || status;
+  return (LegalCaseStatus as any)[status] || status;
 };
 
 const getStatusColor = (status: string) => {
@@ -445,35 +445,35 @@ const LegalCaseDetailsPage = () => {
                                     text-md px-5 py-1 rounded-full font-medium
                                     ${
                                       legalCase.legalRelationship
-                                        .typeOfLegalCase.codeName === "HS"
+                                        .legalCaseType.codeName === "HS"
                                         ? "bg-red-50 text-red-600 border border-red-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "DS"
+                                            .legalCaseType.codeName === "DS"
                                         ? "bg-blue-50 text-blue-600 border border-blue-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "HN"
+                                            .legalCaseType.codeName === "HN"
                                         ? "bg-pink-50 text-pink-600 border border-pink-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "LD"
+                                            .legalCaseType.codeName === "LD"
                                         ? "bg-purple-50 text-purple-600 border border-purple-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "KT"
+                                            .legalCaseType.codeName === "KT"
                                         ? "bg-orange-50 text-orange-600 border border-orange-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "HC"
+                                            .legalCaseType.codeName === "HC"
                                         ? "bg-green-50 text-green-600 border border-green-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "PS"
+                                            .legalCaseType.codeName === "PS"
                                         ? "bg-yellow-50 text-yellow-600 border border-yellow-300"
                                         : legalCase.legalRelationship
-                                            .typeOfLegalCase.codeName === "BP"
+                                            .legalCaseType.codeName === "BP"
                                         ? "bg-stone-50 text-stone-600 border border-stone-300"
                                         : ""
                                     }
                                     `}>
                   {
-                    legalCase.legalRelationship.typeOfLegalCase
-                      .typeOfLegalCaseName
+                    legalCase.legalRelationship.legalCaseType
+                      .legalCaseTypeName
                   }
                 </span>
               </div>
@@ -498,7 +498,7 @@ const LegalCaseDetailsPage = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-500 mb-1">
-                    {legalCase.legalRelationship.typeOfLegalCase.codeName ===
+                    {legalCase.legalRelationship.legalCaseType.codeName ===
                     "HS"
                       ? "Bị cáo"
                       : "Nguyên đơn"}
@@ -512,7 +512,7 @@ const LegalCaseDetailsPage = () => {
                 </div>
               </div>
 
-              {legalCase.legalRelationship.typeOfLegalCase.codeName !==
+              {legalCase.legalRelationship.legalCaseType.codeName !==
                 "HS" && (
                 <div className="flex items-start space-x-3">
                   <div className="w-20 h-20 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -545,7 +545,7 @@ const LegalCaseDetailsPage = () => {
             {/* Legal Relationship */}
             <div className="bg-blue-50 rounded-lg p-3">
               <p className="text-sm text-blue-600 mb-1">
-                {legalCase.legalRelationship.typeOfLegalCase.codeName === "HS"
+                {legalCase.legalRelationship.legalCaseType.codeName === "HS"
                   ? "Tội"
                   : "Quan hệ pháp luật"}
               </p>
@@ -654,12 +654,12 @@ const LegalCaseDetailsPage = () => {
             {/* Status */}
             <div
               className={`${
-                getStatusColor(legalCase.statusOfLegalCase).bg
+                getStatusColor(legalCase.legalCaseStatus).bg
               } rounded-lg p-3`}>
               <div className="flex items-center space-x-2">
                 <svg
                   className={`w-4 h-4 ${
-                    getStatusColor(legalCase.statusOfLegalCase).icon
+                    getStatusColor(legalCase.legalCaseStatus).icon
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -673,9 +673,9 @@ const LegalCaseDetailsPage = () => {
                 </svg>
                 <p
                   className={`text-md ${
-                    getStatusColor(legalCase.statusOfLegalCase).text
+                    getStatusColor(legalCase.legalCaseStatus).text
                   } font-medium`}>
-                  {getStatusText(legalCase.statusOfLegalCase)}
+                  {getStatusText(legalCase.legalCaseStatus)}
                 </p>
               </div>
             </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
-import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
+import { OfficerStatus } from '../../types/enum/OfficerStatus';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 
 interface JudgeFormProps {
@@ -30,11 +30,11 @@ const JudgeForm = ({
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const statusOptions = [
-        { value: "WORKING", label: StatusOfOfficer.WORKING },
-        { value: "NOT_WORKING", label: StatusOfOfficer.NOT_WORKING },
-        { value: "ON_BUSINESS_TRIP", label: StatusOfOfficer.ON_BUSINESS_TRIP },
-        { value: "ON_LEAVE", label: StatusOfOfficer.ON_LEAVE },
-        { value: "DISCIPLINED", label: StatusOfOfficer.DISCIPLINED }
+        { value: "WORKING", label: OfficerStatus.WORKING },
+        { value: "NOT_WORKING", label: OfficerStatus.NOT_WORKING },
+        { value: "ON_BUSINESS_TRIP", label: OfficerStatus.ON_BUSINESS_TRIP },
+        { value: "ON_LEAVE", label: OfficerStatus.ON_LEAVE },
+        { value: "DISCIPLINED", label: OfficerStatus.DISCIPLINED }
     ];
 
     const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
@@ -79,7 +79,7 @@ const JudgeForm = ({
                 firstName: judge.firstName || '',
                 lastName: judge.lastName || '',
                 maxNumberOfLegalCase: judge.maxNumberOfLegalCase || 0,
-                statusOfOfficer: judge.statusOfOfficer || '',
+                statusOfOfficer: judge.officerStatus || '',
                 email: judge.email || ''
             });
         } else {
@@ -146,8 +146,8 @@ const JudgeForm = ({
                 updateData.maxNumberOfLegalCase = formData.maxNumberOfLegalCase;
             }
             
-            if (formData.statusOfOfficer && formData.statusOfOfficer !== judge.statusOfOfficer) {
-                updateData.statusOfOfficer = formData.statusOfOfficer as StatusOfOfficer;
+            if (formData.statusOfOfficer && formData.statusOfOfficer !== judge.officerStatus) {
+                updateData.officerStatus = formData.statusOfOfficer as OfficerStatus;
             }
             
             if (formData.email && formData.email !== judge.email) {
@@ -167,7 +167,7 @@ const JudgeForm = ({
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
-                statusOfOfficer: null, // Mặc định khi tạo mới
+                officerStatus: null, // Mặc định khi tạo mới
                 email: formData.email || null
             };
             onSubmit(createData);
@@ -348,7 +348,7 @@ const JudgeForm = ({
                                 </label>
                                 <ComboboxSearchForm
                                     options={statusOptionsForCombobox}
-                                    value={formData.statusOfOfficer || StatusOfOfficer.WORKING}
+                                    value={formData.statusOfOfficer || OfficerStatus.WORKING}
                                     onChange={(value) => handleInputChange('statusOfOfficer', value)}
                                     placeholder="Chọn trạng thái thẩm phán"
                                 />

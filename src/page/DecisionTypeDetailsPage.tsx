@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { TypeOfDecisionService } from "../services/TypeOfDecisionService";
-import { HandleTypeOfDecisionService } from "../services/HandleTypeOfDecisionService";
-import { TypeOfLegalCaseService } from "../services/TypeOfLegalCaseService";
-import type TypeOfDecisionResponse from "../types/response/type-of-decision/TypeOfDecisionResponse";
-import type HandleTypeOfDecisionResponse from "../types/response/handle-type-of-decision/HandleTypeOfDecisionResponse";
-import type TypeOfDecisionRequest from "../types/request/type-of-decision/TypeOfDecisionRequest";
-import type { HandleTypeOfDecisionRequest } from "../types/request/handle-type-of-decision/HandleTypeOfDecisionRequest";
+import { DecisionTypeService } from "../services/DecisionTypeService";
+import { HandleDecisionTypeService } from "../services/HandleDecisionTypeService";
+import { LegalCaseTypeService } from "../services/LegalCaseTypeService";
+import type DecisionTypeResponse from "../types/response/decision-type/DecisionTypeResponse";
+import type HandleDecisionTypeResponse from "../types/response/handle-decision-type/HandleDecisionTypeResponse";
+import type DecisionTypeRequest from "../types/request/tdecision-type/DecisionTypeRequest";
+import type { HandleDecisionTypeRequest } from "../types/request/handle-decision-type/HandleDecisionTypeReques";
 import type { Option } from "../component/basic-component/ComboboxSearch";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";
-import TypeOfDecisionForm from "../component/type-of-decision-manager/TypeOfDecisionForm";
+import DecisionTypeForm from "../component/decision-type-manager/DecisionTypeForm";
 import ComboboxSearchForm from "../component/basic-component/ComboboxSearchForm";
 import ConfirmModal from "../component/basic-component/ConfirmModal";
 import { CourtIssued } from "../types/enum/CourtIssued";
-import { StatusOfLegalCase } from "../types/enum/StatusOfLegalCase";
+import { LegalCaseStatus } from "../types/enum/LegalCaseStatus";
 
 const getCourtIssuedText = (status: string) => {
   if (Object.values(CourtIssued).includes(status as CourtIssued)) {
@@ -63,15 +63,15 @@ const getTypeOfLegalCaseColor = (codeName: string) => {
 };
 
 const getStatusText = (status: string) => {
-  if (Object.values(StatusOfLegalCase).includes(status as StatusOfLegalCase)) {
+  if (Object.values(LegalCaseStatus).includes(status as LegalCaseStatus)) {
     return status;
   }
-  return (StatusOfLegalCase as any)[status] || status;
+  return (LegalCaseStatus as any)[status] || status;
 };
 
 // Helper function to get enum key from value
 const getStatusKey = (statusValue: string): string => {
-  const entry = Object.entries(StatusOfLegalCase).find(([_, value]) => value === statusValue);
+  const entry = Object.entries(LegalCaseStatus).find(([_, value]) => value === statusValue);
   return entry ? entry[0] : statusValue;
 };
 
@@ -98,13 +98,13 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const TypeOfDecisionDetailsPage = () => {
+const DecisionTypeDetailsPage = () => {
   const { typeOfDecisionId } = useParams<{ typeOfDecisionId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [typeOfDecision, setTypeOfDecision] = useState<TypeOfDecisionResponse | null>(null);
-  const [handleTypeOfDecisions, setHandleTypeOfDecisions] = useState<HandleTypeOfDecisionResponse[]>([]);
+  const [decisionType, setDecisionType] = useState<DecisionTypeResponse | null>(null);
+  const [handleDecisionTypes, setHandleDecisionTypes] = useState<HandleDecisionTypeResponse[]>([]);
   const [typeOfLegalCaseOptions, setTypeOfLegalCaseOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
   const [handlesLoading, setHandlesLoading] = useState(false);
@@ -115,7 +115,7 @@ const TypeOfDecisionDetailsPage = () => {
   const [formLoading, setFormLoading] = useState(false);
 
   // Handle type of decision edit/delete states
-  const [selectedHandle, setSelectedHandle] = useState<HandleTypeOfDecisionResponse | null>(null);
+  const [selectedHandle, setSelectedHandle] = useState<HandleDecisionTypeResponse | null>(null);
   const [showHandleEditForm, setShowHandleEditForm] = useState(false);
   const [showHandleConfirmModal, setShowHandleConfirmModal] = useState(false);
   const [showHandleCreateForm, setShowHandleCreateForm] = useState(false);
@@ -132,14 +132,14 @@ const TypeOfDecisionDetailsPage = () => {
   const [originalExtensionPeriod, setOriginalExtensionPeriod] = useState<number>(0);
 
   // Create status options for ComboboxSearchForm
-  const statusOptions: Option[] = Object.entries(StatusOfLegalCase).map(([key, value]) => ({
+  const statusOptions: Option[] = Object.entries(LegalCaseStatus).map(([key, value]) => ({
     value: key, // Use enum key as value
     label: value // Use enum value as label
   }));
 
   // Debug log to show enum mapping
   console.log('Status Options:', statusOptions);
-  console.log('StatusOfLegalCase enum:', StatusOfLegalCase);
+  console.log('StatusOfLegalCase enum:', LegalCaseStatus);
 
   useEffect(() => {
     if (typeOfDecisionId) {
@@ -181,20 +181,20 @@ const TypeOfDecisionDetailsPage = () => {
 
     setLoading(true);
     try {
-      const response = await TypeOfDecisionService.getById(typeOfDecisionId);
+      const response = await DecisionTypeService.getById(typeOfDecisionId);
       
       if (response.success && response.data) {
-        setTypeOfDecision(response.data);
+        setDecisionType(response.data);
       } else {
-        const allResponse = await TypeOfDecisionService.getAll();
+        const allResponse = await DecisionTypeService.getAll();
         
         if (allResponse.success && allResponse.data) {
           const foundTypeOfDecision = allResponse.data.find(
-            item => item.typeOfDecisionId === typeOfDecisionId
+            item => item.decisionTypeId === typeOfDecisionId
           );
           
           if (foundTypeOfDecision) {
-            setTypeOfDecision(foundTypeOfDecision);
+            setDecisionType(foundTypeOfDecision);
           } else {
             toast.error("Lỗi", "Không thể tải thông tin loại quyết định");
             navigate("/decision-type");
@@ -215,11 +215,11 @@ const TypeOfDecisionDetailsPage = () => {
 
   const fetchTypeOfLegalCaseOptions = async () => {
     try {
-      const response = await TypeOfLegalCaseService.getAll();
+      const response = await LegalCaseTypeService.getAll();
       if (response.success && response.data) {
         const options: Option[] = response.data.map((item) => ({
-          value: item.typeOfLegalCaseId,
-          label: item.typeOfLegalCaseName,
+          value: item.legalCaseTypeId,
+          label: item.legalCaseTypeName,
         }));
         setTypeOfLegalCaseOptions(options);
       }
@@ -233,9 +233,9 @@ const TypeOfDecisionDetailsPage = () => {
 
     setHandlesLoading(true);
     try {
-      const response = await HandleTypeOfDecisionService.getByTypeOfDecision(typeOfDecisionId);
+      const response = await HandleDecisionTypeService.getByTypeOfDecision(typeOfDecisionId);
       if (response.success && response.data) {
-        setHandleTypeOfDecisions(response.data);
+        setHandleDecisionTypes(response.data);
       }
     } catch (error) {
       console.error("Error fetching handle type of decisions:", error);
@@ -253,12 +253,12 @@ const TypeOfDecisionDetailsPage = () => {
     setShowConfirmModal(true);
   };
 
-  const handleFormSubmit = async (data: TypeOfDecisionRequest) => {
-    if (!typeOfDecision) return;
+  const handleFormSubmit = async (data: DecisionTypeRequest) => {
+    if (!decisionType) return;
 
     try {
       setFormLoading(true);
-      await TypeOfDecisionService.update(typeOfDecision.typeOfDecisionId, data as TypeOfDecisionRequest);
+      await DecisionTypeService.update(decisionType.decisionTypeId, data as DecisionTypeRequest);
       toast.success("Cập nhật thành công", "Loại quyết định đã được cập nhật thành công!");
       setShowEditForm(false);
       await fetchTypeOfDecisionDetails();
@@ -271,10 +271,10 @@ const TypeOfDecisionDetailsPage = () => {
   };
 
   const confirmDelete = async () => {
-    if (!typeOfDecision) return;
+    if (!decisionType) return;
 
     try {
-      await TypeOfDecisionService.delete(typeOfDecision.typeOfDecisionId);
+      await DecisionTypeService.delete(decisionType.decisionTypeId);
       toast.success("Xóa thành công", "Loại quyết định đã được xóa khỏi hệ thống!");
       navigate("/decision-type");
     } catch (error) {
@@ -285,7 +285,7 @@ const TypeOfDecisionDetailsPage = () => {
   };
 
   // Handle type of decision functions
-  const handleEditHandle = (handle: HandleTypeOfDecisionResponse) => {
+  const handleEditHandle = (handle: HandleDecisionTypeResponse) => {
     setSelectedHandle(handle);
     setShowHandleEditForm(true);
     // Form values will be set by useEffect
@@ -297,13 +297,13 @@ const TypeOfDecisionDetailsPage = () => {
     setExtensionPeriod(0);
   };
 
-  const handleDeleteHandle = (handle: HandleTypeOfDecisionResponse) => {
+  const handleDeleteHandle = (handle: HandleDecisionTypeResponse) => {
     setSelectedHandle(handle);
     setShowHandleConfirmModal(true);
   };
 
     const handleHandleFormSubmit = async (data: any) => {
-    if (!selectedHandle || !typeOfDecision) return;
+    if (!selectedHandle || !decisionType) return;
 
     // Validation: preStatus and postStatus should be different (only if both are being changed)
 
@@ -316,10 +316,10 @@ const TypeOfDecisionDetailsPage = () => {
       setHandleFormLoading(true);
       
       // Create request with only changed fields, null for unchanged fields
-      const request: Partial<HandleTypeOfDecisionRequest> = {};
+      const request: Partial<HandleDecisionTypeRequest> = {};
       
-      if (selectedHandle.typeOfDecision.typeOfDecisionId !== data.typeOfDecisionId) {
-        request.typeOfDecisionId = data.typeOfDecisionId;
+      if (selectedHandle.decisionType.decisionTypeId !== data.typeOfDecisionId) {
+        request.decisionTypeId = data.typeOfDecisionId;
       }
       if (selectedHandle.preStatus !== data.preStatus) {
         request.preStatus = data.preStatus;
@@ -330,10 +330,10 @@ const TypeOfDecisionDetailsPage = () => {
       
       request.extensionPeriod = data.extensionPeriod;
 
-      await HandleTypeOfDecisionService.update(
-        typeOfDecision.typeOfDecisionId,
+      await HandleDecisionTypeService.update(
+        decisionType.decisionTypeId,
         selectedHandle.preStatus,
-        request as HandleTypeOfDecisionRequest
+        request as HandleDecisionTypeRequest
       );
       
       toast.success("Cập nhật thành công", "Xử lý loại quyết định đã được cập nhật!");
@@ -350,11 +350,11 @@ const TypeOfDecisionDetailsPage = () => {
   };
 
   const confirmDeleteHandle = async () => {
-    if (!selectedHandle || !typeOfDecision) return;
+    if (!selectedHandle || !decisionType) return;
 
     try {
-      await HandleTypeOfDecisionService.delete(
-        typeOfDecision.typeOfDecisionId,
+      await HandleDecisionTypeService.delete(
+        decisionType.decisionTypeId,
         selectedHandle.preStatus
       );
       toast.success("Xóa thành công", "Xử lý loại quyết định đã được xóa!");
@@ -368,7 +368,7 @@ const TypeOfDecisionDetailsPage = () => {
   };
 
   const handleCreateHandle = async (data: any) => {
-    if (!typeOfDecision) return;
+    if (!decisionType) return;
 
     // Validation: preStatus and postStatus should be different
     if (data.preStatus && data.postStatus && data.preStatus === data.postStatus) {
@@ -379,14 +379,14 @@ const TypeOfDecisionDetailsPage = () => {
     try {
       setHandleFormLoading(true);
       
-      const request: HandleTypeOfDecisionRequest = {
-        typeOfDecisionId: typeOfDecision.typeOfDecisionId,
+      const request: HandleDecisionTypeRequest = {
+        decisionTypeId: decisionType.decisionTypeId,
         preStatus: data.preStatus,
         postStatus: data.postStatus,
         extensionPeriod: data.extensionPeriod,
       };
 
-      await HandleTypeOfDecisionService.create(request);
+      await HandleDecisionTypeService.create(request);
       
       toast.success("Thêm thành công", "Xử lý loại quyết định đã được thêm!");
       setShowHandleCreateForm(false);
@@ -408,7 +408,7 @@ const TypeOfDecisionDetailsPage = () => {
     );
   }
 
-  if (!typeOfDecision) {
+  if (!decisionType) {
     return (
       <div className="text-center py-12">
         <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -445,7 +445,7 @@ const TypeOfDecisionDetailsPage = () => {
               Chi tiết loại quyết định
             </h1>
             <p className="text-gray-600 mt-1 text-sm md:text-base">
-              Mã: {typeOfDecision.typeOfDecisionId}
+              Mã: {decisionType.decisionTypeId}
             </p>
           </div>
         </div>
@@ -518,19 +518,19 @@ const TypeOfDecisionDetailsPage = () => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
               <div>
                 <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                  {typeOfDecision.typeOfDecisionName}
+                  {decisionType.decisionTypeName}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  ID: {typeOfDecision.typeOfDecisionId}
+                  ID: {decisionType.decisionTypeId}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={`
                     text-md px-5 py-1 rounded-full font-medium
-                    ${getTypeOfLegalCaseColor(typeOfDecision.typeOfLegalCase.codeName)}
+                    ${getTypeOfLegalCaseColor(decisionType.legalCaseType.codeName)}
                   `}>
-                  {typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                  {decisionType.legalCaseType.legalCaseTypeName}
                 </span>
               </div>
             </div>
@@ -540,10 +540,10 @@ const TypeOfDecisionDetailsPage = () => {
               <p className="text-sm text-blue-600 mb-1">Loại vụ án</p>
               <div className="flex items-center space-x-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {typeOfDecision.typeOfLegalCase.codeName}
+                  {decisionType.legalCaseType.codeName}
                 </span>
                 <p className="text-md font-semibold text-blue-900">
-                  {typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                  {decisionType.legalCaseType.legalCaseTypeName}
                 </p>
               </div>
             </div>
@@ -567,8 +567,8 @@ const TypeOfDecisionDetailsPage = () => {
                   <p className="text-sm text-gray-600 font-medium">Tòa ban hành</p>
                 </div>
                 <span
-                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getCourtIssuedColor(typeOfDecision.courtIssued).bg} ${getCourtIssuedColor(typeOfDecision.courtIssued).text} ${getCourtIssuedColor(typeOfDecision.courtIssued).border}`}>
-                  {getCourtIssuedText(typeOfDecision.courtIssued)}
+                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getCourtIssuedColor(decisionType.courtIssued).bg} ${getCourtIssuedColor(decisionType.courtIssued).text} ${getCourtIssuedColor(decisionType.courtIssued).border}`}>
+                  {getCourtIssuedText(decisionType.courtIssued)}
                 </span>
               </div>
 
@@ -588,7 +588,7 @@ const TypeOfDecisionDetailsPage = () => {
                   </svg>
                   <p className="text-sm text-gray-600 font-medium">Quyết định cuối</p>
                 </div>
-                {typeOfDecision.theEndDecision ? (
+                {decisionType.theEndDecision ? (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-600 border border-green-300">
                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -620,7 +620,7 @@ const TypeOfDecisionDetailsPage = () => {
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
           </div>
-        ) : handleTypeOfDecisions.length === 0 ? (
+        ) : handleDecisionTypes.length === 0 ? (
           <div className="text-center py-8">
             <svg
               className="w-12 h-12 text-gray-300 mx-auto mb-4"
@@ -638,7 +638,7 @@ const TypeOfDecisionDetailsPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {handleTypeOfDecisions.map((handle, index) => (
+            {handleDecisionTypes.map((handle, index) => (
               <div
                 key={index}
                 className="border border-gray-200 rounded-lg p-6 bg-gray-50">
@@ -770,11 +770,11 @@ const TypeOfDecisionDetailsPage = () => {
       </div>
 
       {/* Modals */}
-      <TypeOfDecisionForm
+      <DecisionTypeForm
         isOpen={showEditForm}
         onClose={() => setShowEditForm(false)}
         onSubmit={handleFormSubmit}
-        typeOfDecision={typeOfDecision}
+        typeOfDecision={decisionType}
         typeOfLegalCaseOptions={typeOfLegalCaseOptions}
         isLoading={formLoading}
       />
@@ -784,7 +784,7 @@ const TypeOfDecisionDetailsPage = () => {
         onClose={() => setShowConfirmModal(false)}
         onConfirm={confirmDelete}
         title="Xác nhận xóa loại quyết định"
-        message={`Bạn có chắc chắn muốn xóa loại quyết định "${typeOfDecision.typeOfDecisionName}"? Hành động này không thể hoàn tác.`}
+        message={`Bạn có chắc chắn muốn xóa loại quyết định "${decisionType.decisionTypeName}"? Hành động này không thể hoàn tác.`}
         type="danger"
         confirmText="Xác nhận"
         cancelText="Hủy"
@@ -821,7 +821,7 @@ const TypeOfDecisionDetailsPage = () => {
                 
                 // Only send changed fields
                 const data: any = {
-                  typeOfDecisionId: selectedHandle.typeOfDecision.typeOfDecisionId,
+                  typeOfDecisionId: selectedHandle.decisionType.decisionTypeId,
                 };
                 
                 // Check if preStatus changed
@@ -1039,4 +1039,4 @@ const TypeOfDecisionDetailsPage = () => {
   );
 };
 
-export default TypeOfDecisionDetailsPage;
+export default DecisionTypeDetailsPage;

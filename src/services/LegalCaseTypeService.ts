@@ -1,16 +1,16 @@
 import { type ApiResponse } from "../types/ApiResponse";
-import { type TypeOfLegalCaseResponse } from "../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
+import { type LegalCaseTypeResponse } from "../types/response/legal-case-type/LegalCaseTypeResponse";
 import { Connect } from "../connect/Connect";
-import { type TypeOfLegalCaseRequest } from "../types/request/type-of-legal-case/TypeOfLegalCaseRequest";
-import type { TypeOfLegalCaseSearchRequest } from "../types/request/type-of-legal-case/TypeOfLegalCaseSearchRequest";
+import { type LegalCaseTypeRequest } from "../types/request/legal-case-type/LegalCaseTypeRequest";
+import type { LegalCaseTypeSearchRequest } from "../types/request/legal-case-type/LegalCaseTypeSearchRequest";
 import type { PageResponse } from "../types/response/PageResponse";
 
-export class TypeOfLegalCaseService {
+export class LegalCaseTypeService {
   static api: string = '/type-of-legal-case';
 
-  static async top50(): Promise<ApiResponse<TypeOfLegalCaseResponse[]>> {
+  static async top50(): Promise<ApiResponse<LegalCaseTypeResponse[]>> {
     const token = localStorage.getItem('token');
-    return Connect.request<TypeOfLegalCaseResponse[]>(
+    return Connect.request<LegalCaseTypeResponse[]>(
       `${this.api}/limit-50`,
       'GET',
       null,
@@ -18,7 +18,7 @@ export class TypeOfLegalCaseService {
     );
   }
 
-  static async create(request: TypeOfLegalCaseRequest): Promise<ApiResponse<void>> {
+  static async create(request: LegalCaseTypeRequest): Promise<ApiResponse<void>> {
     const token = localStorage.getItem('token');
     return Connect.request<void>(
       `${this.api}`,
@@ -28,7 +28,7 @@ export class TypeOfLegalCaseService {
     );
   }
 
-  static async update(id: string, request: TypeOfLegalCaseRequest): Promise<ApiResponse<void>> {
+  static async update(id: string, request: LegalCaseTypeRequest): Promise<ApiResponse<void>> {
     const token = localStorage.getItem('token');
     return Connect.request<void>(
       `${this.api}/${id}`,
@@ -49,11 +49,11 @@ export class TypeOfLegalCaseService {
   }
 
   static async search(
-    request: TypeOfLegalCaseSearchRequest,
+    request: LegalCaseTypeSearchRequest,
     page: number = 0,
     size: number = 10,
     sortBy: string = "typeOfLegalCaseName"
-  ): Promise<ApiResponse<PageResponse<TypeOfLegalCaseResponse>>> {
+  ): Promise<ApiResponse<PageResponse<LegalCaseTypeResponse>>> {
     const token = localStorage.getItem('token');
     
     const queryParams = new URLSearchParams({
@@ -64,7 +64,7 @@ export class TypeOfLegalCaseService {
     
     const url = `${this.api}/search?${queryParams.toString()}`;
     
-    return Connect.request<PageResponse<TypeOfLegalCaseResponse>>(
+    return Connect.request<PageResponse<LegalCaseTypeResponse>>(
       url,
       'POST',
       request,
@@ -72,9 +72,9 @@ export class TypeOfLegalCaseService {
     );
   }
 
-  static async getAll(): Promise<ApiResponse<TypeOfLegalCaseResponse[]>> {
+  static async getAll(): Promise<ApiResponse<LegalCaseTypeResponse[]>> {
     const token = localStorage.getItem('token');
-    return Connect.request<TypeOfLegalCaseResponse[]>(
+    return Connect.request<LegalCaseTypeResponse[]>(
       `${this.api}/all`,
       'GET',
       null,

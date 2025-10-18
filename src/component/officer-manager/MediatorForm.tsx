@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { MediatorResponse } from '../../types/response/mediator/MediatorResponse';
 import type { MediatorRequest } from '../../types/request/mediator/MediatorRequest';
-import { StatusOfOfficer } from '../../types/enum/StatusOfOfficer';
+import { OfficerStatus } from '../../types/enum/OfficerStatus';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 
 interface MediatorFormProps {
@@ -29,11 +29,11 @@ const MediatorForm = ({
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const statusOptions = [
-        { value: "WORKING", label: StatusOfOfficer.WORKING },
-        { value: "NOT_WORKING", label: StatusOfOfficer.NOT_WORKING },
-        { value: "ON_BUSINESS_TRIP", label: StatusOfOfficer.ON_BUSINESS_TRIP },
-        { value: "ON_LEAVE", label: StatusOfOfficer.ON_LEAVE },
-        { value: "DISCIPLINED", label: StatusOfOfficer.DISCIPLINED }
+        { value: "WORKING", label: OfficerStatus.WORKING },
+        { value: "NOT_WORKING", label: OfficerStatus.NOT_WORKING },
+        { value: "ON_BUSINESS_TRIP", label: OfficerStatus.ON_BUSINESS_TRIP },
+        { value: "ON_LEAVE", label: OfficerStatus.ON_LEAVE },
+        { value: "DISCIPLINED", label: OfficerStatus.DISCIPLINED }
     ];
 
     const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
@@ -77,7 +77,7 @@ const MediatorForm = ({
             setFormData({
                 firstName: mediator.firstName || '',
                 lastName: mediator.lastName || '',
-                statusOfOfficer: mediator.statusOfOfficer || '',
+                statusOfOfficer: mediator.officerStatus || '',
                 email: mediator.email || ''
             });
         } else {
@@ -130,8 +130,8 @@ const MediatorForm = ({
                 updateData.lastName = formData.lastName;
             }
             
-            if (formData.statusOfOfficer && formData.statusOfOfficer !== mediator.statusOfOfficer) {
-                updateData.statusOfOfficer = formData.statusOfOfficer as StatusOfOfficer;
+            if (formData.statusOfOfficer && formData.statusOfOfficer !== mediator.officerStatus) {
+                updateData.officerStatus = formData.statusOfOfficer as OfficerStatus;
             }
             
             if (formData.email && formData.email !== mediator.email) {
@@ -150,7 +150,7 @@ const MediatorForm = ({
             const createData: MediatorRequest = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                statusOfOfficer: null, // Mặc định khi tạo mới
+                officerStatus: null, // Mặc định khi tạo mới
                 email: formData.email || null
             };
             onSubmit(createData);

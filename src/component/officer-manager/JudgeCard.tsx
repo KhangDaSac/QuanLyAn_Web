@@ -1,5 +1,5 @@
 import { type JudgeResponse } from "../../types/response/judge/JudgeResponse";
-import { StatusOfOfficer } from "../../types/enum/StatusOfOfficer";
+import { OfficerStatus } from "../../types/enum/OfficerStatus";
 
 interface JudgeCardProps {
   judge: JudgeResponse;
@@ -26,7 +26,7 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
   };
 
   const getStatusText = (status: string) => {
-    return StatusOfOfficer[status as keyof typeof StatusOfOfficer] || status;
+    return OfficerStatus[status as keyof typeof OfficerStatus] || status;
   };
 
   return (
@@ -48,9 +48,9 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={`text-sm px-4 py-2 rounded-full font-medium border ${getStatusColor(
-              judge.statusOfOfficer
+              judge.officerStatus
             )}`}>
-            {getStatusText(judge.statusOfOfficer)}
+            {getStatusText(judge.officerStatus)}
           </span>
         </div>
       </div>

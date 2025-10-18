@@ -1,10 +1,10 @@
 import type { Role } from "../../enum/Role";
-import type { StatusOfAccount } from "../../enum/StatusOfAccount";
+import type { AccountStatus } from "../../enum/AccountStatus";
 
 export default interface AccountRequest {
     username?: string | null;
     password?: string | null;
     email?: string | null;
     role?: Role | null;
-    statusOfAccount?: StatusOfAccount | null;
+    accountStatus?: AccountStatus | null;
 }

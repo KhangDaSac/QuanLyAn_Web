@@ -3,7 +3,7 @@ import { AccountService } from "../services/AccountService";
 import type { AccountResponse } from "../types/response/auth/AccountResponse";
 import type AccountRequest from "../types/request/auth/AccountRequest";
 import type { AccountSearchRequest } from "../types/request/auth/AccountSearchRequest";
-import { StatusOfAccount } from "../types/enum/StatusOfAccount";
+import { AccountStatus } from "../types/enum/AccountStatus";
 import AccountCard from "../component/account-manager/AccountCard";
 import AccountForm from "../component/account-manager/AccountForm";
 import Pagination from "../component/basic-component/Pagination";
@@ -56,7 +56,7 @@ const AccountManagement = () => {
   const toast = useToast();
 
   const statusOptions: Option[] = [
-    ...Object.entries(StatusOfAccount).map(([key, value]) => ({
+    ...Object.entries(AccountStatus).map(([key, value]) => ({
       value: key,
       label: value,
     })),
@@ -80,7 +80,7 @@ const AccountManagement = () => {
     { value: "accountId", label: "Mã tài khoản" },
     { value: "email", label: "Email" },
     { value: "role", label: "Quyền" },
-    { value: "statusOfAccount", label: "Trạng thái" },
+    { value: "accountStatus", label: "Trạng thái" },
   ];
 
   useEffect(() => {
@@ -404,7 +404,7 @@ const AccountManagement = () => {
                   onChange={(value) =>
                     setAccountSearch((prev) => ({
                       ...prev,
-                      statusOfAccount: (value as StatusOfAccount) || null,
+                      statusOfAccount: (value as AccountStatus) || null,
                     }))
                   }
                   placeholder="Chọn trạng thái"
@@ -486,7 +486,7 @@ const AccountManagement = () => {
                   handleToggleStatusClick(
                     id,
                     account.username || account.email,
-                    account.statusOfAccount.toString() === "ACTIVE"
+                    account.accountStatus.toString() === "ACTIVE"
                   )
                 }
               />

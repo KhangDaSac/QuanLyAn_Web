@@ -3,9 +3,9 @@ import { type LegalRelationshipResponse } from "../../types/response/legal-relat
 import { type LegalRelationshipRequest } from "../../types/request/legal-relationship/LegalRelationshipRequest";
 import { type LegalRelationshipSearchRequest } from "../../types/request/legal-relationship/LegalRelationshipSearchRequest";
 import { type LegalRelationshipGroupResponse } from "../../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
-import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
+import { type LegalCaseTypeResponse } from "../../types/response/legal-case-type/LegalCaseTypeResponse";
 import { LegalRelationshipService } from "../../services/LegalRelationshipService";
-import { TypeOfLegalCaseService } from "../../services/TypeOfLegalCaseService";
+import { LegalCaseTypeService } from "../../services/LegalCaseTypeService";
 import { LegalRelationshipGroupService } from "../../services/LegalRelationshipGroupService";
 import LegalRelationshipForm from "./LegalRelationshipForm";
 import LegalRelationshipCard from "./LegalRelationshipCard";
@@ -18,8 +18,8 @@ const LegalRelationshipTab = () => {
   const [relationships, setRelationships] = useState<
     LegalRelationshipResponse[]
   >([]);
-  const [typeOfLegalCases, setTypeOfLegalCases] = useState<
-    TypeOfLegalCaseResponse[]
+  const [legalCaseTypes, setLegalCaseTypes] = useState<
+    LegalCaseTypeResponse[]
   >([]);
   const [groups, setGroups] = useState<LegalRelationshipGroupResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ const LegalRelationshipTab = () => {
   const sortByOptions: Option[] = [
     { value: "legalRelationshipName", label: "Tên quan hệ pháp luật" },
     { value: "legalRelationshipId", label: "Mã quan hệ pháp luật" },
-    { value: "typeOfLegalCase.typeOfLegalCaseId", label: "Loại vụ án" },
+    { value: "legalCaseType.legalCaseTypeId", label: "Loại vụ án" },
   ];
 
   const toast = useToast();
@@ -132,8 +132,8 @@ const LegalRelationshipTab = () => {
   // Helper function to clean search criteria
   const cleanSearchCriteria = (criteria: LegalRelationshipSearchRequest): LegalRelationshipSearchRequest => {
     return {
-      typeOfLegalCaseId: criteria.typeOfLegalCaseId || null,
-      typeOfLegalCaseName: criteria.typeOfLegalCaseName || null,
+      legalCaseTypeId: criteria.legalCaseTypeId || null,
+      legalCaseTypeName: criteria.legalCaseTypeName || null,
       legalRelationshipGroupId: criteria.legalRelationshipGroupId || null,
       legalRelationshipGroupName: criteria.legalRelationshipGroupName || null,
       legalRelationshipId: criteria.legalRelationshipId || null,
@@ -154,15 +154,15 @@ const LegalRelationshipTab = () => {
 
   const loadTypeOfLegalCases = async () => {
     try {
-      const response = await TypeOfLegalCaseService.getAll();
+      const response = await LegalCaseTypeService.getAll();
       if (response.success && response.data) {
-        setTypeOfLegalCases(response.data);
+        setLegalCaseTypes(response.data);
       } else {
-        setTypeOfLegalCases([]);
+        setLegalCaseTypes([]);
       }
     } catch (error) {
       console.error("Error loading type of legal cases:", error);
-      setTypeOfLegalCases([]);
+      setLegalCaseTypes([]);
     }
   };
 
@@ -474,7 +474,7 @@ const LegalRelationshipTab = () => {
       <LegalRelationshipForm
         isOpen={showForm}
         initialData={editingItem}
-        typeOfLegalCases={typeOfLegalCases}
+        legalCaseTypes={legalCaseTypes}
         groups={groups}
         onSubmit={handleSubmit}
         onCancel={() => {
@@ -565,15 +565,15 @@ const LegalRelationshipTab = () => {
                 Loại vụ án
               </label>
               <ComboboxSearch
-                options={typeOfLegalCases.map((type) => ({
-                  value: type.typeOfLegalCaseId,
-                  label: type.typeOfLegalCaseName,
+                options={legalCaseTypes.map((type) => ({
+                  value: type.legalCaseTypeId,
+                  label: type.legalCaseTypeName,
                 }))}
-                value={searchCriteria.typeOfLegalCaseId || ""}
+                value={searchCriteria.legalCaseTypeId || ""}
                 onChange={(value) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    typeOfLegalCaseId: value || null,
+                    legalCaseTypeId: value || null,
                   }))
                 }
                 placeholder="Chọn loại vụ án"

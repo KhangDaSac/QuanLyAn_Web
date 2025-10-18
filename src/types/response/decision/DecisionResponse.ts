@@ -6,6 +6,6 @@ export default interface DecisionResponse {
     releaseDate: string;
     addedDate: string;
     note: string;
-    typeOfDecision: string;
+    decisionType: string;
     legalCase: LegalCaseResponse;
 }

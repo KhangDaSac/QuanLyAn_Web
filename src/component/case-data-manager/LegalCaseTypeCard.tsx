@@ -1,12 +1,12 @@
-import { type TypeOfLegalCaseResponse } from '../../types/response/type-of-legal-case/TypeOfLegalCaseResponse';
+import { type LegalCaseTypeResponse } from '../../types/response/legal-case-type/LegalCaseTypeResponse';
 
-interface TypeOfLegalCaseCardProps {
-  typeOfLegalCase: TypeOfLegalCaseResponse;
-  onEdit: (item: TypeOfLegalCaseResponse) => void;
+interface LegalCaseTypeCardProps {
+  legalCaseType: LegalCaseTypeResponse;
+  onEdit: (item: LegalCaseTypeResponse) => void;
   onDelete: (id: string) => void;
 }
 
-const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalCaseCardProps) => {
+const LegalCaseTypeCard = ({ legalCaseType, onEdit, onDelete }: LegalCaseTypeCardProps) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
@@ -15,9 +15,9 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              {typeOfLegalCase.typeOfLegalCaseName}
+              {legalCaseType.legalCaseTypeName}
             </h3>
-            <p className="text-sm text-gray-500">ID: {typeOfLegalCase.typeOfLegalCaseId}</p>
+            <p className="text-sm text-gray-500">ID: {legalCaseType.legalCaseTypeId}</p>
           </div>
         </div>
 
@@ -25,12 +25,12 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
         <div className="space-y-3 mb-6">
           <div className="bg-blue-50 rounded-lg p-3">
             <p className="text-sm text-blue-600 mb-1">Tên loại vụ án</p>
-            <p className="text-base font-semibold text-blue-900">{typeOfLegalCase.typeOfLegalCaseName}</p>
+            <p className="text-base font-semibold text-blue-900">{legalCaseType.legalCaseTypeName}</p>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-sm text-gray-600 mb-1">Mã loại vụ án</p>
-            <p className="text-base font-semibold text-gray-900">{typeOfLegalCase.codeName}</p>
+            <p className="text-base font-semibold text-gray-900">{legalCaseType.codeName}</p>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
         <button
-          onClick={() => onEdit(typeOfLegalCase)}
+          onClick={() => onEdit(legalCaseType)}
           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-blue-300 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
         </button>
 
         <button
-          onClick={() => onDelete(typeOfLegalCase.typeOfLegalCaseId)}
+          onClick={() => onDelete(legalCaseType.legalCaseTypeId)}
           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-red-300 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,4 +61,4 @@ const TypeOfLegalCaseCard = ({ typeOfLegalCase, onEdit, onDelete }: TypeOfLegalC
   );
 };
 
-export default TypeOfLegalCaseCard;
+export default LegalCaseTypeCard;

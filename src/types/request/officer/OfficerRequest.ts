@@ -1,8 +1,8 @@
-import type { StatusOfOfficer } from "../../enum/StatusOfOfficer";
+import type { OfficerStatus } from "../../enum/OfficerStatus";
 
 export interface OfficerRequest {
   firstName?: string | null;
   lastName?: string | null;
-  statusOfOfficer?: StatusOfOfficer | null;
+  officerStatus?: OfficerStatus | null;
   email?: string | null;
 }

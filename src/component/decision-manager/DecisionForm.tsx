@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type DecisionRequest from '../../types/request/decision/DecisionRequest';
-import { TypeOfDecisionService } from '../../services/TypeOfDecisionService';
+import { DecisionTypeService } from '../../services/DecisionTypeService';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 
 interface DecisionFormProps {
@@ -22,12 +22,12 @@ const DecisionForm = ({
         number: '',
         releaseDate: '',
         note: '',
-        typeOfDecisionId: '',
+        decisionTypeId: '',
         legalCaseId: legalCaseId,
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [typeOfDecisions, setTypeOfDecisions] = useState<Option[]>([]);
+    const [decisionTypes, setDecisionTypes] = useState<Option[]>([]);
 
     // Reset form when modal opens
     useEffect(() => {
@@ -36,7 +36,7 @@ const DecisionForm = ({
                 number: '',
                 releaseDate: '',
                 note: '',
-                typeOfDecisionId: '',
+                decisionTypeId: '',
                 legalCaseId: legalCaseId,
             });
             setErrors({});
@@ -59,13 +59,13 @@ const DecisionForm = ({
 
     const fetchTypeOfDecisions = async () => {
         try {
-            const response = await TypeOfDecisionService.getAll();
+            const response = await DecisionTypeService.getAll();
             if (response.success && response.data) {
                 const options: Option[] = response.data.map(item => ({
-                    value: item.typeOfDecisionId,
-                    label: item.typeOfDecisionName
+                    value: item.decisionTypeId,
+                    label: item.decisionTypeName
                 }));
-                setTypeOfDecisions(options);
+                setDecisionTypes(options);
             }
         } catch (error) {
             console.error('Error fetching type of decisions:', error);
@@ -98,7 +98,7 @@ const DecisionForm = ({
             newErrors.releaseDate = 'Ngày ban hành là bắt buộc';
         }
 
-        if (!formData.typeOfDecisionId) {
+        if (!formData.decisionTypeId) {
             newErrors.typeOfDecisionId = 'Loại quyết định là bắt buộc';
         }
 
@@ -192,13 +192,13 @@ const DecisionForm = ({
                                 Loại quyết định <span className="text-red-500">*</span>
                             </label>
                             <ComboboxSearch
-                                options={typeOfDecisions}
-                                value={formData.typeOfDecisionId}
-                                onChange={(value) => handleInputChange('typeOfDecisionId', value)}
+                                options={decisionTypes}
+                                value={formData.decisionTypeId}
+                                onChange={(value) => handleInputChange('decisionTypeId', value)}
                                 placeholder="Chọn loại quyết định"
                             />
-                            {errors.typeOfDecisionId && (
-                                <p className="text-red-500 text-xs mt-1">{errors.typeOfDecisionId}</p>
+                            {errors.decisionTypeId && (
+                                <p className="text-red-500 text-xs mt-1">{errors.decisionTypeId}</p>
                             )}
                         </div>
 

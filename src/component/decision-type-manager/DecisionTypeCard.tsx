@@ -1,11 +1,11 @@
-import type TypeOfDecisionResponse from "../../types/response/type-of-decision/TypeOfDecisionResponse";
+import type DecisionTypeResponse from "../../types/response/decision-type/DecisionTypeResponse";
 import { CourtIssued } from "../../types/enum/CourtIssued";
 
-interface TypeOfDecisionCardProps {
-  typeOfDecision: TypeOfDecisionResponse;
-  onEdit?: (typeOfDecision: TypeOfDecisionResponse) => void;
-  onDelete?: (typeOfDecision: TypeOfDecisionResponse) => void;
-  onViewDetails?: (typeOfDecision: TypeOfDecisionResponse) => void;
+interface DecisionTypeCardProps {
+  decisionType: DecisionTypeResponse;
+  onEdit?: (decisionType: DecisionTypeResponse) => void;
+  onDelete?: (decisionType: DecisionTypeResponse) => void;
+  onViewDetails?: (decisionType: DecisionTypeResponse) => void;
 }
 
   const getCourtIssuedText = (status: string) => {
@@ -61,7 +61,7 @@ const getTypeOfLegalCaseColor = (codeName: string) => {
   }
 };
 
-const TypeOfDecisionCard = ({ typeOfDecision, onViewDetails }: TypeOfDecisionCardProps) => {
+const TypeOfDecisionCard = ({ decisionType: typeOfDecision, onViewDetails }: DecisionTypeCardProps) => {
   const courtColor = getCourtIssuedColor(typeOfDecision.courtIssued);
 
   return (
@@ -76,11 +76,11 @@ const TypeOfDecisionCard = ({ typeOfDecision, onViewDetails }: TypeOfDecisionCar
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical'
             }}
-            title={typeOfDecision.typeOfDecisionName}
+            title={typeOfDecision.decisionTypeName}
           >
-            {typeOfDecision.typeOfDecisionName}
+            {typeOfDecision.decisionTypeName}
           </h3>
-          <p className="text-sm text-gray-500">ID: {typeOfDecision.typeOfDecisionId}</p>
+          <p className="text-sm text-gray-500">ID: {typeOfDecision.decisionTypeId}</p>
         </div>
 
         {/* Content */}
@@ -91,11 +91,11 @@ const TypeOfDecisionCard = ({ typeOfDecision, onViewDetails }: TypeOfDecisionCar
             <div className="flex items-center space-x-2">
               <span
                 className={`text-sm px-3 py-1 rounded-full font-medium truncate max-w-full ${getTypeOfLegalCaseColor(
-                  typeOfDecision.typeOfLegalCase.codeName
+                  typeOfDecision.legalCaseType.codeName
                 )}`}
-                title={typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                title={typeOfDecision.legalCaseType.legalCaseTypeName}
               >
-                {typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                {typeOfDecision.legalCaseType.legalCaseTypeName}
               </span>
             </div>
           </div>
@@ -167,7 +167,7 @@ const TypeOfDecisionCard = ({ typeOfDecision, onViewDetails }: TypeOfDecisionCar
       <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
         <button
           onClick={() => {
-            console.log('Chi tiết button clicked:', typeOfDecision.typeOfDecisionId);
+            console.log('Chi tiết button clicked:', typeOfDecision.decisionTypeId);
             onViewDetails?.(typeOfDecision);
           }}
           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium border border-green-300 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200"

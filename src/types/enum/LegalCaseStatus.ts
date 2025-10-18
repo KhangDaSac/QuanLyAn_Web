@@ -1,4 +1,4 @@
-export enum StatusOfLegalCase {
+export enum LegalCaseStatus {
     TEMPORARY_SUSPENSION = "Tạm đình chỉ",
     OVERDUE = "Quá hạn",
     CANCELED = "Án hủy",

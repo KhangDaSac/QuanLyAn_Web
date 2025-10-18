@@ -1,25 +1,25 @@
 import { useState, useEffect } from 'react';
-import { type TypeOfLegalCaseRequest } from '../../types/request/type-of-legal-case/TypeOfLegalCaseRequest';
-import { type TypeOfLegalCaseResponse } from '../../types/response/type-of-legal-case/TypeOfLegalCaseResponse';
+import { type LegalCaseTypeRequest } from '../../types/request/legal-case-type/LegalCaseTypeRequest';
+import { type LegalCaseTypeResponse } from '../../types/response/legal-case-type/LegalCaseTypeResponse';
 import { useToast, ToastContainer } from '../basic-component/Toast';
 
-interface TypeOfLegalCaseFormProps {
+interface LegalCaseTypeFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TypeOfLegalCaseRequest) => void;
-  typeOfLegalCase?: TypeOfLegalCaseResponse | null;
+  onSubmit: (data: LegalCaseTypeRequest) => void;
+  legalCaseType?: LegalCaseTypeResponse | null;
   isLoading?: boolean;
 }
 
-const TypeOfLegalCaseForm = ({
+const LegalCaseTypeForm = ({
   isOpen,
-  typeOfLegalCase,
+  legalCaseType,
   onSubmit,
   onClose,
   isLoading = false
-}: TypeOfLegalCaseFormProps) => {
-  const [formData, setFormData] = useState<TypeOfLegalCaseRequest>({
-    typeOfLegalCaseName: '',
+}: LegalCaseTypeFormProps) => {
+  const [formData, setFormData] = useState<LegalCaseTypeRequest>({
+    legalCaseTypeName: '',
     codeName: ''
   });
 
@@ -41,25 +41,25 @@ const TypeOfLegalCaseForm = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (typeOfLegalCase) {
+    if (legalCaseType) {
       setFormData({
-        typeOfLegalCaseName: typeOfLegalCase.typeOfLegalCaseName,
-        codeName: typeOfLegalCase.codeName
+        legalCaseTypeName: legalCaseType.legalCaseTypeName,
+        codeName: legalCaseType.codeName
       });
     } else {
       // Reset form khi không có typeOfLegalCase
       setFormData({
-        typeOfLegalCaseName: '',
+        legalCaseTypeName: '',
         codeName: ''
       });
     }
     setErrors({});
-  }, [typeOfLegalCase, isOpen]);
+  }, [legalCaseType, isOpen]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.typeOfLegalCaseName.trim()) {
+    if (!formData.legalCaseTypeName.trim()) {
       newErrors.typeOfLegalCaseName = 'Tên loại vụ án là bắt buộc';
     }
 
@@ -80,7 +80,7 @@ const TypeOfLegalCaseForm = ({
         onSubmit(formData);
         success(
           'Thành công',
-          typeOfLegalCase ? 'Cập nhật loại vụ án thành công!' : 'Thêm loại vụ án mới thành công!'
+          legalCaseType ? 'Cập nhật loại vụ án thành công!' : 'Thêm loại vụ án mới thành công!'
         );
       } catch (error) {
         showError('Lỗi', 'Có lỗi xảy ra khi lưu dữ liệu');
@@ -88,7 +88,7 @@ const TypeOfLegalCaseForm = ({
     }
   };
 
-  const handleInputChange = (field: keyof TypeOfLegalCaseRequest, value: string) => {
+  const handleInputChange = (field: keyof LegalCaseTypeRequest, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Xóa lỗi khi user bắt đầu nhập
     if (errors[field]) {
@@ -122,7 +122,7 @@ const TypeOfLegalCaseForm = ({
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {typeOfLegalCase ? 'Cập nhật loại vụ án' : 'Thêm loại vụ án mới'}
+              {legalCaseType ? 'Cập nhật loại vụ án' : 'Thêm loại vụ án mới'}
             </h2>
             <button
               onClick={onClose}
@@ -142,8 +142,8 @@ const TypeOfLegalCaseForm = ({
               </label>
               <input
                 type="text"
-                value={formData.typeOfLegalCaseName}
-                onChange={(e) => handleInputChange('typeOfLegalCaseName', e.target.value)}
+                value={formData.legalCaseTypeName}
+                onChange={(e) => handleInputChange('legalCaseTypeName', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${errors.typeOfLegalCaseName ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Nhập tên loại vụ án"
@@ -190,7 +190,7 @@ const TypeOfLegalCaseForm = ({
                     Đang xử lý...
                   </span>
                 ) : (
-                  typeOfLegalCase ? 'Cập nhật' : 'Thêm mới'
+                  legalCaseType ? 'Cập nhật' : 'Thêm mới'
                 )}
               </button>
               <button
@@ -209,4 +209,4 @@ const TypeOfLegalCaseForm = ({
   );
 };
 
-export default TypeOfLegalCaseForm;
+export default LegalCaseTypeForm;

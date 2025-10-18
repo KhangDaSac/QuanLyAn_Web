@@ -1,8 +1,8 @@
 import type { CourtIssued } from "../../enum/CourtIssued";
 
-export default interface TypeOfDecisionRequest {
-    typeOfDecisionName?: string | null;
-    typeOfLegalCaseId?: string | null;
+export default interface DecisionTypeRequest {
+    decisionTypeName?: string | null;
+    LegalCaseTypeId?: string | null;
     courtIssued?: CourtIssued | null;
     theEndDecision?: boolean | null;
 }

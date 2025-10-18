@@ -1,7 +1,7 @@
 import type { AccountResponse } from "../../types/response/auth/AccountResponse";
 import { Role } from "../../types/enum/Role";
-import { StatusOfAccount } from "../../types/enum/StatusOfAccount";
-import { StatusOfOfficer } from "../../types/enum/StatusOfOfficer";
+import { AccountStatus } from "../../types/enum/AccountStatus";
+import { OfficerStatus } from "../../types/enum/OfficerStatus";
 
 interface AccountCardProps {
   account: AccountResponse;
@@ -19,7 +19,7 @@ const AccountCard = ({
 
   const isActiveStatus = (status: any) => {
     return (
-      status === StatusOfAccount.ACTIVE
+      status === AccountStatus.ACTIVE
     );
   };
 
@@ -37,17 +37,17 @@ const AccountCard = ({
   };
 
   const getStatusAccountText = (status: string) => {
-    if (Object.values(StatusOfAccount).includes(status as StatusOfAccount)) {
+    if (Object.values(AccountStatus).includes(status as AccountStatus)) {
       return status;
     }
-    return (StatusOfAccount as any)[status] || status;
+    return (AccountStatus as any)[status] || status;
   };
 
   const getStatusOfficerText = (status: string) => {
-    if (Object.values(StatusOfOfficer).includes(status as StatusOfOfficer)) {
+    if (Object.values(OfficerStatus).includes(status as OfficerStatus)) {
       return status;
     }
-    return (StatusOfOfficer as any)[status] || status;
+    return (OfficerStatus as any)[status] || status;
   };
 
   const getRoleText = (role: string) => {
@@ -94,11 +94,11 @@ const AccountCard = ({
               </span>
               <span
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  isActiveStatus(account.statusOfAccount)
+                  isActiveStatus(account.accountStatus)
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
                 }`}>
-                {getStatusAccountText(account.statusOfAccount)}
+                {getStatusAccountText(account.accountStatus)}
               </span>
             </div>
             <p className="text-sm text-gray-600 truncate" title={account.email}>
@@ -132,11 +132,11 @@ const AccountCard = ({
                 </p>
                 <span
                   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    account.officer.statusOfOfficer === StatusOfOfficer.WORKING
+                    account.officer.officerStatus === OfficerStatus.WORKING
                       ? "bg-green-100 text-green-800"
                       : "bg-orange-100 text-orange-800"
                   }`}>
-                  {getStatusOfficerText(account.officer.statusOfOfficer)}
+                  {getStatusOfficerText(account.officer.officerStatus)}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-xs text-gray-600">
@@ -175,7 +175,7 @@ const AccountCard = ({
           <button
             onClick={() => onToggleStatus(account.accountId)}
             className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 border ${
-              account.statusOfAccount.toString() == "ACTIVE"
+              account.accountStatus.toString() == "ACTIVE"
                 ? "text-orange-600 bg-orange-50 hover:bg-orange-100 border-orange-200"
                 : "text-green-600 bg-green-50 hover:bg-green-100 border-green-200"
             }`}>
@@ -189,14 +189,14 @@ const AccountCard = ({
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d={
-                  account.statusOfAccount.toString() == "ACTIVE"
+                  account.accountStatus.toString() == "ACTIVE"
                     ? "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
                     : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 }
               />
             </svg>
             <span>
-              {account.statusOfAccount.toString() == "ACTIVE" ? "Khóa" : "Mở khóa"}
+              {account.accountStatus.toString() == "ACTIVE" ? "Khóa" : "Mở khóa"}
             </span>
           </button>
 
@@ -253,11 +253,11 @@ const AccountCard = ({
           </div>
           <span
             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-              isActiveStatus(account.statusOfAccount)
+              isActiveStatus(account.accountStatus)
                 ? "bg-green-100 text-green-800"
                 : "bg-red-100 text-red-800"
             }`}>
-            {getStatusAccountText(account.statusOfAccount)}
+            {getStatusAccountText(account.accountStatus)}
           </span>
         </div>
 
@@ -286,11 +286,11 @@ const AccountCard = ({
               </div>
               <span
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-                  account.officer.statusOfOfficer === StatusOfOfficer.WORKING
+                  account.officer.officerStatus === OfficerStatus.WORKING
                     ? "bg-green-100 text-green-800"
                     : "bg-orange-100 text-orange-800"
                 }`}>
-                {getStatusOfficerText(account.officer.statusOfOfficer)}
+                {getStatusOfficerText(account.officer.officerStatus)}
               </span>
             </div>
             <div className="mt-1 text-xs text-gray-600">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { type LegalRelationshipRequest } from "../../types/request/legal-relationship/LegalRelationshipRequest";
 import { type LegalRelationshipResponse } from "../../types/response/legal-relationship/LegalRelationshipResponse";
-import { type TypeOfLegalCaseResponse } from "../../types/response/type-of-legal-case/TypeOfLegalCaseResponse";
+import { type LegalCaseTypeResponse } from "../../types/response/legal-case-type/LegalCaseTypeResponse";
 import { type LegalRelationshipGroupResponse } from "../../types/response/legal-relationship-group/LegalRelationshipGroupResponse";
 import { useToast, ToastContainer } from "../basic-component/Toast";
 import ComboboxSearchForm from "../basic-component/ComboboxSearchForm";
@@ -9,7 +9,7 @@ import ComboboxSearchForm from "../basic-component/ComboboxSearchForm";
 interface LegalRelationshipFormProps {
   isOpen: boolean;
   initialData?: LegalRelationshipResponse | null;
-  typeOfLegalCases: TypeOfLegalCaseResponse[];
+  legalCaseTypes: LegalCaseTypeResponse[];
   groups: LegalRelationshipGroupResponse[];
   onSubmit: (data: LegalRelationshipRequest) => void;
   onCancel: () => void;
@@ -19,7 +19,7 @@ interface LegalRelationshipFormProps {
 const LegalRelationshipForm = ({
   isOpen,
   initialData,
-  typeOfLegalCases,
+  legalCaseTypes,
   groups,
   onSubmit,
   onCancel,
@@ -27,7 +27,7 @@ const LegalRelationshipForm = ({
 }: LegalRelationshipFormProps) => {
   const [formData, setFormData] = useState<LegalRelationshipRequest>({
     legalRelationshipName: "",
-    typeOfLegalCaseId: "",
+    legalCaseTypeId: "",
     legalRelationshipGroupId: "",
   });
 
@@ -35,11 +35,11 @@ const LegalRelationshipForm = ({
   const { toasts, success, error: showError, removeToast } = useToast();
 
   // Memoize options arrays để tránh re-render không cần thiết
-  const typeOfLegalCaseOptions = useMemo(() => 
-    typeOfLegalCases.map(type => ({ 
-      value: type.typeOfLegalCaseId, 
-      label: type.typeOfLegalCaseName 
-    })), [typeOfLegalCases]);
+  const legalCaseTypeOptions = useMemo(() => 
+    legalCaseTypes.map(type => ({ 
+      value: type.legalCaseTypeId, 
+      label: type.legalCaseTypeName 
+    })), [legalCaseTypes]);
 
   const groupOptions = useMemo(() => 
     groups.map(g => ({ 
@@ -65,7 +65,7 @@ const LegalRelationshipForm = ({
     if (initialData) {
       setFormData({
         legalRelationshipName: initialData.legalRelationshipName,
-        typeOfLegalCaseId: initialData.typeOfLegalCase.typeOfLegalCaseId,
+        legalCaseTypeId: initialData.legalCaseType.legalCaseTypeId,
         legalRelationshipGroupId:
           initialData.legalRelationshipGroup.legalRelationshipGroupId,
       });
@@ -79,7 +79,7 @@ const LegalRelationshipForm = ({
       newErrors.legalRelationshipName = "Tên quan hệ pháp luật là bắt buộc";
     }
 
-    if (!formData.typeOfLegalCaseId) {
+    if (!formData.legalCaseTypeId) {
       newErrors.typeOfLegalCaseId = "Loại vụ án là bắt buộc";
     }
 
@@ -195,16 +195,16 @@ const LegalRelationshipForm = ({
                 Loại vụ án <span className="text-red-500">*</span>
               </label>
               <ComboboxSearchForm
-                options={typeOfLegalCaseOptions}
-                value={formData.typeOfLegalCaseId}
+                options={legalCaseTypeOptions}
+                value={formData.legalCaseTypeId}
                 onChange={(value: string) =>
-                  handleInputChange("typeOfLegalCaseId", value)
+                  handleInputChange("legalCaseTypeId", value)
                 }
                 placeholder="Chọn loại vụ án"
               />
-              {errors.typeOfLegalCaseId && (
+              {errors.legalCaseTypeId && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.typeOfLegalCaseId}
+                  {errors.legalCaseTypeId}
                 </p>
               )}
             </div>
