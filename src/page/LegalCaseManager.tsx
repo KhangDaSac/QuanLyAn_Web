@@ -1096,7 +1096,7 @@ const LegalCaseManager = () => {
         "Loại vụ án",
         "Quan hệ pháp luật",
         "Thẩm phán",
-        "Trạng thái",
+        "Hòa giải viên",
         "Mã đợt nhập",
       ];
 
@@ -1112,7 +1112,7 @@ const LegalCaseManager = () => {
         legalCase.legalRelationship?.typeOfLegalCase?.typeOfLegalCaseName || "",
         legalCase.legalRelationship?.legalRelationshipName || "",
         legalCase.judge?.fullName || "",
-        getStatusLegalCaseText(legalCase.statusOfLegalCase) || "",
+        legalCase.mediator?.fullName || "",
         legalCase.batch?.batchId || "",
       ]);
 
