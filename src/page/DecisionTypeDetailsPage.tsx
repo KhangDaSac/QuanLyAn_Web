@@ -5,7 +5,7 @@ import { HandleDecisionTypeService } from "../services/HandleDecisionTypeService
 import { LegalCaseTypeService } from "../services/LegalCaseTypeService";
 import type DecisionTypeResponse from "../types/response/decision-type/DecisionTypeResponse";
 import type HandleDecisionTypeResponse from "../types/response/handle-decision-type/HandleDecisionTypeResponse";
-import type DecisionTypeRequest from "../types/request/tdecision-type/DecisionTypeRequest";
+import type DecisionTypeRequest from "../types/request/decision-type/DecisionTypeRequest";
 import type { HandleDecisionTypeRequest } from "../types/request/handle-decision-type/HandleDecisionTypeReques";
 import type { Option } from "../component/basic-component/ComboboxSearch";
 import { ToastContainer, useToast } from "../component/basic-component/Toast";

@@ -8,8 +8,8 @@ import { ToastContainer, useToast } from '../component/basic-component/Toast';
 import { DecisionTypeService } from '../services/DecisionTypeService';
 import { LegalCaseTypeService } from '../services/LegalCaseTypeService';
 import type DecisionTypeResponse from '../types/response/decision-type/DecisionTypeResponse';
-import type DecisionTypeSearchRequest from '../types/request/tdecision-type/DecisionTypeSearchRequest';
-import type DecisionTypeRequest from '../types/request/tdecision-type/DecisionTypeRequest';
+import type DecisionTypeSearchRequest from '../types/request/decision-type/DecisionTypeSearchRequest';
+import type DecisionTypeRequest from '../types/request/decision-type/DecisionTypeRequest';
 import ComboboxSearch, { type Option } from '../component/basic-component/ComboboxSearch';
 import { CourtIssued } from '../types/enum/CourtIssued';
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type DecisionTypeResponse from '../../types/response/decision-type/DecisionTypeResponse';
-import type DecisionTypeRequest from '../../types/request/tdecision-type/DecisionTypeRequest';
+import type DecisionTypeRequest from '../../types/request/decision-type/DecisionTypeRequest';
 import ComboboxSearch, { type Option } from '../basic-component/ComboboxSearch';
 import { CourtIssued } from '../../types/enum/CourtIssued';
 

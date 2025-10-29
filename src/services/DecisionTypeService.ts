@@ -1,7 +1,7 @@
 import { Connect } from "../connect/Connect";
 import type { ApiResponse } from "../types/ApiResponse";
-import type DecisionTypeRequest from "../types/request/tdecision-type/DecisionTypeRequest";
-import type DecisionTypeSearchRequest from "../types/request/tdecision-type/DecisionTypeSearchRequest";
+import type DecisionTypeRequest from "../types/request/decision-type/DecisionTypeRequest";
+import type DecisionTypeSearchRequest from "../types/request/decision-type/DecisionTypeSearchRequest";
 import type DecisionTypeResponse from "../types/response/decision-type/DecisionTypeResponse";
 import type { PageResponse } from "../types/response/PageResponse";
 
