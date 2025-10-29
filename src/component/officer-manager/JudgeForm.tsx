@@ -3,6 +3,7 @@ import type { JudgeResponse } from '../../types/response/judge/JudgeResponse';
 import type { JudgeRequest } from '../../types/request/judge/JudgeRequest';
 import { OfficerStatus } from '../../types/enum/OfficerStatus';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
+import { LegalRelationshipGroupService } from '../../services/LegalRelationshipGroupService';
 
 interface JudgeFormProps {
     isOpen: boolean;
@@ -24,10 +25,13 @@ const JudgeForm = ({
         lastName: '',
         maxNumberOfLegalCase: 0,
         statusOfOfficer: '',
-        email: ''
+        email: '',
+        restrictedGroupIds: [] as string[]
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [legalRelationshipGroups, setLegalRelationshipGroups] = useState<Option[]>([]);
+    const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
 
     const statusOptions = [
         { value: "WORKING", label: OfficerStatus.WORKING },
@@ -41,6 +45,26 @@ const JudgeForm = ({
         value: option.value,
         label: option.label
     }));
+
+    // Fetch legal relationship groups khi component mount
+    useEffect(() => {
+        const fetchLegalRelationshipGroups = async () => {
+            try {
+                const response = await LegalRelationshipGroupService.getAll();
+                if (response.success && response.data) {
+                    const options = response.data.map(group => ({
+                        value: group.legalRelationshipGroupId,
+                        label: group.legalRelationshipGroupName
+                    }));
+                    setLegalRelationshipGroups(options);
+                }
+            } catch (error) {
+                console.error('Error fetching legal relationship groups:', error);
+            }
+        };
+
+        fetchLegalRelationshipGroups();
+    }, []);
 
     // Ngăn cuộn trang khi modal mở
     useEffect(() => {
@@ -80,8 +104,10 @@ const JudgeForm = ({
                 lastName: judge.lastName || '',
                 maxNumberOfLegalCase: judge.maxNumberOfLegalCase || 0,
                 statusOfOfficer: judge.officerStatus || '',
-                email: judge.email || ''
+                email: judge.email || '',
+                restrictedGroupIds: judge.restrictedGroups?.map(g => g.legalRelationshipGroupId) || []
             });
+            setSelectedGroups(judge.restrictedGroups?.map(g => g.legalRelationshipGroupId) || []);
         } else {
             // Chế độ thêm mới
             setFormData({
@@ -89,8 +115,10 @@ const JudgeForm = ({
                 lastName: '',
                 maxNumberOfLegalCase: 0,
                 statusOfOfficer: '',
-                email: ''
+                email: '',
+                restrictedGroupIds: []
             });
+            setSelectedGroups([]);
         }
         setErrors({});
     }, [judge, isOpen]);
@@ -131,7 +159,7 @@ const JudgeForm = ({
 
         if (judge) {
             // Update existing judge - chỉ gửi các field đã thay đổi
-            const updateData: JudgeRequest = {};
+            const updateData: Partial<JudgeRequest> = {};
             
             // Chỉ thêm field nào thay đổi so với giá trị ban đầu
             if (formData.firstName !== judge.firstName) {
@@ -153,6 +181,13 @@ const JudgeForm = ({
             if (formData.email && formData.email !== judge.email) {
                 updateData.email = formData.email;
             }
+
+            // Kiểm tra xem restrictedGroupIds có thay đổi không
+            const currentGroupIds = judge.restrictedGroups?.map(g => g.legalRelationshipGroupId).sort() || [];
+            const newGroupIds = [...selectedGroups].sort();
+            if (JSON.stringify(currentGroupIds) !== JSON.stringify(newGroupIds)) {
+                updateData.restrictedGroupIds = selectedGroups.length > 0 ? selectedGroups : null;
+            }
             
             // Nếu không có field nào thay đổi, không gửi request
             if (Object.keys(updateData).length === 0) {
@@ -160,7 +195,7 @@ const JudgeForm = ({
                 return;
             }
             
-            onSubmit(updateData);
+            onSubmit(updateData as JudgeRequest);
         } else {
             // Create new judge - gửi đầy đủ thông tin
             const createData: JudgeRequest = {
@@ -168,7 +203,8 @@ const JudgeForm = ({
                 lastName: formData.lastName,
                 maxNumberOfLegalCase: formData.maxNumberOfLegalCase,
                 officerStatus: null, // Mặc định khi tạo mới
-                email: formData.email || null
+                email: formData.email || null,
+                restrictedGroupIds: selectedGroups.length > 0 ? selectedGroups : null
             };
             onSubmit(createData);
         }
@@ -185,6 +221,20 @@ const JudgeForm = ({
             setErrors(prev => ({
                 ...prev,
                 [field]: ''
+            }));
+        }
+    };
+
+    const handleStatusChange = (value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            statusOfOfficer: value
+        }));
+
+        if (errors.statusOfOfficer) {
+            setErrors(prev => ({
+                ...prev,
+                statusOfOfficer: ''
             }));
         }
     };
@@ -349,7 +399,7 @@ const JudgeForm = ({
                                 <ComboboxSearchForm
                                     options={statusOptionsForCombobox}
                                     value={formData.statusOfOfficer || OfficerStatus.WORKING}
-                                    onChange={(value) => handleInputChange('statusOfOfficer', value)}
+                                    onChange={handleStatusChange}
                                     placeholder="Chọn trạng thái thẩm phán"
                                 />
                                 {errors.statusOfOfficer && (
@@ -357,6 +407,54 @@ const JudgeForm = ({
                                 )}
                             </div>
                         )}
+
+                        {/* Nhóm quan hệ pháp luật bị hạn chế */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Nhóm quan hệ pháp luật bị hạn chế
+                            </label>
+                            <div className="space-y-2">
+                                <ComboboxSearchForm
+                                    options={legalRelationshipGroups}
+                                    value=""
+                                    onChange={(value) => {
+                                        if (value && !selectedGroups.includes(value)) {
+                                            setSelectedGroups([...selectedGroups, value]);
+                                        }
+                                    }}
+                                    placeholder="Chọn nhóm quan hệ pháp luật để thêm"
+                                />
+                                {selectedGroups.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {selectedGroups.map(groupId => {
+                                            const group = legalRelationshipGroups.find(g => g.value === groupId);
+                                            return (
+                                                <span
+                                                    key={groupId}
+                                                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm"
+                                                >
+                                                    {group?.label}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedGroups(selectedGroups.filter(id => id !== groupId));
+                                                        }}
+                                                        className="hover:text-red-600"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                <p className="text-xs text-gray-500">
+                                    Thẩm phán sẽ không được phân công xử lý các vụ án thuộc các nhóm này
+                                </p>
+                            </div>
+                        </div>
 
                         {/* Buttons */}
                         <div className="flex flex-col sm:flex-row gap-3 pt-6">

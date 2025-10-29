@@ -4,14 +4,15 @@ export interface LegalCaseSearchRequest {
   acceptanceNumber: string | null;
   startAcceptanceDate: string | null;
   endAcceptanceDate: string | null;
-  plaintiff: string | null;
-  plaintiffAddress: string | null;
-  defendant: string | null;
-  defendantAddress: string | null;
-  typeOfLegalCaseId: string | null;
+  legalCaseTypeId: string | null;
   legalRelationshipId: string | null;
   legalRelationshipGroupId: string | null;
-  statusOfLegalCase: LegalCaseStatus | null;
+
+  litigantName: string | null;
+  litigantYearOfBirth: string | null;
+  litigantAddress: string | null;
+
+  legalCaseStatus: LegalCaseStatus | null;
   judgeId: string | null;
   batchId: string | null;
   startStorageDate: string | null;

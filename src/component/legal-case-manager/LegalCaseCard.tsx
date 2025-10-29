@@ -82,7 +82,6 @@ const getStatusColor = (status: string) => {
 };
 
 const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
-  console.log("Rendering LegalCaseCard for case ID:", legalCase.plaintiff);
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 hover:shadow-xl transition-all duration-300">
       {/* Horizontal Layout */}
@@ -138,64 +137,61 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
             </div>
           </div>
 
-          {/* Parties - Horizontal on larger screens */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="flex items-start space-x-3">
-              <div className="w-20 h-20 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-12 h-12 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-500 mb-1">
-                  {legalCase.legalRelationship.legalCaseType.codeName == "HS"
-                    ? "Bị cáo"
-                    : "Nguyên đơn"}
-                </p>
-                <p className="text-md font-semibold text-gray-900 whitespace-pre-line ">
-                  {legalCase.plaintiff}
-                </p>
-                <p className="text-sm text-gray-600 whitespace-pre-line">
-                  {legalCase.plaintiffAddress}
-                </p>
-              </div>
-            </div>
-
-            {legalCase.legalRelationship.legalCaseType.codeName != "HS" && (
-              <div className="flex items-start space-x-3">
-                <div className="w-20 h-20 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-12 h-12 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+          {/* Parties - Display litigants */}
+          <div className="space-y-3">
+            {legalCase.litigants && legalCase.litigants.length > 0 ? (
+              legalCase.litigants.map((litigant, index) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <div className={`w-20 h-20 ${
+                    litigant.litigantType === "Bị cáo" 
+                      ? "bg-red-100"
+                      : litigant.litigantType === "Nguyên đơn"
+                      ? "bg-blue-100"
+                      : "bg-purple-100"
+                  } rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <svg
+                      className={`w-12 h-12 ${
+                        litigant.litigantType === "Bị cáo"
+                          ? "text-red-600"
+                          : litigant.litigantType === "Nguyên đơn"
+                          ? "text-blue-600"
+                          : "text-purple-600"
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm text-gray-500">
+                        {litigant.litigantType}
+                      </p>
+                      <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
+                        #{litigant.ordinal}
+                      </span>
+                    </div>
+                    <p className="text-md font-semibold text-gray-900">
+                      {litigant.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Năm sinh: {litigant.yearOfBirth}
+                    </p>
+                    <p className="text-sm text-gray-600 whitespace-pre-line">
+                      {litigant.address}
+                    </p>
+                  </div>
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-500 mb-1">Bị đơn</p>
-                  <p className="text-md font-semibold text-gray-900 whitespace-pre-line">
-                    {legalCase.defendant}
-                  </p>
-                  <p className="text-sm text-gray-600 whitespace-pre-line">
-                    {legalCase.defendantAddress}
-                  </p>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500 text-sm">
+                Chưa có thông tin đương sự
               </div>
             )}
           </div>

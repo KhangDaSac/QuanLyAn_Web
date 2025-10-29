@@ -35,14 +35,13 @@ const LegalCaseManager = () => {
       acceptanceNumber: criteria.acceptanceNumber?.trim() || null,
       startAcceptanceDate: criteria.startAcceptanceDate || null,
       endAcceptanceDate: criteria.endAcceptanceDate || null,
-      plaintiff: criteria.plaintiff?.trim() || null,
-      plaintiffAddress: criteria.plaintiffAddress?.trim() || null,
-      defendant: criteria.defendant?.trim() || null,
-      defendantAddress: criteria.defendantAddress?.trim() || null,
-      typeOfLegalCaseId: criteria.typeOfLegalCaseId || null,
+      legalCaseTypeId: criteria.legalCaseTypeId || null,
       legalRelationshipId: criteria.legalRelationshipId || null,
       legalRelationshipGroupId: criteria.legalRelationshipGroupId || null,
-      statusOfLegalCase: criteria.statusOfLegalCase || null,
+      litigantName: criteria.litigantName?.trim() || null,
+      litigantYearOfBirth: criteria.litigantYearOfBirth?.trim() || null,
+      litigantAddress: criteria.litigantAddress?.trim() || null,
+      legalCaseStatus: criteria.legalCaseStatus || null,
       judgeId: criteria.judgeId || null,
       batchId: criteria.batchId || null,
       startStorageDate: criteria.startStorageDate || null,
@@ -76,14 +75,13 @@ const LegalCaseManager = () => {
       acceptanceNumber: null,
       startAcceptanceDate: null,
       endAcceptanceDate: null,
-      plaintiff: null,
-      plaintiffAddress: null,
-      defendant: null,
-      defendantAddress: null,
-      typeOfLegalCaseId: null,
+      legalCaseTypeId: null,
       legalRelationshipId: null,
       legalRelationshipGroupId: null,
-      statusOfLegalCase: null,
+      litigantName: null,
+      litigantYearOfBirth: null,
+      litigantAddress: null,
+      legalCaseStatus: null,
       judgeId: null,
       batchId: null,
       startStorageDate: null,
@@ -103,8 +101,6 @@ const LegalCaseManager = () => {
   const sortByOptions: Option[] = [
     { value: "acceptanceDate", label: "Ngày thụ lý" },
     { value: "acceptanceNumber", label: "Số thụ lý" },
-    { value: "plaintiff", label: "Nguyên đơn" },
-    { value: "defendant", label: "Bị đơn" },
     { value: "storageDate", label: "Ngày lưu trữ" },
   ];
 
@@ -300,14 +296,6 @@ const LegalCaseManager = () => {
     await handleSearch();
   };
 
-  const getStatusLegalCaseText = (status: string) => {
-    if (Object.values(LegalCaseStatus).includes(status as LegalCaseStatus)) {
-      return status;
-    }
-    return (LegalCaseStatus as any)[status] || status;
-  };
-  // Helper function is no longer needed since we separate pagination params
-
   const fetchTypeOfLegalCases = async () => {
     setLoading(true);
     try {
@@ -457,14 +445,13 @@ const LegalCaseManager = () => {
       acceptanceNumber: null,
       startAcceptanceDate: null,
       endAcceptanceDate: null,
-      plaintiff: null,
-      plaintiffAddress: null,
-      defendant: null,
-      defendantAddress: null,
-      typeOfLegalCaseId: null,
+      legalCaseTypeId: null,
       legalRelationshipId: null,
       legalRelationshipGroupId: null,
-      statusOfLegalCase: null,
+      litigantName: null,
+      litigantYearOfBirth: null,
+      litigantAddress: null,
+      legalCaseStatus: null,
       judgeId: null,
       batchId: null,
       startStorageDate: null,
@@ -950,13 +937,13 @@ const LegalCaseManager = () => {
           validationErrors.push(dateResult.error);
         }
 
-        const plaintiffAddress = row[4]?.toString().trim() || null;
-        const defendant = row[5]?.toString().trim() || null;
-        const defendantAddress = row[6]?.toString().trim() || null;
         const note = row[7]?.toString().trim() || null;
         const legalRelationshipId = row[8]?.toString().trim() || null;
         const judgeId = row[9]?.toString().trim() || null;
         const mediatorId = row[10]?.toString().trim() || null;
+
+        // TODO: Parse litigants data from Excel columns
+        // Tạm thời không parse plaintiff/defendant vì cấu trúc đã thay đổi
 
         // Validation dữ liệu bắt buộc
         if (!acceptanceNumber) {
@@ -982,15 +969,14 @@ const LegalCaseManager = () => {
           legalRelationshipId &&
           !dateResult.error
         ) {
+          // TODO: Cập nhật lại import Excel để phù hợp với cấu trúc litigants mới
+          // Hiện tại tạm thời disable chức năng này
           validLegalCases.push({
             acceptanceNumber,
             acceptanceDate,
-            plaintiff,
-            plaintiffAddress,
-            defendant,
-            defendantAddress,
             note,
             legalRelationshipId,
+            litigants: [], // TODO: Parse litigants from Excel
             judgeId,
             mediatorId,
             batchId: batchId as string,
@@ -1088,11 +1074,10 @@ const LegalCaseManager = () => {
         "STT",
         "Số thụ lý",
         "Ngày thụ lý",
-        "Nguyên đơn/Bị cáo",
-        "Địa chỉ nguyên đơn",
-        "Bị đơn",
-        "Địa chỉ bị đơn",
-        "Loại vụ án",
+        "Tên đương sự",
+        "Năm sinh",
+        "Địa chỉ",
+        "Loại đương sự",
         "Quan hệ pháp luật",
         "Thẩm phán",
         "Hòa giải viên",
@@ -1100,20 +1085,39 @@ const LegalCaseManager = () => {
       ];
 
       // Chuẩn bị dữ liệu rows từ TẤT CẢ dữ liệu
-      const rows = allLegalCases.map((legalCase, index) => [
-        index + 1, // STT
-        legalCase.acceptanceNumber || "",
-        isoToDMY(legalCase.acceptanceDate) || "",
-        legalCase.plaintiff || "",
-        legalCase.plaintiffAddress || "",
-        legalCase.defendant || "",
-        legalCase.defendantAddress || "",
-        legalCase.legalRelationship?.legalCaseType?.legalCaseTypeName || "",
-        legalCase.legalRelationship?.legalRelationshipName || "",
-        legalCase.judge?.fullName || "",
-        legalCase.mediator?.fullName || "",
-        legalCase.batch?.batchId || "",
-      ]);
+      const rows = allLegalCases.flatMap((legalCase, index) => {
+        // Nếu vụ án có đương sự, tạo một row cho mỗi đương sự
+        if (legalCase.litigants && legalCase.litigants.length > 0) {
+          return legalCase.litigants.map((litigant, litigantIndex) => [
+            litigantIndex === 0 ? index + 1 : "", // STT chỉ hiển thị ở dòng đầu tiên
+            litigantIndex === 0 ? legalCase.acceptanceNumber || "" : "",
+            litigantIndex === 0 ? isoToDMY(legalCase.acceptanceDate) || "" : "",
+            litigant.name || "",
+            litigant.yearOfBirth || "",
+            litigant.address || "",
+            litigant.litigantType || "",
+            litigantIndex === 0 ? legalCase.legalRelationship?.legalRelationshipName || "" : "",
+            litigantIndex === 0 ? legalCase.judge?.fullName || "" : "",
+            litigantIndex === 0 ? legalCase.mediator?.fullName || "" : "",
+            litigantIndex === 0 ? legalCase.batch?.batchId || "" : "",
+          ]);
+        } else {
+          // Nếu không có đương sự, tạo một row trống
+          return [[
+            index + 1,
+            legalCase.acceptanceNumber || "",
+            isoToDMY(legalCase.acceptanceDate) || "",
+            "",
+            "",
+            "",
+            "",
+            legalCase.legalRelationship?.legalRelationshipName || "",
+            legalCase.judge?.fullName || "",
+            legalCase.mediator?.fullName || "",
+            legalCase.batch?.batchId || "",
+          ]];
+        }
+      });
 
       // Tạo data array với header và rows
       const data_array = [headers, ...rows];
@@ -1487,78 +1491,59 @@ const LegalCaseManager = () => {
               />
             </div>
 
-            {/* Nguyên đơn */}
+            {/* Tên đương sự */}
             <div>
               <label className="block text-sm outline-none font-medium text-gray-700 mb-2">
-                Nguyên đơn/bị cáo
+                Tên đương sự
               </label>
               <input
                 type="text"
-                value={legalCaseSearch?.plaintiff ?? ""}
+                value={legalCaseSearch?.litigantName ?? ""}
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    plaintiff: e.target.value || null,
+                    litigantName: e.target.value || null,
                   }))
                 }
-                placeholder="Tên nguyên đơn/bị cáo"
+                placeholder="Nhập tên đương sự"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
-            {/* Địa chỉ nguyên đơn */}
+            {/* Năm sinh đương sự */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Địa chỉ nguyên đơn
+                Năm sinh đương sự
               </label>
               <input
                 type="text"
-                value={legalCaseSearch?.plaintiffAddress ?? ""}
+                value={legalCaseSearch?.litigantYearOfBirth ?? ""}
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    plaintiffAddress: e.target.value || null,
+                    litigantYearOfBirth: e.target.value || null,
                   }))
                 }
-                placeholder="Địa chỉ nguyên đơn"
+                placeholder="Nhập năm sinh"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
 
-            {/* Bị đơn */}
+            {/* Địa chỉ đương sự */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bị đơn
+                Địa chỉ đương sự
               </label>
               <input
                 type="text"
-                value={legalCaseSearch?.defendant ?? ""}
+                value={legalCaseSearch?.litigantAddress ?? ""}
                 onChange={(e) =>
                   setLegalCaseSearch((prev) => ({
                     ...prev,
-                    defendant: e.target.value || null,
+                    litigantAddress: e.target.value || null,
                   }))
                 }
-                placeholder="Tên bị đơn"
-                className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
-              />
-            </div>
-
-            {/* Địa chỉ bị đơn */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Địa chỉ bị đơn
-              </label>
-              <input
-                type="text"
-                value={legalCaseSearch?.defendantAddress ?? ""}
-                onChange={(e) =>
-                  setLegalCaseSearch((prev) => ({
-                    ...prev,
-                    defendantAddress: e.target.value || null,
-                  }))
-                }
-                placeholder="Địa chỉ bị đơn"
+                placeholder="Nhập địa chỉ đương sự"
                 className="w-full px-3 py-2 border outline-none border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
               />
             </div>
@@ -1577,7 +1562,7 @@ const LegalCaseManager = () => {
                   }));
                   setLegalCaseSearch({
                     ...legalCaseSearch,
-                    typeOfLegalCaseId: val != "" ? val : null,
+                    legalCaseTypeId: val != "" ? val : null,
                   });
                 }}
                 placeholder="Chọn trạng quan hệ pháp luật"
@@ -1641,7 +1626,7 @@ const LegalCaseManager = () => {
                   }));
                   setLegalCaseSearch({
                     ...legalCaseSearch,
-                    statusOfLegalCase:
+                    legalCaseStatus:
                       val != "" ? (val as LegalCaseStatus) : null,
                   });
                 }}

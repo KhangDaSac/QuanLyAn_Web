@@ -265,7 +265,7 @@ const MediatorForm = ({
                             <ComboboxSearchForm
                                 options={statusOptionsForCombobox}
                                 value={formData.statusOfOfficer || ''}
-                                onChange={(value) => handleInputChange('statusOfOfficer', value || null)}
+                                onChange={(value) => handleInputChange('officerStatus', value || null)}
                                 placeholder="Chọn trạng thái"
                             />
                             {errors.statusOfOfficer && (
