@@ -1,3 +1,4 @@
+import type { LegalRelationshipGroupResponse } from "../legal-relationship-group/LegalRelationshipGroupResponse";
 import type { OfficerResponse } from "../officer/OfficerResponse";
 
 export interface JudgeResponse extends OfficerResponse {
@@ -7,4 +8,5 @@ export interface JudgeResponse extends OfficerResponse {
   numberOfTemporarySuspension: number;
   numberOfOverdue: number;
   numberOfCanceledAndEdited: number;
+  restrictedGroups: LegalRelationshipGroupResponse[];
 }
