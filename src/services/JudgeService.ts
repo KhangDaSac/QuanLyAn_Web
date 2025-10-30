@@ -78,10 +78,10 @@ export class JudgeService {
     );
   }
 
-  static async getAssignableJudges(): Promise<ApiResponse<JudgeResponse[]>> {
+  static async getAssignableJudges(legalRelationshipGroupId: string): Promise<ApiResponse<JudgeResponse[]>> {
     const token = localStorage.getItem('token');
     return Connect.request<JudgeResponse[]>(
-      `${this.api}/list-assignment`,
+      `${this.api}/list-assignment/${legalRelationshipGroupId}`,
       'GET',
       null,
       token

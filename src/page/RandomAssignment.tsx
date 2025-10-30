@@ -51,13 +51,20 @@ const RandomAssignment = () => {
     const sortByOptions: Option[] = [
         { value: "acceptanceDate", label: "Ngày thụ lý" },
         { value: "acceptanceNumber", label: "Số thụ lý" },
-        { value: "plaintiff", label: "Nguyên đơn" },
-        { value: "defendant", label: "Bị đơn" },
     ];
     useEffect(() => {
         loadLegalRelationshipGroups();
-        loadAllJudges(); 
     }, []);
+
+    // Load judges when selectedGroupId changes
+    useEffect(() => {
+        if (selectedGroupId && !hasMediator) {
+            loadAssignableJudges(selectedGroupId);
+        } else {
+            // Clear judges when no group selected or hasMediator is true
+            setAssignableJudges([]);
+        }
+    }, [selectedGroupId, hasMediator]);
 
     // Reset selection when search criteria changes
     useEffect(() => {
@@ -226,10 +233,15 @@ const RandomAssignment = () => {
         searchPendingCases(0, undefined, true); // Reset selection only for new search
     };
 
-    const loadAllJudges = async () => {
+    const loadAssignableJudges = async (legalRelationshipGroupId: string) => {
+        if (!legalRelationshipGroupId) {
+            setAssignableJudges([]);
+            return;
+        }
+
         setLoading(true);
         try {
-            const response = await JudgeService.getAssignableJudges();
+            const response = await JudgeService.getAssignableJudges(legalRelationshipGroupId);
             if (response.success && response.data) {
                 setAssignableJudges(response.data);
             } else {
@@ -238,6 +250,7 @@ const RandomAssignment = () => {
                     message: response.message || "Không thể tải danh sách thẩm phán",
                     type: "error"
                 });
+                setAssignableJudges([]);
             }
         } catch (error) {
             console.error("Error loading assignable judges:", error);
@@ -246,6 +259,7 @@ const RandomAssignment = () => {
                 message: "Lỗi khi tải danh sách thẩm phán",
                 type: "error"
             });
+            setAssignableJudges([]);
         } finally {
             setLoading(false);
         }
@@ -273,7 +287,8 @@ const RandomAssignment = () => {
         setLoading(true);
         try {
           const request = {
-              legalCaseIds: selectedCases
+              legalCaseIds: selectedCases,
+              legalRelationshipGroupId: hasMediator ? null : selectedGroupId
           };
             const response = await LegalCaseService.randomAssignment(request);
             if (response.success) {
@@ -579,7 +594,9 @@ const RandomAssignment = () => {
                         </div>
                     ) : assignableJudges.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                            {selectedCases.length === 0 
+                            {!selectedGroupId && !hasMediator
+                                ? "Vui lòng chọn nhóm quan hệ pháp luật hoặc chọn có hòa giải viên để xem thẩm phán đủ điều kiện."
+                                : selectedCases.length === 0 
                                 ? "Chọn án để xem thẩm phán đủ điều kiện phân công." 
                                 : "Không có thẩm phán đủ điều kiện phân công cho các án đã chọn."
                             }
