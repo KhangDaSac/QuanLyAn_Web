@@ -44,8 +44,8 @@ const LegalCaseManager = () => {
       legalCaseStatus: criteria.legalCaseStatus || null,
       judgeId: criteria.judgeId || null,
       batchId: criteria.batchId || null,
-      startStorageDate: criteria.startStorageDate || null,
-      endStorageDate: criteria.endStorageDate || null,
+      startStorageDate: criteria.startStorageDate ? `${criteria.startStorageDate} 00:00:00` : null,
+      endStorageDate: criteria.endStorageDate ? `${criteria.endStorageDate} 00:00:00` : null,
     };
   };
 

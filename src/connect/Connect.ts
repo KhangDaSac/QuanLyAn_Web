@@ -28,11 +28,10 @@ export class Connect {
             }
 
             const responseData = await response.json().catch(() => ({}));
-            console.log(method + " - " + endpoint +  " - " + JSON.stringify(body, null, 2) +  " - Response data" + JSON.stringify(responseData, null, 2) );
+            console.log(method + " - " + endpoint +  " - " + JSON.stringify(body, null, 2) +  " - Response data" + JSON.stringify({responseData}, null, 2) );
             return responseData as ApiResponse<T>;
         } catch (error: unknown) {
             let errorMessage = "Không thể kết nối đến máy chủ";
-            
             if (error instanceof Error) {
                 console.error("API Error:", error.message);
                 if (error.message.includes('fetch')) {
