@@ -6,7 +6,7 @@ import type { LegalCaseTypeSearchRequest } from "../types/request/legal-case-typ
 import type { PageResponse } from "../types/response/PageResponse";
 
 export class LegalCaseTypeService {
-  static api: string = '/type-of-legal-case';
+  static api: string = '/legal-case-type';
 
   static async top50(): Promise<ApiResponse<LegalCaseTypeResponse[]>> {
     const token = localStorage.getItem('token');

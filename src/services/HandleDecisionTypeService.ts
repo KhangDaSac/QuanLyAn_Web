@@ -6,7 +6,7 @@ import type HandleDecisionTypeResponse from "../types/response/handle-decision-t
 
 
 export class HandleDecisionTypeService{
-    static api = '/handle-type-of-decision';
+    static api = '/handle-decision-type';
 
     static async create(request: HandleDecisionTypeRequest): Promise<ApiResponse<void>> {
         const token = localStorage.getItem("token");

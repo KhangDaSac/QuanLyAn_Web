@@ -139,7 +139,7 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                   const plaintiffs = legalCase.litigants.filter(
                     (l) =>
                       l.litigantType == ("PLAINTIFF" as LitigantType) ||
-                      l.litigantType == ("DEFENDANT" as LitigantType)
+                      l.litigantType == ("ACCUSED" as LitigantType)
                   );
                   const defendants = legalCase.litigants.filter(
                     (l) => l.litigantType == ("DEFENDANT" as LitigantType)

@@ -119,7 +119,7 @@ const LegalCaseManager = () => {
   const [typeOfLegalCaseFilters, setTypeOfLegalCaseFilters] = useState({
     typeOfLegalCaseId: "",
   });
-  
+
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<Option[]>([
     { value: "", label: "Tất cả loại án" },
   ]);
@@ -237,13 +237,10 @@ const LegalCaseManager = () => {
     fetchLegalRelationshipGroups();
     fetchBatches();
     fetchJudges();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array for initial load only
+  }, []);
 
-  // Keyboard navigation for pagination
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Only handle arrow keys when not typing in input fields
       if (
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement ||
@@ -922,12 +919,73 @@ const LegalCaseManager = () => {
       const validationErrors: string[] = [];
       const validLegalCases: LegalCaseRequest[] = [];
 
+      // Helper function để parse thông tin đương sự từ format "Tên;Năm sinh;Địa chỉ"
+      const parseLitigants = (
+        cellValue: any,
+        litigantType: string,
+        rowNumber: number
+      ): any[] => {
+        if (!cellValue) return [];
+
+        const litigants: any[] = [];
+        const lines = cellValue.toString().split("\n"); // Tách các dòng
+
+        lines.forEach((line, lineIndex) => {
+          const trimmedLine = line.trim();
+          if (!trimmedLine) return;
+
+          const parts = trimmedLine.split(";");
+          
+          if (parts.length !== 3) {
+            validationErrors.push(
+              `Dòng ${rowNumber}: ${litigantType} có định dạng không đúng (cần: Tên;Năm sinh;Địa chỉ). Giá trị: "${trimmedLine}"`
+            );
+            return;
+          }
+
+          const [name, yearOfBirth, address] = parts.map(p => p.trim());
+
+          // Validation
+          if (!name) {
+            validationErrors.push(
+              `Dòng ${rowNumber}: ${litigantType} thiếu tên`
+            );
+            return;
+          }
+
+          // Validate năm sinh nếu có
+          if (yearOfBirth) {
+            const year = parseInt(yearOfBirth, 10);
+            if (isNaN(year) || year < 1900 || year > new Date().getFullYear()) {
+              validationErrors.push(
+                `Dòng ${rowNumber}: ${litigantType} có năm sinh không hợp lệ (${yearOfBirth})`
+              );
+              return;
+            }
+          }
+
+          litigants.push({
+            name,
+            yearOfBirth: yearOfBirth || null,
+            address: address || null,
+            litigantType,
+            ordinal: lineIndex + 1,
+          });
+        });
+
+        return litigants;
+      };
+
       // Chuyển dữ liệu thành LegalCasesRequest
       jsonData.forEach((row, index) => {
         const rowNumber = index + 2; // +2 vì bỏ header và index bắt đầu từ 0
 
+        // Bỏ qua các dòng trống
+        if (!row || row.length === 0 || !row[1]) {
+          return;
+        }
+
         const acceptanceNumber = row[1]?.toString().trim() || null;
-        const plaintiff = row[3]?.toString().trim() || null;
 
         // Xử lý ngày với validation
         const dateResult = excelDateToISO(row[2], rowNumber);
@@ -938,13 +996,22 @@ const LegalCaseManager = () => {
           validationErrors.push(dateResult.error);
         }
 
-        const note = row[7]?.toString().trim() || null;
-        const legalRelationshipId = row[8]?.toString().trim() || null;
-        const judgeId = row[9]?.toString().trim() || null;
-        const mediatorId = row[10]?.toString().trim() || null;
+        // Parse các loại đương sự
+        const accusedLitigants = parseLitigants(row[3], "ACCUSED", rowNumber);
+        const plaintiffLitigants = parseLitigants(row[4], "PLAINTIFF", rowNumber);
+        const defendantLitigants = parseLitigants(row[5], "DEFENDANT", rowNumber);
 
-        // TODO: Parse litigants data from Excel columns
-        // Tạm thời không parse plaintiff/defendant vì cấu trúc đã thay đổi
+        // Gộp tất cả đương sự
+        const allLitigants = [
+          ...accusedLitigants,
+          ...plaintiffLitigants,
+          ...defendantLitigants,
+        ];
+
+        const note = row[6]?.toString().trim() || null;
+        const legalRelationshipId = row[7]?.toString().trim() || null;
+        const judgeId = row[8]?.toString().trim() || null;
+        const mediatorId = row[9]?.toString().trim() || null;
 
         // Validation dữ liệu bắt buộc
         if (!acceptanceNumber) {
@@ -953,8 +1020,10 @@ const LegalCaseManager = () => {
         if (!acceptanceDate && !dateResult.error) {
           validationErrors.push(`Dòng ${rowNumber}: Thiếu ngày thụ lý`);
         }
-        if (!plaintiff) {
-          validationErrors.push(`Dòng ${rowNumber}: Thiếu tên nguyên đơn`);
+        if (allLitigants.length === 0) {
+          validationErrors.push(
+            `Dòng ${rowNumber}: Phải có ít nhất một đương sự (Bị cáo/Nguyên đơn/Bị đơn)`
+          );
         }
         if (!legalRelationshipId) {
           validationErrors.push(
@@ -966,20 +1035,18 @@ const LegalCaseManager = () => {
         if (
           acceptanceNumber &&
           acceptanceDate &&
-          plaintiff &&
+          allLitigants.length > 0 &&
           legalRelationshipId &&
           !dateResult.error
         ) {
-          // TODO: Cập nhật lại import Excel để phù hợp với cấu trúc litigants mới
-          // Hiện tại tạm thời disable chức năng này
           validLegalCases.push({
             acceptanceNumber,
             acceptanceDate,
             note,
             legalRelationshipId,
-            litigants: [], // TODO: Parse litigants from Excel
-            judgeId,
-            mediatorId,
+            litigants: allLitigants,
+            judgeId: judgeId || null,
+            mediatorId: mediatorId || null,
             batchId: batchId as string,
           });
         }
@@ -1013,7 +1080,7 @@ const LegalCaseManager = () => {
       );
 
       if (response.success) {
-        toast.success("Nhập án thành công", `Đã nhập án thành công!`);
+        toast.success("Nhập án thành công", `Đã nhập ${validLegalCases.length} vụ án thành công!`);
         await fetchLegalCases(); // Reload dữ liệu
       } else {
         toast.error(
@@ -1042,13 +1109,13 @@ const LegalCaseManager = () => {
   };
 
   function isoToDMY(isoDate: string): string {
-  if (!isoDate) return "";
-  
-  const parts = isoDate.split("-");
-  if (parts.length !== 3) return isoDate; 
-  const [year, month, day] = parts;
-  return `${day}/${month}/${year}`;
-}
+    if (!isoDate) return "";
+
+    const parts = isoDate.split("-");
+    if (parts.length !== 3) return isoDate;
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  }
 
   const handleExportExcel = async () => {
     try {
@@ -1075,49 +1142,48 @@ const LegalCaseManager = () => {
         "STT",
         "Số thụ lý",
         "Ngày thụ lý",
-        "Tên đương sự",
-        "Năm sinh",
-        "Địa chỉ",
-        "Loại đương sự",
+        "Bị cáo",
+        "Nguyên đơn",
+        "Bị đơn",
+        "Ghi chú",
         "Quan hệ pháp luật",
         "Thẩm phán",
         "Hòa giải viên",
         "Mã đợt nhập",
       ];
 
-      // Chuẩn bị dữ liệu rows từ TẤT CẢ dữ liệu
-      const rows = allLegalCases.flatMap((legalCase, index) => {
-        // Nếu vụ án có đương sự, tạo một row cho mỗi đương sự
-        if (legalCase.litigants && legalCase.litigants.length > 0) {
-          return legalCase.litigants.map((litigant, litigantIndex) => [
-            litigantIndex === 0 ? index + 1 : "", // STT chỉ hiển thị ở dòng đầu tiên
-            litigantIndex === 0 ? legalCase.acceptanceNumber || "" : "",
-            litigantIndex === 0 ? isoToDMY(legalCase.acceptanceDate) || "" : "",
-            litigant.name || "",
-            litigant.yearOfBirth || "",
-            litigant.address || "",
-            litigant.litigantType || "",
-            litigantIndex === 0 ? legalCase.legalRelationship?.legalRelationshipName || "" : "",
-            litigantIndex === 0 ? legalCase.judge?.fullName || "" : "",
-            litigantIndex === 0 ? legalCase.mediator?.fullName || "" : "",
-            litigantIndex === 0 ? legalCase.batch?.batchId || "" : "",
-          ]);
-        } else {
-          // Nếu không có đương sự, tạo một row trống
-          return [[
-            index + 1,
-            legalCase.acceptanceNumber || "",
-            isoToDMY(legalCase.acceptanceDate) || "",
-            "",
-            "",
-            "",
-            "",
-            legalCase.legalRelationship?.legalRelationshipName || "",
-            legalCase.judge?.fullName || "",
-            legalCase.mediator?.fullName || "",
-            legalCase.batch?.batchId || "",
-          ]];
-        }
+      // Helper function để format thông tin đương sự theo loại
+      const formatLitigantsByType = (litigants, type) => {
+        const filtered = litigants.filter(l => l.litigantType === type);
+        if (filtered.length === 0) return "";
+        
+        return filtered
+          .map(l => {
+            const name = l.name || "";
+            const year = l.yearOfBirth || "";
+            const address = l.address || "";
+            return `${name};${year};${address}`;
+          })
+          .join("\n"); // Xuống dòng trong cùng một ô
+      };
+
+      // Chuẩn bị dữ liệu rows
+      const rows = allLegalCases.map((legalCase, index) => {
+        const litigants = legalCase.litigants || [];
+        
+        return [
+          index + 1, // STT
+          legalCase.acceptanceNumber || "", // Số thụ lý
+          isoToDMY(legalCase.acceptanceDate) || "", // Ngày thụ lý
+          formatLitigantsByType(litigants, "ACCUSED"), // Bị cáo
+          formatLitigantsByType(litigants, "PLAINTIFF"), // Nguyên đơn
+          formatLitigantsByType(litigants, "DEFENDANT"), // Bị đơn
+          legalCase.note || "", // Ghi chú
+          legalCase.legalRelationship?.legalRelationshipName || "", // Quan hệ pháp luật
+          legalCase.judge?.fullName || "", // Thẩm phán
+          legalCase.mediator?.fullName || "", // Hòa giải viên
+          legalCase.batch?.batchId || "", // Mã đợt nhập
+        ];
       });
 
       // Tạo data array với header và rows
@@ -1130,11 +1196,29 @@ const LegalCaseManager = () => {
       const colWidths = headers.map((header, index) => {
         const maxLength = Math.max(
           header.length,
-          ...rows.map((row) => (row[index]?.toString() || "").length)
+          ...rows.map((row) => {
+            const cellValue = row[index]?.toString() || "";
+            // Tính độ dài dựa trên dòng dài nhất nếu có xuống dòng
+            const lines = cellValue.split("\n");
+            return Math.max(...lines.map(line => line.length));
+          })
         );
         return { wch: Math.min(maxLength + 2, 50) }; // Giới hạn tối đa 50 ký tự
       });
       worksheet["!cols"] = colWidths;
+
+      // Bật word wrap cho các ô có nhiều dòng
+      const range = XLSX.utils.decode_range(worksheet['!ref']);
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!worksheet[cellAddress]) continue;
+          
+          // Thêm style wrap text
+          if (!worksheet[cellAddress].s) worksheet[cellAddress].s = {};
+          worksheet[cellAddress].s.alignment = { wrapText: true, vertical: 'top' };
+        }
+      }
 
       // Thêm worksheet vào workbook
       XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách vụ án");

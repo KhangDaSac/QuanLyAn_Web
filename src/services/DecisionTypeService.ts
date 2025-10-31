@@ -6,7 +6,7 @@ import type DecisionTypeResponse from "../types/response/decision-type/DecisionT
 import type { PageResponse } from "../types/response/PageResponse";
 
 export class DecisionTypeService {
-    static api = '/type-of-decision';
+    static api = '/decision-type';
     static async getAll(): Promise<ApiResponse<DecisionTypeResponse[]>> {
         const token = localStorage.getItem("token");
         return Connect.request<DecisionTypeResponse[]>(
