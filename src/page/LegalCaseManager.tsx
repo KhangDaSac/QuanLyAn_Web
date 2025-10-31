@@ -119,6 +119,7 @@ const LegalCaseManager = () => {
   const [typeOfLegalCaseFilters, setTypeOfLegalCaseFilters] = useState({
     typeOfLegalCaseId: "",
   });
+  
   const [typeOfLegalCases, setTypeOfLegalCases] = useState<Option[]>([
     { value: "", label: "Tất cả loại án" },
   ]);

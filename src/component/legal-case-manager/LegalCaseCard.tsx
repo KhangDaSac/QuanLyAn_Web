@@ -1,5 +1,7 @@
 import { type LegalCaseResponse } from "../../types/response/legal-case/LegalCaseResponse";
 import { LegalCaseStatus } from "../../types/enum/LegalCaseStatus";
+import type { LitigantType } from "../../types/enum/LitigantType";
+import { useState } from "react";
 
 interface LegalCaseCardProps {
   legalCase: LegalCaseResponse;
@@ -82,6 +84,9 @@ const getStatusColor = (status: string) => {
 };
 
 const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
+  const [showAllPlaintiffs, setShowAllPlaintiffs] = useState(false);
+  const [showAllDefendants, setShowAllDefendants] = useState(false);
+  
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 hover:shadow-xl transition-all duration-300">
       {/* Horizontal Layout */}
@@ -105,90 +110,225 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                 ${
                   legalCase.legalRelationship.legalCaseType.codeName == "HS"
                     ? "bg-red-50 text-red-600 border border-red-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "DS"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "DS"
                     ? "bg-blue-50 text-blue-600 border border-blue-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "HN"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "HN"
                     ? "bg-pink-50 text-pink-600 border border-pink-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "LD"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "LD"
                     ? "bg-purple-50 text-purple-600 border border-purple-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "KT"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "KT"
                     ? "bg-orange-50 text-orange-600 border border-orange-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "HC"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "HC"
                     ? "bg-green-50 text-green-600 border border-green-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "PS"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "PS"
                     ? "bg-yellow-50 text-yellow-600 border border-yellow-300"
-                    : legalCase.legalRelationship.legalCaseType.codeName ==
-                      "BP"
+                    : legalCase.legalRelationship.legalCaseType.codeName == "BP"
                     ? "bg-stone-50 text-stone-600 border border-stone-300"
                     : ""
                 }
                 `}>
-                {
-                  legalCase.legalRelationship.legalCaseType
-                    .legalCaseTypeName
-                }
+                {legalCase.legalRelationship.legalCaseType.legalCaseTypeName}
               </span>
             </div>
           </div>
 
-          {/* Parties - Display litigants */}
-          <div className="space-y-3">
+          <div className="mb-4">
             {legalCase.litigants && legalCase.litigants.length > 0 ? (
-              legalCase.litigants.map((litigant, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className={`w-20 h-20 ${
-                    litigant.litigantType === "Bị cáo" 
-                      ? "bg-red-100"
-                      : litigant.litigantType === "Nguyên đơn"
-                      ? "bg-blue-100"
-                      : "bg-purple-100"
-                  } rounded-xl flex items-center justify-center flex-shrink-0`}>
-                    <svg
-                      className={`w-12 h-12 ${
-                        litigant.litigantType === "Bị cáo"
-                          ? "text-red-600"
-                          : litigant.litigantType === "Nguyên đơn"
-                          ? "text-blue-600"
-                          : "text-purple-600"
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm text-gray-500">
-                        {litigant.litigantType}
-                      </p>
-                      <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
-                        #{litigant.ordinal}
-                      </span>
+              <>
+                {(() => {
+                  const plaintiffs = legalCase.litigants.filter(
+                    (l) =>
+                      l.litigantType == ("PLAINTIFF" as LitigantType) ||
+                      l.litigantType == ("DEFENDANT" as LitigantType)
+                  );
+                  const defendants = legalCase.litigants.filter(
+                    (l) => l.litigantType == ("DEFENDANT" as LitigantType)
+                  );
+
+                  return (
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Cột trái: Nguyên đơn / Bị cáo */}
+                      <div className="space-y-3">
+                        {(showAllPlaintiffs
+                          ? plaintiffs
+                          : plaintiffs.slice(0, 2)
+                        ).map((litigant, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start space-x-3">
+                            <div className="w-17 h-17 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <svg
+                                className="w-10 h-10 text-blue-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-500 mb-1">
+                                {legalCase.legalRelationship.legalCaseType
+                                  .codeName == "HS"
+                                  ? "Bị cáo"
+                                  : "Nguyên đơn"}
+                              </p>
+                              <p className="text-base font-semibold text-gray-900 truncate">
+                                {litigant.name +
+                                  (litigant.yearOfBirth
+                                    ? " - " + litigant.yearOfBirth
+                                    : "")}
+                              </p>
+                              <p className="text-sm text-gray-600 truncate">
+                                {litigant.address}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                        {plaintiffs.length > 2 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowAllPlaintiffs(!showAllPlaintiffs);
+                            }}
+                            className="w-full text-sm text-orange-600 font-semibold flex items-center justify-center gap-2 py-2 bg-orange-50 rounded-lg border border-orange-200">
+                            {showAllPlaintiffs ? (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 15l7-7 7 7"
+                                  />
+                                </svg>
+                                Thu gọn
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                  />
+                                </svg>
+                                Xem thêm {plaintiffs.length - 2} người
+                              </>
+                            )}
+                          </button>
+                        )}
+                        {plaintiffs.length === 0 && (
+                          <div className="text-center py-6 text-gray-400 italic bg-gray-50 rounded-lg border border-gray-200">
+                            Không có dữ liệu
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Cột phải: Bị đơn */}
+                      <div className="space-y-3">
+                        {(showAllDefendants
+                          ? defendants
+                          : defendants.slice(0, 2)
+                        ).map((litigant, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start space-x-3">
+                            <div className="w-17 h-17 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <svg
+                                className="w-10 h-10 text-red-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-500 mb-1">
+                                Bị đơn
+                              </p>
+                              <p className="text-base font-semibold text-gray-900 truncate">
+                                {litigant.name +
+                                  (litigant.yearOfBirth
+                                    ? " - " + litigant.yearOfBirth
+                                    : "")}
+                              </p>
+                              <p className="text-sm text-gray-600 truncate">
+                                {litigant.address}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                        {defendants.length > 2 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowAllDefendants(!showAllDefendants);
+                            }}
+                            className="w-full text-sm text-rose-600 font-semibold flex items-center justify-center gap-2 py-2 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition-colors">
+                            {showAllDefendants ? (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 15l7-7 7 7"
+                                  />
+                                </svg>
+                                Thu gọn
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                  />
+                                </svg>
+                                Xem thêm {defendants.length - 2} người
+                              </>
+                            )}
+                          </button>
+                        )}
+                        {defendants.length === 0 && (
+                          <div className="text-center py-6 text-gray-400 italic bg-gray-50 rounded-lg border border-gray-200">
+                            Không có dữ liệu
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-md font-semibold text-gray-900">
-                      {litigant.name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Năm sinh: {litigant.yearOfBirth}
-                    </p>
-                    <p className="text-sm text-gray-600 whitespace-pre-line">
-                      {litigant.address}
-                    </p>
-                  </div>
-                </div>
-              ))
+                  );
+                })()}
+              </>
             ) : (
               <div className="text-center py-4 text-gray-500 text-sm">
                 Chưa có thông tin đương sự
@@ -389,9 +529,7 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p className="text-sm text-blue-600 font-medium">
-                Hòa giải viên
-              </p>
+              <p className="text-sm text-blue-600 font-medium">Hòa giải viên</p>
             </div>
 
             {legalCase.mediator ? (
