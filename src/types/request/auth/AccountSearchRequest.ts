@@ -6,5 +6,5 @@ export interface AccountSearchRequest {
   email?: string | null;
   fullName?: string | null;
   role?: Role | null;
-  statusOfAccount?: AccountStatus | null;
+  accountStatus?: AccountStatus | null;
 }

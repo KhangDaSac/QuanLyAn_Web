@@ -23,7 +23,7 @@ const AccountManagement = () => {
     email: null,
     fullName: null,
     role: null,
-    statusOfAccount: null,
+    accountStatus: null,
   });
 
   // Pagination state
@@ -143,7 +143,7 @@ const AccountManagement = () => {
       email: null,
       fullName: null,
       role: null,
-      statusOfAccount: null,
+      accountStatus: null,
     });
     setPagination((prev) => ({ ...prev, page: 0 }));
   };
@@ -400,11 +400,11 @@ const AccountManagement = () => {
                 </label>
                 <ComboboxSearch
                   options={statusOptions}
-                  value={accountSearch.statusOfAccount || ""}
+                  value={accountSearch.accountStatus || ""}
                   onChange={(value) =>
                     setAccountSearch((prev) => ({
                       ...prev,
-                      statusOfAccount: (value as AccountStatus) || null,
+                      accountStatus: (value as AccountStatus) || null,
                     }))
                   }
                   placeholder="Chọn trạng thái"

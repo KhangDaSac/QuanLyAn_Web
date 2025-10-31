@@ -173,27 +173,25 @@ const JudgeCard = ({ judge, onEdit, onDelete }: JudgeCardProps) => {
       </div>
 
       {/* Nhóm quan hệ pháp luật bị hạn chế */}
-      {judge.restrictedGroups && judge.restrictedGroups.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">
-            Nhóm quan hệ pháp luật bị hạn chế
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {judge.restrictedGroups.map((group) => (
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <h4 className="text-sm font-semibold text-gray-700 mb-2">
+          Nhóm quan hệ pháp luật bị hạn chế
+        </h4>
+        <div className="flex flex-wrap gap-2">
+          {judge.restrictedGroups && judge.restrictedGroups.length > 0 ? (
+            judge.restrictedGroups.map((group) => (
               <span
                 key={group.legalRelationshipGroupId}
                 className="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
-                title={group.description}
-              >
+                title={group.description}>
                 {group.legalRelationshipGroupName}
               </span>
-            ))}
-          </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Thẩm phán sẽ không được phân công xử lý các vụ án thuộc các nhóm này
-          </p>
+            ))
+          ) : (
+            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">Không có</span>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Actions - Always at bottom */}
       {(onEdit || onDelete) && (

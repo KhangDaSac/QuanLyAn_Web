@@ -23,7 +23,12 @@ const ComboboxSearchForm: React.FC<ComboboxSearchFormProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState({ 
+    top: 0, 
+    left: 0, 
+    width: 0, 
+    maxHeight: 0
+  });
   const comboboxRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -40,10 +45,19 @@ const ComboboxSearchForm: React.FC<ComboboxSearchFormProps> = ({
   const updateDropdownPosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      // Tính khoảng trống từ dưới button đến cuối viewport (trước taskbar)
+      const spaceBelow = viewportHeight - rect.bottom;
+      
+      // Giới hạn chiều cao tối đa
+      const maxHeight = Math.min(spaceBelow - 8, 240); // 8px padding, max 240px
+      
       setDropdownPosition({
         top: rect.bottom,
         left: rect.left,
-        width: rect.width
+        width: rect.width,
+        maxHeight: Math.max(maxHeight, 100) // Tối thiểu 100px
       });
     }
   };
@@ -127,16 +141,17 @@ const ComboboxSearchForm: React.FC<ComboboxSearchFormProps> = ({
       {isOpen && createPortal(
         <div 
           ref={dropdownRef}
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden z-[10002]"
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-[10002]"
           style={{
             top: dropdownPosition.top,
             left: dropdownPosition.left,
-            width: dropdownPosition.width
+            width: dropdownPosition.width,
+            maxHeight: dropdownPosition.maxHeight
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
           {/* Thanh tìm kiếm nằm trong dropdown */}
-          <div className="p-2 border-b border-gray-200">
+          <div className="p-2 border-b border-gray-200 bg-white">
             <input
               type="text"
               value={query}
@@ -147,8 +162,13 @@ const ComboboxSearchForm: React.FC<ComboboxSearchFormProps> = ({
             />
           </div>
 
-          {/* Danh sách option */}
-          <ul className="max-h-48 overflow-y-auto">
+          {/* Danh sách option với scroll */}
+          <ul 
+            className="overflow-y-auto"
+            style={{
+              maxHeight: `calc(${dropdownPosition.maxHeight}px - 60px)` // Trừ đi chiều cao của input search
+            }}
+          >
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <li

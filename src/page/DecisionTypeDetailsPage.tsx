@@ -99,7 +99,7 @@ const getStatusColor = (status: string) => {
 };
 
 const DecisionTypeDetailsPage = () => {
-  const { typeOfDecisionId } = useParams<{ typeOfDecisionId: string }>();
+  const { decisionTypeId } = useParams<{ decisionTypeId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -142,14 +142,14 @@ const DecisionTypeDetailsPage = () => {
   console.log('StatusOfLegalCase enum:', LegalCaseStatus);
 
   useEffect(() => {
-    if (typeOfDecisionId) {
+    if (decisionTypeId) {
       fetchTypeOfDecisionDetails();
       fetchHandleTypeOfDecisions();
       fetchTypeOfLegalCaseOptions();
     } else {
       navigate("/decision-type");
     }
-  }, [typeOfDecisionId]);
+  }, [decisionTypeId]);
 
   // Effect to update form when selectedHandle changes
   useEffect(() => {
@@ -177,12 +177,12 @@ const DecisionTypeDetailsPage = () => {
   }, [selectedHandle, showHandleEditForm]);
 
   const fetchTypeOfDecisionDetails = async () => {
-    if (!typeOfDecisionId) return;
+    if (!decisionTypeId) return;
 
     setLoading(true);
     try {
-      const response = await DecisionTypeService.getById(typeOfDecisionId);
-      
+      const response = await DecisionTypeService.getById(decisionTypeId);
+
       if (response.success && response.data) {
         setDecisionType(response.data);
       } else {
@@ -190,7 +190,7 @@ const DecisionTypeDetailsPage = () => {
         
         if (allResponse.success && allResponse.data) {
           const foundTypeOfDecision = allResponse.data.find(
-            item => item.decisionTypeId === typeOfDecisionId
+            item => item.decisionTypeId === decisionTypeId
           );
           
           if (foundTypeOfDecision) {
@@ -229,11 +229,11 @@ const DecisionTypeDetailsPage = () => {
   };
 
   const fetchHandleTypeOfDecisions = async () => {
-    if (!typeOfDecisionId) return;
+    if (!decisionTypeId) return;
 
     setHandlesLoading(true);
     try {
-      const response = await HandleDecisionTypeService.getByTypeOfDecision(typeOfDecisionId);
+      const response = await HandleDecisionTypeService.getByTypeOfDecision(decisionTypeId);
       if (response.success && response.data) {
         setHandleDecisionTypes(response.data);
       }

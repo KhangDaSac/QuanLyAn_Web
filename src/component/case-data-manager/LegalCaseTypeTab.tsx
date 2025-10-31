@@ -64,7 +64,7 @@ const LegalCaseTypeTab = () => {
   });
 
   // Separate state for sort criteria
-  const [sortBy, setSortBy] = useState("typeOfLegalCaseName");
+  const [sortBy, setSortBy] = useState("legalCaseTypeName ");
 
   // Page size options
   const pageSizeOptions: Option[] = [

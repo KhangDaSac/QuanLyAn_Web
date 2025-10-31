@@ -67,7 +67,7 @@ const DecisionTypeManager = () => {
   });
 
   // Separate state for sort criteria
-  const [sortBy, setSortBy] = useState("typeOfDecisionId");
+  const [sortBy, setSortBy] = useState("decisionTypeId");
 
   // Page size options
   const pageSizeOptions: Option[] = [
@@ -80,10 +80,10 @@ const DecisionTypeManager = () => {
 
   // Sort by options
   const sortByOptions: Option[] = [
-    { value: "typeOfDecisionId", label: "Mã loại quyết định" },
-    { value: "typeOfDecisionName", label: "Tên loại quyết định" },
+    { value: "decisionTypeId", label: "Mã loại quyết định" },
+    { value: "decisionTypeName", label: "Tên loại quyết định" },
     { value: "courtIssued", label: "Cấp tòa" },
-    { value: "theEndDecision", label: "Quyết định kết thúc" },
+    { value: "isTheEndDecision", label: "Quyết định kết thúc" },
   ];
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const DecisionTypeManager = () => {
   const loadTypeOfDecisions = async (
     page: number = 0, 
     size: number = 10, 
-    sort: string = "typeOfDecisionId",
+    sort: string = "decisionTypeId",
     searchRequest?: DecisionTypeSearchRequest
   ) => {
     setLoading(true);

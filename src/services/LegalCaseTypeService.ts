@@ -52,16 +52,18 @@ export class LegalCaseTypeService {
     request: LegalCaseTypeSearchRequest,
     page: number = 0,
     size: number = 10,
-    sortBy: string = "typeOfLegalCaseName"
+    sortBy: string = "legalCaseTypeName"
   ): Promise<ApiResponse<PageResponse<LegalCaseTypeResponse>>> {
     const token = localStorage.getItem('token');
     
     const queryParams = new URLSearchParams({
       page: page.toString(),
       size: size.toString(),
-      sortBy: sortBy
+      sortBy: sortBy.trim()
     });
     
+    console.log(queryParams.toString())
+
     const url = `${this.api}/search?${queryParams.toString()}`;
     
     return Connect.request<PageResponse<LegalCaseTypeResponse>>(
