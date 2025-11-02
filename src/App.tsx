@@ -15,6 +15,8 @@ import ProtectedRoute from "./component/auth/ProtectedRoute";
 import CaseDataManager from "./page/CaseDataManager";
 import AccountManagement from "./page/AccountManagement";
 import TermsPrivacyPage from "./page/TermsPrivacyPage";
+import NotificationPage from "./page/NotificationPage";
+import NotificationDetailPage from "./page/NotificationDetailPage";
 import "./App.css";
 
 const App = () => {
@@ -128,6 +130,26 @@ const App = () => {
             <ProtectedRoute>
               <MainLayout>
                 <ProfilePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <NotificationPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications/:notificationId"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <NotificationDetailPage />
               </MainLayout>
             </ProtectedRoute>
           }

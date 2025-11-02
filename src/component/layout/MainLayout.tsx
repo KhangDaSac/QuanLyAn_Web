@@ -318,7 +318,9 @@ const MainLayout = ({
 
               <div className="flex items-center space-x-4">
                 {/* Notifications */}
-                <button className="relative p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+                <Link 
+                  to="/notifications"
+                  className="relative p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
                   <svg
                     className="w-8 h-8"
                     xmlns="http://www.w3.org/2000/svg"
@@ -330,7 +332,7 @@ const MainLayout = ({
                     />
                   </svg>
                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+                </Link>
               </div>
             </div>
           </header>
