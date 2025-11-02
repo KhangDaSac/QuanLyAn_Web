@@ -110,6 +110,7 @@ const LegalCaseDetailsPage = () => {
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showRemoveAssignmentModal, setShowRemoveAssignmentModal] = useState(false);
   const [showDecisionForm, setShowDecisionForm] = useState(false);
   const [assignmentLoading, setAssignmentLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -188,7 +189,11 @@ const LegalCaseDetailsPage = () => {
     setShowAssignmentModal(true);
   };
 
-  const handleRemoveAssignment = async () => {
+  const handleRemoveAssignmentClick = () => {
+    setShowRemoveAssignmentModal(true);
+  };
+
+  const confirmRemoveAssignment = async () => {
     if (!legalCase) return;
 
     setAssignmentLoading(true);
@@ -200,6 +205,7 @@ const LegalCaseDetailsPage = () => {
           "Xóa phân công thành công",
           `Đã xóa phân công thẩm phán khỏi án "${legalCase.acceptanceNumber}"`
         );
+        setShowRemoveAssignmentModal(false);
         await fetchLegalCase(); // Reload data
       } else {
         toast.error(
@@ -420,7 +426,7 @@ const LegalCaseDetailsPage = () => {
                 </button>
               ) : (
                 <button
-                  onClick={handleRemoveAssignment}
+                  onClick={handleRemoveAssignmentClick}
                   disabled={assignmentLoading}
                   className="inline-flex items-center px-4 py-2 border border-red-600 text-red-600 text-sm font-medium rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   <svg
@@ -1151,6 +1157,17 @@ const LegalCaseDetailsPage = () => {
         message={`Bạn có chắc chắn muốn xóa án "${legalCase.acceptanceNumber}"? Hành động này không thể hoàn tác.`}
         type="danger"
         confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
+
+      <ConfirmModal
+        isOpen={showRemoveAssignmentModal}
+        onClose={() => setShowRemoveAssignmentModal(false)}
+        onConfirm={confirmRemoveAssignment}
+        title="Xác nhận xóa phân công"
+        message={`Bạn có chắc chắn muốn xóa phân công thẩm phán "${legalCase.judge?.fullName}" khỏi án "${legalCase.acceptanceNumber}"?`}
+        type="danger"
+        confirmText="Xác nhận xóa"
         cancelText="Hủy"
       />
 
