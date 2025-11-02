@@ -86,7 +86,7 @@ const getStatusColor = (status: string) => {
 const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
   const [showAllPlaintiffs, setShowAllPlaintiffs] = useState(false);
   const [showAllDefendants, setShowAllDefendants] = useState(false);
-  
+
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 hover:shadow-xl transition-all duration-300">
       {/* Horizontal Layout */}
@@ -156,9 +156,20 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                           <div
                             key={index}
                             className="flex items-start space-x-3">
-                            <div className="w-17 h-17 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <div
+                              className={`w-17 h-17 rounded-lg flex items-center justify-center flex-shrink-0
+                              ${
+                                legalCase.legalRelationship.legalCaseType.codeName === "HS"
+                                  ? "bg-red-100"
+                                  : "bg-blue-100"
+                              }`}>
                               <svg
-                                className="w-10 h-10 text-blue-600"
+                                className={`w-10 h-10 ${
+                                  legalCase.legalRelationship.legalCaseType
+                                    .codeName === "HS"
+                                    ? "text-red-600"
+                                    : "text-blue-600"
+                                }`}
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -170,20 +181,21 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                                 />
                               </svg>
                             </div>
+
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-gray-500 mb-1">
                                 {legalCase.legalRelationship.legalCaseType
-                                  .codeName == "HS"
+                                  .codeName === "HS"
                                   ? "Bị cáo"
                                   : "Nguyên đơn"}
                               </p>
-                              <p className="text-base font-semibold text-gray-900 truncate">
+                              <p className="text-base font-semibold text-gray-900">
                                 {litigant.name +
                                   (litigant.yearOfBirth
                                     ? " - " + litigant.yearOfBirth
                                     : "")}
                               </p>
-                              <p className="text-sm text-gray-600 truncate">
+                              <p className="text-sm text-gray-600">
                                 {litigant.address}
                               </p>
                             </div>
@@ -231,11 +243,6 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                             )}
                           </button>
                         )}
-                        {plaintiffs.length === 0 && (
-                          <div className="text-center py-6 text-gray-400 italic bg-gray-50 rounded-lg border border-gray-200">
-                            Không có dữ liệu
-                          </div>
-                        )}
                       </div>
 
                       {/* Cột phải: Bị đơn */}
@@ -265,13 +272,13 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                               <p className="text-sm text-gray-500 mb-1">
                                 Bị đơn
                               </p>
-                              <p className="text-base font-semibold text-gray-900 truncate">
+                              <p className="text-base font-semibold text-gray-900">
                                 {litigant.name +
                                   (litigant.yearOfBirth
                                     ? " - " + litigant.yearOfBirth
                                     : "")}
                               </p>
-                              <p className="text-sm text-gray-600 truncate">
+                              <p className="text-sm text-gray-600">
                                 {litigant.address}
                               </p>
                             </div>
@@ -318,11 +325,6 @@ const LegalCaseCard = ({ legalCase, onViewDetails }: LegalCaseCardProps) => {
                               </>
                             )}
                           </button>
-                        )}
-                        {defendants.length === 0 && (
-                          <div className="text-center py-6 text-gray-400 italic bg-gray-50 rounded-lg border border-gray-200">
-                            Không có dữ liệu
-                          </div>
                         )}
                       </div>
                     </div>

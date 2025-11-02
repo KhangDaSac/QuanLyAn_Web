@@ -13,6 +13,7 @@ import type { AssignAssignmentRequest } from "../types/request/legal-case/Assign
 import type { LegalCaseRequest } from "../types/request/legal-case/LegalCaseRequest";
 import type DecisionRequest from "../types/request/decision/DecisionRequest";
 import { LegalCaseStatus } from "../types/enum/LegalCaseStatus";
+import { LitigantType } from "../types/enum/LitigantType";
 import DecisionForm from "../component/decision-manager/DecisionForm";
 import { useAuth } from "../context/authContext/useAuth";
 import { Permission } from "../utils/authUtils";
@@ -96,11 +97,14 @@ const LegalCaseDetailsPage = () => {
   const toast = useToast();
   const auth = useAuth();
 
+
   const [legalCase, setLegalCase] = useState<LegalCaseResponse | null>(null);
   const [decisions, setDecisions] = useState<any[]>([]);
   const [legalRelationships, setLegalRelationships] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
   const [decisionsLoading, setDecisionsLoading] = useState(false);
+  const [showAllPlaintiffs, setShowAllPlaintiffs] = useState(false);
+  const [showAllDefendants, setShowAllDefendants] = useState(false);
 
   // Modal states
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
@@ -346,22 +350,22 @@ const LegalCaseDetailsPage = () => {
         <div className="flex flex-col sm:flex-row gap-2">
           {auth?.hasPermission(Permission.CREATE_LEGAL_CASE) && (
             <button
-                onClick={handleAddDecision}
-                className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Thêm quyết định
-              </button>
+              onClick={handleAddDecision}
+              className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Thêm quyết định
+            </button>
           )}
           {auth?.hasPermission(Permission.ASSIGN_LEGAL_CASE) && (
             <button
@@ -444,8 +448,8 @@ const LegalCaseDetailsPage = () => {
                   className={`
                                     text-md px-5 py-1 rounded-full font-medium
                                     ${
-                                      legalCase.legalRelationship
-                                        .legalCaseType.codeName === "HS"
+                                      legalCase.legalRelationship.legalCaseType
+                                        .codeName === "HS"
                                         ? "bg-red-50 text-red-600 border border-red-300"
                                         : legalCase.legalRelationship
                                             .legalCaseType.codeName === "DS"
@@ -471,72 +475,217 @@ const LegalCaseDetailsPage = () => {
                                         : ""
                                     }
                                     `}>
-                  {
-                    legalCase.legalRelationship.legalCaseType
-                      .legalCaseTypeName
-                  }
+                  {legalCase.legalRelationship.legalCaseType.legalCaseTypeName}
                 </span>
               </div>
             </div>
 
             {/* Parties - Horizontal on larger screens */}
-            <div className="space-y-3">
-              {legalCase.litigants && legalCase.litigants.length > 0 ? (
-                legalCase.litigants.map((litigant, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <div className={`w-20 h-20 ${
-                      litigant.litigantType === "Bị cáo" 
-                        ? "bg-red-100"
-                        : litigant.litigantType === "Nguyên đơn"
-                        ? "bg-blue-100"
-                        : "bg-purple-100"
-                    } rounded-xl flex items-center justify-center flex-shrink-0`}>
-                      <svg
-                        className={`w-12 h-12 ${
-                          litigant.litigantType === "Bị cáo"
-                            ? "text-red-600"
-                            : litigant.litigantType === "Nguyên đơn"
-                            ? "text-blue-600"
-                            : "text-purple-600"
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm text-gray-500">
-                          {litigant.litigantType}
-                        </p>
-                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
-                          #{litigant.ordinal}
-                        </span>
+            <div className="mb-4">
+                        {legalCase.litigants && legalCase.litigants.length > 0 ? (
+                          <>
+                            {(() => {
+                              const plaintiffs = legalCase.litigants.filter(
+                                (l) =>
+                                  l.litigantType == ("PLAINTIFF" as LitigantType) ||
+                                  l.litigantType == ("ACCUSED" as LitigantType)
+                              );
+                              const defendants = legalCase.litigants.filter(
+                                (l) => l.litigantType == ("DEFENDANT" as LitigantType)
+                              );
+            
+                              return (
+                                <div className="grid grid-cols-2 gap-4">
+                                  {/* Cột trái: Nguyên đơn / Bị cáo */}
+                                  <div className="space-y-3">
+                                    {(showAllPlaintiffs
+                                      ? plaintiffs
+                                      : plaintiffs.slice(0, 2)
+                                    ).map((litigant, index) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-start space-x-3">
+                                        <div
+                                          className={`w-17 h-17 rounded-lg flex items-center justify-center flex-shrink-0
+                                          ${
+                                            legalCase.legalRelationship.legalCaseType.codeName === "HS"
+                                              ? "bg-red-100"
+                                              : "bg-blue-100"
+                                          }`}>
+                                          <svg
+                                            className={`w-10 h-10 ${
+                                              legalCase.legalRelationship.legalCaseType
+                                                .codeName === "HS"
+                                                ? "text-red-600"
+                                                : "text-blue-600"
+                                            }`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth={2}
+                                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                            />
+                                          </svg>
+                                        </div>
+            
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm text-gray-500 mb-1">
+                                            {legalCase.legalRelationship.legalCaseType
+                                              .codeName === "HS"
+                                              ? "Bị cáo"
+                                              : "Nguyên đơn"}
+                                          </p>
+                                          <p className="text-base font-semibold text-gray-900">
+                                            {litigant.name +
+                                              (litigant.yearOfBirth
+                                                ? " - " + litigant.yearOfBirth
+                                                : "")}
+                                          </p>
+                                          <p className="text-sm text-gray-600">
+                                            {litigant.address}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {plaintiffs.length > 2 && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowAllPlaintiffs(!showAllPlaintiffs);
+                                        }}
+                                        className="w-full text-sm text-orange-600 font-semibold flex items-center justify-center gap-2 py-2 bg-orange-50 rounded-lg border border-orange-200">
+                                        {showAllPlaintiffs ? (
+                                          <>
+                                            <svg
+                                              className="w-4 h-4"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24">
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M5 15l7-7 7 7"
+                                              />
+                                            </svg>
+                                            Thu gọn
+                                          </>
+                                        ) : (
+                                          <>
+                                            <svg
+                                              className="w-4 h-4"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24">
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 9l-7 7-7-7"
+                                              />
+                                            </svg>
+                                            Xem thêm {plaintiffs.length - 2} người
+                                          </>
+                                        )}
+                                      </button>
+                                    )}
+                                  </div>
+            
+                                  {/* Cột phải: Bị đơn */}
+                                  <div className="space-y-3">
+                                    {(showAllDefendants
+                                      ? defendants
+                                      : defendants.slice(0, 2)
+                                    ).map((litigant, index) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-start space-x-3">
+                                        <div className="w-17 h-17 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                          <svg
+                                            className="w-10 h-10 text-red-600"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth={2}
+                                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                            />
+                                          </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm text-gray-500 mb-1">
+                                            Bị đơn
+                                          </p>
+                                          <p className="text-base font-semibold text-gray-900">
+                                            {litigant.name +
+                                              (litigant.yearOfBirth
+                                                ? " - " + litigant.yearOfBirth
+                                                : "")}
+                                          </p>
+                                          <p className="text-sm text-gray-600">
+                                            {litigant.address}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {defendants.length > 2 && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowAllDefendants(!showAllDefendants);
+                                        }}
+                                        className="w-full text-sm text-rose-600 font-semibold flex items-center justify-center gap-2 py-2 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition-colors">
+                                        {showAllDefendants ? (
+                                          <>
+                                            <svg
+                                              className="w-4 h-4"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24">
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M5 15l7-7 7 7"
+                                              />
+                                            </svg>
+                                            Thu gọn
+                                          </>
+                                        ) : (
+                                          <>
+                                            <svg
+                                              className="w-4 h-4"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24">
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 9l-7 7-7-7"
+                                              />
+                                            </svg>
+                                            Xem thêm {defendants.length - 2} người
+                                          </>
+                                        )}
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </>
+                        ) : (
+                          <div className="text-center py-4 text-gray-500 text-sm">
+                            Chưa có thông tin đương sự
+                          </div>
+                        )}
                       </div>
-                      <p className="text-md font-semibold text-gray-900">
-                        {litigant.name}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Năm sinh: {litigant.yearOfBirth}
-                      </p>
-                      <p className="text-sm text-gray-600 whitespace-pre-line">
-                        {litigant.address}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-gray-500">
-                  Chưa có thông tin đương sự
-                </div>
-              )}
-            </div>
 
             {/* Legal Relationship */}
             <div className="bg-blue-50 rounded-lg p-3">
@@ -872,7 +1021,10 @@ const LegalCaseDetailsPage = () => {
                           {decision.typeOfDecision.typeOfLegalCase.codeName}
                         </span>
                         <span className="text-base text-gray-900">
-                          {decision.typeOfDecision.typeOfLegalCase.typeOfLegalCaseName}
+                          {
+                            decision.typeOfDecision.typeOfLegalCase
+                              .typeOfLegalCaseName
+                          }
                         </span>
                       </div>
                     </div>
@@ -881,8 +1033,8 @@ const LegalCaseDetailsPage = () => {
                         Tòa án ban hành:
                       </span>
                       <span className="text-base text-gray-900">
-                        {decision.typeOfDecision.courtIssued === "CURRENT_COURT" 
-                          ? "Tòa án hiện tại" 
+                        {decision.typeOfDecision.courtIssued === "CURRENT_COURT"
+                          ? "Tòa án hiện tại"
                           : decision.typeOfDecision.courtIssued}
                       </span>
                     </div>
@@ -890,12 +1042,15 @@ const LegalCaseDetailsPage = () => {
                       <span className="text-sm font-medium text-gray-600 block">
                         Quyết định cuối cùng:
                       </span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        decision.typeOfDecision.theEndDecision 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {decision.typeOfDecision.theEndDecision ? "Có" : "Không"}
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          decision.typeOfDecision.theEndDecision
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}>
+                        {decision.typeOfDecision.theEndDecision
+                          ? "Có"
+                          : "Không"}
                       </span>
                     </div>
                   </div>

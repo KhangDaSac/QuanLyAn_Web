@@ -20,7 +20,7 @@ import ComboboxSearch, {
 } from "../component/basic-component/ComboboxSearch";
 import { LegalRelationshipService } from "../services/LegalRelationshipService";
 import { LegalRelationshipGroupService } from "../services/LegalRelationshipGroupService";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 import type { LegalCasesRequest } from "../types/request/legal-case/LegalCasesRequest";
 import { LegalCaseStatus } from "../types/enum/LegalCaseStatus";
 import { useAuth } from "../context/authContext/useAuth";
@@ -44,8 +44,12 @@ const LegalCaseManager = () => {
       legalCaseStatus: criteria.legalCaseStatus || null,
       judgeId: criteria.judgeId || null,
       batchId: criteria.batchId || null,
-      startStorageDate: criteria.startStorageDate ? `${criteria.startStorageDate} 00:00:00` : null,
-      endStorageDate: criteria.endStorageDate ? `${criteria.endStorageDate} 00:00:00` : null,
+      startStorageDate: criteria.startStorageDate
+        ? `${criteria.startStorageDate} 00:00:00`
+        : null,
+      endStorageDate: criteria.endStorageDate
+        ? `${criteria.endStorageDate} 00:00:00`
+        : null,
     };
   };
 
@@ -767,7 +771,7 @@ const LegalCaseManager = () => {
   const handleDownloadTemplate = async () => {
     try {
       // Kiểm tra xem file có tồn tại không
-      const response = await fetch("/import_excel_example.xlsx", {
+      const response = await fetch("/Mẫu_Import_Vụ_Án.xlsx", {
         method: "HEAD",
       });
 
@@ -779,7 +783,7 @@ const LegalCaseManager = () => {
 
       // Tạo link để download file mẫu từ thư mục public
       const link = document.createElement("a");
-      link.href = "/import_excel_example.xlsx";
+      link.href = "/Mẫu_Import_Vụ_Án.xlsx";
       link.download = "Mẫu_Import_Vụ_Án.xlsx";
       document.body.appendChild(link);
       link.click();
@@ -935,7 +939,7 @@ const LegalCaseManager = () => {
           if (!trimmedLine) return;
 
           const parts = trimmedLine.split(";");
-          
+
           if (parts.length !== 3) {
             validationErrors.push(
               `Dòng ${rowNumber}: ${litigantType} có định dạng không đúng (cần: Tên;Năm sinh;Địa chỉ). Giá trị: "${trimmedLine}"`
@@ -943,7 +947,7 @@ const LegalCaseManager = () => {
             return;
           }
 
-          const [name, yearOfBirth, address] = parts.map(p => p.trim());
+          const [name, yearOfBirth, address] = parts.map((p) => p.trim());
 
           // Validation
           if (!name) {
@@ -998,8 +1002,16 @@ const LegalCaseManager = () => {
 
         // Parse các loại đương sự
         const accusedLitigants = parseLitigants(row[3], "ACCUSED", rowNumber);
-        const plaintiffLitigants = parseLitigants(row[4], "PLAINTIFF", rowNumber);
-        const defendantLitigants = parseLitigants(row[5], "DEFENDANT", rowNumber);
+        const plaintiffLitigants = parseLitigants(
+          row[4],
+          "PLAINTIFF",
+          rowNumber
+        );
+        const defendantLitigants = parseLitigants(
+          row[5],
+          "DEFENDANT",
+          rowNumber
+        );
 
         // Gộp tất cả đương sự
         const allLitigants = [
@@ -1080,7 +1092,10 @@ const LegalCaseManager = () => {
       );
 
       if (response.success) {
-        toast.success("Nhập án thành công", `Đã nhập ${validLegalCases.length} vụ án thành công!`);
+        toast.success(
+          "Nhập án thành công",
+          `Đã nhập ${validLegalCases.length} vụ án thành công!`
+        );
         await fetchLegalCases(); // Reload dữ liệu
       } else {
         toast.error(
@@ -1134,10 +1149,8 @@ const LegalCaseManager = () => {
       }
 
       const allLegalCases = data.content;
-      // Tạo workbook và worksheet mới
       const workbook = XLSX.utils.book_new();
 
-      // Chuẩn bị dữ liệu xuất - tạo header
       const headers = [
         "STT",
         "Số thụ lý",
@@ -1152,83 +1165,98 @@ const LegalCaseManager = () => {
         "Mã đợt nhập",
       ];
 
-      // Helper function để format thông tin đương sự theo loại
       const formatLitigantsByType = (litigants, type) => {
-        const filtered = litigants.filter(l => l.litigantType === type);
+        const filtered = litigants.filter((l) => l.litigantType === type);
         if (filtered.length === 0) return "";
-        
         return filtered
-          .map(l => {
+          .map((l) => {
             const name = l.name || "";
             const year = l.yearOfBirth || "";
             const address = l.address || "";
             return `${name};${year};${address}`;
           })
-          .join("\n"); // Xuống dòng trong cùng một ô
+          .join("\n");
       };
 
-      // Chuẩn bị dữ liệu rows
       const rows = allLegalCases.map((legalCase, index) => {
         const litigants = legalCase.litigants || [];
-        
         return [
-          index + 1, // STT
-          legalCase.acceptanceNumber || "", // Số thụ lý
-          isoToDMY(legalCase.acceptanceDate) || "", // Ngày thụ lý
-          formatLitigantsByType(litigants, "ACCUSED"), // Bị cáo
-          formatLitigantsByType(litigants, "PLAINTIFF"), // Nguyên đơn
-          formatLitigantsByType(litigants, "DEFENDANT"), // Bị đơn
-          legalCase.note || "", // Ghi chú
-          legalCase.legalRelationship?.legalRelationshipName || "", // Quan hệ pháp luật
-          legalCase.judge?.fullName || "", // Thẩm phán
-          legalCase.mediator?.fullName || "", // Hòa giải viên
-          legalCase.batch?.batchId || "", // Mã đợt nhập
+          index + 1,
+          legalCase.acceptanceNumber || "",
+          isoToDMY(legalCase.acceptanceDate) || "",
+          formatLitigantsByType(litigants, "ACCUSED"),
+          formatLitigantsByType(litigants, "PLAINTIFF"),
+          formatLitigantsByType(litigants, "DEFENDANT"),
+          legalCase.note || "",
+          legalCase.legalRelationship?.legalRelationshipName || "",
+          legalCase.judge?.fullName || "",
+          legalCase.mediator?.fullName || "",
+          legalCase.batch?.batchId || "",
         ];
       });
 
-      // Tạo data array với header và rows
       const data_array = [headers, ...rows];
-
-      // Tạo worksheet từ data
       const worksheet = XLSX.utils.aoa_to_sheet(data_array);
 
-      // Tự động điều chỉnh độ rộng cột
-      const colWidths = headers.map((header, index) => {
+      // 🧩 Tự động điều chỉnh độ rộng cột
+      // 🧩 Tự động điều chỉnh độ rộng cột dựa trên nội dung dài nhất
+      const colWidths = headers.map((header, i) => {
+        // Tìm chiều dài tối đa trong cột này (bao gồm cả xuống dòng)
         const maxLength = Math.max(
           header.length,
-          ...rows.map((row) => {
-            const cellValue = row[index]?.toString() || "";
-            // Tính độ dài dựa trên dòng dài nhất nếu có xuống dòng
-            const lines = cellValue.split("\n");
-            return Math.max(...lines.map(line => line.length));
+          ...rows.map((r) => {
+            const val = r[i] ? r[i].toString() : "";
+            // Với mỗi dòng có thể chứa nhiều dòng con (do xuống dòng)
+            const lines = val.split(/\r?\n/);
+            // Lấy chiều dài dòng dài nhất
+            return Math.max(...lines.map((line) => line.length));
           })
         );
-        return { wch: Math.min(maxLength + 2, 50) }; // Giới hạn tối đa 50 ký tự
+
+        // Nhân hệ số để vừa khít (≈ 1.2–1.5)
+        const adjustedWidth = Math.min(Math.ceil(maxLength * 1.2) + 2, 80); // Giới hạn 80 ký tự
+
+        return { wch: adjustedWidth };
       });
+
       worksheet["!cols"] = colWidths;
 
-      // Bật word wrap cho các ô có nhiều dòng
-      const range = XLSX.utils.decode_range(worksheet['!ref']);
+      // 🧩 Tự động điều chỉnh chiều cao hàng
+      const rowHeights = data_array.map((row) => {
+        const maxLines = Math.max(
+          ...row.map((cell) => (cell ? cell.toString().split("\n").length : 1))
+        );
+        return { hpt: Math.min(20 * maxLines, 200) }; // 15pt mỗi dòng, tối đa 200pt
+      });
+      worksheet["!rows"] = rowHeights;
+
+      // 🧩 Bật wrap text cho mọi ô
+      const range = XLSX.utils.decode_range(worksheet["!ref"]);
       for (let R = range.s.r; R <= range.e.r; ++R) {
         for (let C = range.s.c; C <= range.e.c; ++C) {
           const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-          if (!worksheet[cellAddress]) continue;
-          
-          // Thêm style wrap text
-          if (!worksheet[cellAddress].s) worksheet[cellAddress].s = {};
-          worksheet[cellAddress].s.alignment = { wrapText: true, vertical: 'top' };
+          const cell = worksheet[cellAddress];
+          if (!cell) continue;
+          if (!cell.s) cell.s = {};
+          cell.s.alignment = {
+            ...(cell.s.alignment || {}),
+            wrapText: true,
+            vertical: "top",
+            horizontal: "left",
+          };
+          cell.s.font = {
+            name: "Times New Roman",
+            sz: 13,
+          };
         }
       }
 
-      // Thêm worksheet vào workbook
       XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách vụ án");
 
-      // Tạo tên file với timestamp
       const now = new Date();
       const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, "");
       const fileName = `danh_sach_vu_an_${timestamp}.xlsx`;
 
-      // Xuất file
       XLSX.writeFile(workbook, fileName);
 
       toast.success(

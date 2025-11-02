@@ -33,18 +33,13 @@ const JudgeForm = ({
     const [legalRelationshipGroups, setLegalRelationshipGroups] = useState<Option[]>([]);
     const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
 
-    const statusOptions = [
+    const statusOptions: Option[] = [
         { value: "WORKING", label: OfficerStatus.WORKING },
         { value: "NOT_WORKING", label: OfficerStatus.NOT_WORKING },
         { value: "ON_BUSINESS_TRIP", label: OfficerStatus.ON_BUSINESS_TRIP },
         { value: "ON_LEAVE", label: OfficerStatus.ON_LEAVE },
         { value: "DISCIPLINED", label: OfficerStatus.DISCIPLINED }
     ];
-
-    const statusOptionsForCombobox: Option[] = statusOptions.map(option => ({
-        value: option.value,
-        label: option.label
-    }));
 
     // Fetch legal relationship groups khi component mount
     useEffect(() => {
@@ -397,8 +392,8 @@ const JudgeForm = ({
                                     Trạng thái <span className="text-red-500">*</span>
                                 </label>
                                 <ComboboxSearchForm
-                                    options={statusOptionsForCombobox}
-                                    value={formData.statusOfOfficer || OfficerStatus.WORKING}
+                                    options={statusOptions}
+                                    value={formData.statusOfOfficer || "WORKING"}
                                     onChange={handleStatusChange}
                                     placeholder="Chọn trạng thái thẩm phán"
                                 />

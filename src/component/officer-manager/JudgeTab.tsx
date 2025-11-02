@@ -78,10 +78,13 @@ const JudgeTab = () => {
 
   const toast = useToast();
 
-  const statusOfOfficers = Object.values(OfficerStatus).map(status => ({
-    value: status,
-    label: status
-  }));
+  const statusOfOfficers: Option[] = [
+    { value: "WORKING", label: OfficerStatus.WORKING },
+    { value: "NOT_WORKING", label: OfficerStatus.NOT_WORKING },
+    { value: "ON_BUSINESS_TRIP", label: OfficerStatus.ON_BUSINESS_TRIP },
+    { value: "ON_LEAVE", label: OfficerStatus.ON_LEAVE },
+    { value: "DISCIPLINED", label: OfficerStatus.DISCIPLINED }
+  ];
 
   useEffect(() => {
     loadJudges();

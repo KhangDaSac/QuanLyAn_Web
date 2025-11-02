@@ -68,13 +68,13 @@ const AccountCard = ({
   // };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 hover:shadow-lg transition-all duration-300 mb-3">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-3">
       {/* Desktop Layout */}
       <div className="hidden lg:flex lg:items-center lg:justify-between">
         {/* Left Section - Avatar + Account Info */}
         <div className="flex items-center space-x-4 flex-1 min-w-0">
           {/* Avatar */}
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
             {account.username ? account.username.charAt(0).toUpperCase() : "U"}
           </div>
 
@@ -298,73 +298,6 @@ const AccountCard = ({
             </div>
           </div>
         )}
-
-        {/* Bottom Row - Actions */}
-        {/* <div className="flex flex-col sm:flex-row gap-2">
-          <button
-            onClick={() => onEdit(account)}
-            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-200">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            <span>Sửa</span>
-          </button>
-
-          <button
-            onClick={() => onToggleStatus(account.accountId)}
-            className={`flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 border ${
-              isActiveStatus(account.statusOfAccount)
-                ? "text-orange-600 bg-orange-50 hover:bg-orange-100 border-orange-200"
-                : "text-green-600 bg-green-50 hover:bg-green-100 border-green-200"
-            }`}>
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={
-                  isActiveStatus(account.statusOfAccount)
-                    ? "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
-                    : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                }
-              />
-            </svg>
-            <span>
-              {account.statusOfAccount === StatusOfAccount.ACTIVE ? "Khóa" : "Mở khóa"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => onDelete(account.accountId)}
-            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            <span>Xóa</span>
-          </button>
-        </div> */}
       </div>
     </div>
   );
