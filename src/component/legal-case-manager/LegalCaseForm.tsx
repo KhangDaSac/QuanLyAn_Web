@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { LegalCaseResponse } from '../../types/response/legal-case/LegalCaseResponse';
 import ComboboxSearchForm, { type Option } from '../basic-component/ComboboxSearchForm';
 import type { LegalCaseRequest } from '../../types/request/legal-case/LegalCaseRequest';
+import { LitigantType } from '../../types/enum/LitigantType';
 import { BatchService } from '../../services/BatchService';
 import { JudgeService } from '../../services/JudgeService';
 import { MediatorService } from '../../services/MediatorService';
@@ -26,10 +27,6 @@ const LegalCaseForm = ({
     const [formData, setFormData] = useState({
         acceptanceNumber: '',
         acceptanceDate: '',
-        plaintiff: '',
-        plaintiffAddress: '',
-        defendant: '',
-        defendantAddress: '',
         note: '',
         legalRelationshipId: '',
         judgeId: '',
@@ -37,25 +34,25 @@ const LegalCaseForm = ({
         batchId: '',
     });
 
-    // Store original values to track changes during editing
-    const [originalData, setOriginalData] = useState({
-        acceptanceNumber: '',
-        acceptanceDate: '',
-        plaintiff: '',
-        plaintiffAddress: '',
-        defendant: '',
-        defendantAddress: '',
-        note: '',
-        legalRelationshipId: '',
-        judgeId: '',
-        mediatorId: '',
-        batchId: '',
-    });
+    // Litigants state
+    const [litigants, setLitigants] = useState<Array<{
+        name: string;
+        yearOfBirth: string;
+        address: string;
+        litigantType: string;
+        ordinal: number;
+    }>>([]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [batches, setBatches] = useState<Option[]>([]);
     const [judges, setJudges] = useState<Option[]>([]);
     const [mediators, setMediators] = useState<Option[]>([]);
+
+    const litigantTypeOptions: Option[] = [
+        { value: "PLAINTIFF", label: LitigantType.PLAINTIFF },
+        { value: "DEFENDANT", label: LitigantType.DEFENDANT },
+        { value: "ACCUSED", label: LitigantType.ACCUSED }
+    ];
 
     // Ngăn cuộn trang khi modal mở
     useEffect(() => {
@@ -123,38 +120,44 @@ const LegalCaseForm = ({
     useEffect(() => {
         if (legalCase) {
             // Chế độ sửa
-            const editData = {
+            setFormData({
                 acceptanceNumber: legalCase.acceptanceNumber,
                 acceptanceDate: legalCase.acceptanceDate,
-                plaintiff: legalCase.plaintiff,
-                plaintiffAddress: legalCase.plaintiffAddress,
-                defendant: legalCase.defendant,
-                defendantAddress: legalCase.defendantAddress,
                 note: legalCase.note || '',
                 legalRelationshipId: legalCase.legalRelationship.legalRelationshipId,
                 judgeId: legalCase.judge?.officerId || '',
                 mediatorId: legalCase.mediator?.officerId || '',
                 batchId: legalCase.batch?.batchId || ''
-            };
-            setFormData(editData);
-            setOriginalData(editData); // Store original values for comparison
+            });
+            
+            // Load litigants from legalCase
+            setLitigants(legalCase.litigants.map((lit, index) => ({
+                name: lit.name,
+                yearOfBirth: lit.yearOfBirth,
+                address: lit.address,
+                litigantType: lit.litigantType,
+                ordinal: lit.ordinal || index + 1
+            })));
         } else {
             // Chế độ thêm mới
-            const newData = {
+            setFormData({
                 acceptanceNumber: '',
                 acceptanceDate: '',
-                plaintiff: '',
-                plaintiffAddress: '',
-                defendant: '',
-                defendantAddress: '',
                 note: '',
                 legalRelationshipId: '',
                 judgeId: '',
                 mediatorId: '',
                 batchId: ''
-            };
-            setFormData(newData);
-            setOriginalData(newData); // For new items, original is empty
+            });
+            
+            // Start with one empty litigant
+            setLitigants([{
+                name: '',
+                yearOfBirth: '',
+                address: '',
+                litigantType: 'PLAINTIFF',
+                ordinal: 1
+            }]);
         }
         setErrors({});
     }, [legalCase, isOpen]);
@@ -170,9 +173,18 @@ const LegalCaseForm = ({
             newErrors.acceptanceDate = 'Ngày thụ lý là bắt buộc';
         }
 
-        if (!formData.plaintiff.trim()) {
-            newErrors.plaintiff = 'Nguyên đơn là bắt buộc';
+        if (litigants.length === 0) {
+            newErrors.litigants = 'Phải có ít nhất một đương sự';
         }
+
+        litigants.forEach((litigant, index) => {
+            if (!litigant.name.trim()) {
+                newErrors[`litigant_${index}_name`] = 'Tên đương sự là bắt buộc';
+            }
+            if (!litigant.litigantType) {
+                newErrors[`litigant_${index}_type`] = 'Loại đương sự là bắt buộc';
+            }
+        });
 
         if (!formData.legalRelationshipId) {
             newErrors.legalRelationshipId = 'Quan hệ pháp luật là bắt buộc';
@@ -186,47 +198,23 @@ const LegalCaseForm = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    // Helper function to clean form data - for updates, only send changed fields
-    const cleanFormData = (data: typeof formData): LegalCaseRequest => {
-        // For new legal cases (no legalCase prop), send all non-empty optional fields
-        if (!legalCase) {
-            return {
-                acceptanceNumber: data.acceptanceNumber,
-                acceptanceDate: data.acceptanceDate,
-                plaintiff: data.plaintiff,
-                legalRelationshipId: data.legalRelationshipId,
-                batchId: data.batchId,
-                
-                // Optional fields - send null if empty
-                plaintiffAddress: data.plaintiffAddress?.trim() || null,
-                defendant: data.defendant?.trim() || null,
-                defendantAddress: data.defendantAddress?.trim() || null,
-                note: data.note?.trim() || null,
-                judgeId: data.judgeId || null,
-                mediatorId: data.mediatorId || null,
-            };
-        }
-
-        // For updates, only send changed fields, set unchanged fields to null
+    // Helper function to clean form data
+    const cleanFormData = (): LegalCaseRequest => {
         return {
-            // Required fields - send if changed
-            acceptanceNumber: data.acceptanceNumber !== originalData.acceptanceNumber ? data.acceptanceNumber : null,
-            acceptanceDate: data.acceptanceDate !== originalData.acceptanceDate ? data.acceptanceDate : null,
-            plaintiff: data.plaintiff !== originalData.plaintiff ? data.plaintiff : null,
-            legalRelationshipId: data.legalRelationshipId !== originalData.legalRelationshipId ? data.legalRelationshipId : null,
-            batchId: data.batchId !== originalData.batchId ? data.batchId : null,
-            
-            // Optional fields - send if changed (comparing trimmed values)
-            plaintiffAddress: (data.plaintiffAddress?.trim() || '') !== (originalData.plaintiffAddress?.trim() || '') 
-                ? (data.plaintiffAddress?.trim() || null) : null,
-            defendant: (data.defendant?.trim() || '') !== (originalData.defendant?.trim() || '') 
-                ? (data.defendant?.trim() || null) : null,
-            defendantAddress: (data.defendantAddress?.trim() || '') !== (originalData.defendantAddress?.trim() || '') 
-                ? (data.defendantAddress?.trim() || null) : null,
-            note: (data.note?.trim() || '') !== (originalData.note?.trim() || '') 
-                ? (data.note?.trim() || null) : null,
-            judgeId: data.judgeId !== originalData.judgeId ? (data.judgeId || null) : null,
-            mediatorId: data.mediatorId !== originalData.mediatorId ? (data.mediatorId || null) : null,
+            acceptanceNumber: formData.acceptanceNumber,
+            acceptanceDate: formData.acceptanceDate,
+            legalRelationshipId: formData.legalRelationshipId,
+            batchId: formData.batchId,
+            note: formData.note?.trim() || null,
+            judgeId: legalCase ? null : (formData.judgeId || null), // Không cho sửa judge khi edit
+            mediatorId: formData.mediatorId || null,
+            litigants: litigants.map((lit, index) => ({
+                litigantType: lit.litigantType as any,
+                ordinal: index + 1,
+                name: lit.name.trim(),
+                yearOfBirth: lit.yearOfBirth.trim() || null,
+                address: lit.address.trim() || null
+            }))
         };
     };
 
@@ -234,14 +222,14 @@ const LegalCaseForm = ({
         e.preventDefault();
 
         if (validateForm()) {
-            const cleanedData = cleanFormData(formData);
+            const cleanedData = cleanFormData();
             onSubmit(cleanedData);
         }
     };
 
     const handleButtonSubmit = () => {
         if (validateForm()) {
-            const cleanedData = cleanFormData(formData);
+            const cleanedData = cleanFormData();
             onSubmit(cleanedData);
         }
     };
@@ -251,6 +239,34 @@ const LegalCaseForm = ({
         // Xóa lỗi khi user bắt đầu nhập
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+
+    const handleLitigantChange = (index: number, field: string, value: string) => {
+        const newLitigants = [...litigants];
+        newLitigants[index] = { ...newLitigants[index], [field]: value };
+        setLitigants(newLitigants);
+        
+        // Clear error for this litigant field
+        const errorKey = `litigant_${index}_${field === 'litigantType' ? 'type' : field}`;
+        if (errors[errorKey]) {
+            setErrors(prev => ({ ...prev, [errorKey]: '' }));
+        }
+    };
+
+    const addLitigant = () => {
+        setLitigants([...litigants, {
+            name: '',
+            yearOfBirth: '',
+            address: '',
+            litigantType: 'PLAINTIFF',
+            ordinal: litigants.length + 1
+        }]);
+    };
+
+    const removeLitigant = (index: number) => {
+        if (litigants.length > 1) {
+            setLitigants(litigants.filter((_, i) => i !== index));
         }
     };
 
@@ -329,71 +345,112 @@ const LegalCaseForm = ({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Nguyên đơn */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Nguyên đơn/Bị cáo <span className="text-red-500">*</span>
+                        {/* Đương sự */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Đương sự <span className="text-red-500">*</span>
                                 </label>
-                                <textarea
-                                    value={formData.plaintiff}
-                                    onChange={(e) => handleInputChange('plaintiff', e.target.value)}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical ${errors.plaintiff ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                    placeholder="Nhập tên nguyên đơn/bị cáo"
-                                    rows={2}
-                                />
-                                {errors.plaintiff && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.plaintiff}</p>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={addLitigant}
+                                    className="inline-flex items-center px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg"
+                                >
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Thêm đương sự
+                                </button>
                             </div>
+                            
+                            {errors.litigants && (
+                                <p className="text-red-500 text-xs">{errors.litigants}</p>
+                            )}
 
-                            {/* Địa chỉ nguyên đơn */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Địa chỉ nguyên đơn 
-                                </label>
-                                <textarea
-                                    value={formData.plaintiffAddress}
-                                    onChange={(e) => handleInputChange('plaintiffAddress', e.target.value)}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical ${errors.plaintiffAddress ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                    placeholder="Nhập địa chỉ nguyên đơn"
-                                    rows={2}
-                                />
-                                {errors.plaintiffAddress && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.plaintiffAddress}</p>
-                                )}
-                            </div>
-                        </div>
+                            <div className="space-y-4">
+                                {litigants.map((litigant, index) => (
+                                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="text-sm font-semibold text-gray-700">Đương sự #{index + 1}</h4>
+                                            {litigants.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeLitigant(index)}
+                                                    className="text-red-600 hover:text-red-800 transition-colors"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Loại đương sự */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Loại <span className="text-red-500">*</span>
+                                                </label>
+                                                <ComboboxSearchForm
+                                                    options={litigantTypeOptions}
+                                                    value={litigant.litigantType}
+                                                    onChange={(value) => handleLitigantChange(index, 'litigantType', value)}
+                                                    placeholder="Chọn loại"
+                                                />
+                                                {errors[`litigant_${index}_type`] && (
+                                                    <p className="text-red-500 text-xs mt-1">{errors[`litigant_${index}_type`]}</p>
+                                                )}
+                                            </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Bị đơn */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Bị đơn
-                                </label>
-                                <textarea
-                                    value={formData.defendant}
-                                    onChange={(e) => handleInputChange('defendant', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical"
-                                    placeholder="Nhập tên bị đơn"
-                                    rows={2}
-                                />
-                            </div>
+                                            {/* Tên */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Họ và tên <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={litigant.name}
+                                                    onChange={(e) => handleLitigantChange(index, 'name', e.target.value)}
+                                                    className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none ${
+                                                        errors[`litigant_${index}_name`] ? 'border-red-500' : 'border-gray-300'
+                                                    }`}
+                                                    placeholder="Nhập họ và tên"
+                                                />
+                                                {errors[`litigant_${index}_name`] && (
+                                                    <p className="text-red-500 text-xs mt-1">{errors[`litigant_${index}_name`]}</p>
+                                                )}
+                                            </div>
 
-                            {/* Địa chỉ bị đơn */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Địa chỉ bị đơn
-                                </label>
-                                <textarea
-                                    value={formData.defendantAddress}
-                                    onChange={(e) => handleInputChange('defendantAddress', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none resize-vertical"
-                                    placeholder="Nhập địa chỉ bị đơn"
-                                    rows={2}
-                                />
+                                            {/* Năm sinh */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Năm sinh
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={litigant.yearOfBirth}
+                                                    onChange={(e) => handleLitigantChange(index, 'yearOfBirth', e.target.value)}
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                                                    placeholder="Nhập năm sinh"
+                                                />
+                                            </div>
+
+                                            {/* Địa chỉ */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Địa chỉ
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={litigant.address}
+                                                    onChange={(e) => handleLitigantChange(index, 'address', e.target.value)}
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
+                                                    placeholder="Nhập địa chỉ"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -431,21 +488,23 @@ const LegalCaseForm = ({
 
                         {/* Optional fields in a grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Thẩm phán */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Thẩm phán
-                                </label>
-                                <ComboboxSearchForm
-                                    options={judges}
-                                    value={formData.judgeId}
-                                    onChange={(value) => handleInputChange('judgeId', value)}
-                                    placeholder="Chọn thẩm phán"
-                                />
-                            </div>
+                            {/* Thẩm phán - chỉ hiển thị khi tạo mới */}
+                            {!legalCase && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Thẩm phán
+                                    </label>
+                                    <ComboboxSearchForm
+                                        options={judges}
+                                        value={formData.judgeId}
+                                        onChange={(value) => handleInputChange('judgeId', value)}
+                                        placeholder="Chọn thẩm phán"
+                                    />
+                                </div>
+                            )}
 
                             {/* Hòa giải viên */}
-                            <div>
+                            <div className={!legalCase ? '' : 'md:col-span-2'}>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Hòa giải viên
                                 </label>
