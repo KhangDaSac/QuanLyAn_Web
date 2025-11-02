@@ -102,6 +102,18 @@ export class LegalCaseService {
     );
   }
 
+  static async removeAssignment(
+    legalCaseId: string
+  ): Promise<ApiResponse<any>> {
+    const token = localStorage.getItem("token");
+    return Connect.request<void>(
+      `${this.api}/remove-assignment/${legalCaseId}`,
+      "POST",
+      null,
+      token
+    );
+  }
+
   static async randomAssignment(
     request: RandomAssignmentRequest
   ): Promise<ApiResponse<void>> {

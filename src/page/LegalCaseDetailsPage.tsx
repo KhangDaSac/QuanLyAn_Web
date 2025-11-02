@@ -188,6 +188,36 @@ const LegalCaseDetailsPage = () => {
     setShowAssignmentModal(true);
   };
 
+  const handleRemoveAssignment = async () => {
+    if (!legalCase) return;
+
+    setAssignmentLoading(true);
+    try {
+      const response = await LegalCaseService.removeAssignment(legalCase.legalCaseId);
+
+      if (response.success) {
+        toast.success(
+          "Xóa phân công thành công",
+          `Đã xóa phân công thẩm phán khỏi án "${legalCase.acceptanceNumber}"`
+        );
+        await fetchLegalCase(); // Reload data
+      } else {
+        toast.error(
+          "Xóa phân công thất bại",
+          response.error || "Có lỗi xảy ra khi xóa phân công thẩm phán"
+        );
+      }
+    } catch (error) {
+      console.error("Error removing assignment:", error);
+      toast.error(
+        "Xóa phân công thất bại",
+        "Có lỗi xảy ra khi xóa phân công thẩm phán"
+      );
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+
   const handleAddDecision = () => {
     setShowDecisionForm(true);
   };
@@ -368,23 +398,47 @@ const LegalCaseDetailsPage = () => {
             </button>
           )}
           {auth?.hasPermission(Permission.ASSIGN_LEGAL_CASE) && (
-            <button
-              onClick={handleAssign}
-              className="inline-flex items-center px-4 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              Phân công
-            </button>
+            <>
+              {!legalCase?.judge ? (
+                <button
+                  onClick={handleAssign}
+                  disabled={assignmentLoading}
+                  className="inline-flex items-center px-4 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  {assignmentLoading ? 'Đang xử lý...' : 'Phân công'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleRemoveAssignment}
+                  disabled={assignmentLoading}
+                  className="inline-flex items-center px-4 py-2 border border-red-600 text-red-600 text-sm font-medium rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a7 7 0 00-7 7h14a7 7 0 00-7-7zM21 12h-6"
+                    />
+                  </svg>
+                  {assignmentLoading ? 'Đang xử lý...' : 'Xóa phân công'}
+                </button>
+              )}
+            </>
           )}
           {auth?.hasPermission(Permission.EDIT_LEGAL_CASE) && (
             <button
