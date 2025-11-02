@@ -48,7 +48,7 @@ const AssignedCaseCard = ({ legalCase }: AssignedCaseCardProps) => {
               />
             </svg>
           </div>
-          <div className="flex-1 min-w-0">
+          {/* <div className="flex-1 min-w-0">
             <p className="text-sm text-gray-500 mb-1">
               {legalCase.legalRelationship.legalCaseType.codeName == "HS"
                 ? "Bị cáo"
@@ -60,7 +60,7 @@ const AssignedCaseCard = ({ legalCase }: AssignedCaseCardProps) => {
             <p className="text-sm text-gray-600 truncate">
               {legalCase.plaintiffAddress}
             </p>
-          </div>
+          </div> */}
         </div>
 
         {legalCase.legalRelationship.legalCaseType.codeName != "HS" && (
@@ -79,7 +79,7 @@ const AssignedCaseCard = ({ legalCase }: AssignedCaseCardProps) => {
                 />
               </svg>
             </div>
-            <div className="flex-1 min-w-0">
+            {/* <div className="flex-1 min-w-0">
               <p className="text-sm text-gray-500 mb-1">Bị đơn</p>
               <p className="text-base font-semibold text-gray-900 truncate">
                 {legalCase.defendant}
@@ -87,7 +87,7 @@ const AssignedCaseCard = ({ legalCase }: AssignedCaseCardProps) => {
               <p className="text-sm text-gray-600 truncate">
                 {legalCase.defendantAddress}
               </p>
-            </div>
+            </div> */}
           </div>
         )}
       </div>

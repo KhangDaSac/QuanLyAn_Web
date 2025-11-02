@@ -934,7 +934,7 @@ const LegalCaseManager = () => {
         const litigants: any[] = [];
         const lines = cellValue.toString().split("\n"); // Tách các dòng
 
-        lines.forEach((line, lineIndex) => {
+        lines.forEach((line: any, lineIndex: number) => {
           const trimmedLine = line.trim();
           if (!trimmedLine) return;
 
@@ -947,7 +947,7 @@ const LegalCaseManager = () => {
             return;
           }
 
-          const [name, yearOfBirth, address] = parts.map((p) => p.trim());
+          const [name, yearOfBirth, address] = parts.map((p: any) => p.trim());
 
           // Validation
           if (!name) {
@@ -1165,7 +1165,7 @@ const LegalCaseManager = () => {
         "Mã đợt nhập",
       ];
 
-      const formatLitigantsByType = (litigants, type) => {
+      const formatLitigantsByType = (litigants: any[], type: string) => {
         const filtered = litigants.filter((l) => l.litigantType === type);
         if (filtered.length === 0) return "";
         return filtered
@@ -1231,7 +1231,7 @@ const LegalCaseManager = () => {
       worksheet["!rows"] = rowHeights;
 
       // 🧩 Bật wrap text cho mọi ô
-      const range = XLSX.utils.decode_range(worksheet["!ref"]);
+      const range = XLSX.utils.decode_range(worksheet["!ref"] || "");
       for (let R = range.s.r; R <= range.e.r; ++R) {
         for (let C = range.s.c; C <= range.e.c; ++C) {
           const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
