@@ -194,7 +194,7 @@ const DecisionTypeManager = () => {
   };
 
   const handleViewDetails = (typeOfDecision: DecisionTypeResponse) => {
-    navigate(`/type-of-decision-details/${typeOfDecision.decisionTypeId}`);
+    navigate(`/decision-types-details/${typeOfDecision.decisionTypeId}`);
   };
 
   const handleFormSubmit = async (data: DecisionTypeRequest) => {

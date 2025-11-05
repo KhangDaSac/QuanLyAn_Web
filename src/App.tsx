@@ -75,7 +75,7 @@ const App = () => {
           }
         />
         <Route
-          path="/type-of-decision-details/:typeOfDecisionId"
+          path="/decision-types-details/:decisionTypeId"
           element={
             <ProtectedRoute>
               <MainLayout>
