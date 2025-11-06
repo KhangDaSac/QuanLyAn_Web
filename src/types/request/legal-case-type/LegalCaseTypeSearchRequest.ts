@@ -1,5 +1,5 @@
 export interface LegalCaseTypeSearchRequest {
-  LegalCaseTypeId: string | null;
-  LegalCaseTypeName: string | null;
+  legalCaseTypeId: string | null;
+  legalCaseTypeName: string | null;
   codeName: string | null;
 }

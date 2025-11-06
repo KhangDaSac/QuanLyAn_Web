@@ -14,17 +14,17 @@ const LegalCaseTypeTab = () => {
   // Helper function to clean search criteria
   const cleanSearchCriteria = (criteria: LegalCaseTypeSearchRequest): LegalCaseTypeSearchRequest => {
     const cleaned: LegalCaseTypeSearchRequest = {
-      LegalCaseTypeId: null,
-      LegalCaseTypeName: null,
+      legalCaseTypeId: null,
+      legalCaseTypeName: null,
       codeName: null,
     };
     
-    if (criteria.LegalCaseTypeId && criteria.LegalCaseTypeId.trim() !== '') {
-      cleaned.LegalCaseTypeId = criteria.LegalCaseTypeId;
+    if (criteria.legalCaseTypeId && criteria.legalCaseTypeId.trim() !== '') {
+      cleaned.legalCaseTypeId = criteria.legalCaseTypeId;
     }
     
-    if (criteria.LegalCaseTypeName && criteria.LegalCaseTypeName.trim() !== '') {
-      cleaned.LegalCaseTypeName = criteria.LegalCaseTypeName;
+    if (criteria.legalCaseTypeName && criteria.legalCaseTypeName.trim() !== '') {
+      cleaned.legalCaseTypeName = criteria.legalCaseTypeName;
     }
     
     if (criteria.codeName && criteria.codeName.trim() !== '') {
@@ -43,8 +43,8 @@ const LegalCaseTypeTab = () => {
     useState<LegalCaseTypeResponse | null>(null);
   const [searchCriteria, setSearchCriteria] =
     useState<LegalCaseTypeSearchRequest>({
-      LegalCaseTypeId: null,
-      LegalCaseTypeName: null,
+      legalCaseTypeId: null,
+      legalCaseTypeName: null,
       codeName: null,
     });
   const [submitting, setSubmitting] = useState(false);
@@ -391,8 +391,8 @@ const LegalCaseTypeTab = () => {
 
   const resetSearch = () => {
     setSearchCriteria({
-      LegalCaseTypeId: null,
-      LegalCaseTypeName: null,
+      legalCaseTypeId: null,
+      legalCaseTypeName: null,
       codeName: null,
     });
     setPagination((prev) => ({ ...prev, page: 0 }));
@@ -400,8 +400,8 @@ const LegalCaseTypeTab = () => {
       setLoading(true);
       try {
         const cleanedCriteria = cleanSearchCriteria({
-          LegalCaseTypeId: null,
-          LegalCaseTypeName: null,
+          legalCaseTypeId: null,
+          legalCaseTypeName: null,
           codeName: null,
         });
         const { data } = await LegalCaseTypeService.search(
@@ -525,11 +525,11 @@ const LegalCaseTypeTab = () => {
               </label>
               <input
                 type="text"
-                value={searchCriteria.LegalCaseTypeId || ""}
+                value={searchCriteria.legalCaseTypeId || ""}
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    LegalCaseTypeId: e.target.value || null,
+                    legalCaseTypeId: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập mã loại vụ án"
@@ -542,11 +542,11 @@ const LegalCaseTypeTab = () => {
               </label>
               <input
                 type="text"
-                value={searchCriteria.LegalCaseTypeName || ""}
+                value={searchCriteria.legalCaseTypeName || ""}
                 onChange={(e) =>
                   setSearchCriteria((prev) => ({
                     ...prev,
-                    LegalCaseTypeName: e.target.value || null,
+                    legalCaseTypeName: e.target.value || null,
                   }))
                 }
                 placeholder="Nhập tên loại vụ án"
