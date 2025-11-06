@@ -1061,7 +1061,7 @@ const LegalCaseDetailsPage = () => {
                         Mã loại quyết định:
                       </span>
                       <span className="text-base text-gray-900 font-mono">
-                        {decision.typeOfDecision.typeOfDecisionId}
+                        {decision.decisionType.decisionTypeId}
                       </span>
                     </div>
                     <div>
@@ -1069,7 +1069,7 @@ const LegalCaseDetailsPage = () => {
                         Tên loại quyết định:
                       </span>
                       <span className="text-base text-gray-900">
-                        {decision.typeOfDecision.typeOfDecisionName}
+                        {decision.decisionType.decisionTypeName}
                       </span>
                     </div>
                     <div>
@@ -1078,12 +1078,12 @@ const LegalCaseDetailsPage = () => {
                       </span>
                       <div className="flex items-center space-x-2">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {decision.typeOfDecision.typeOfLegalCase.codeName}
+                          {decision.decisionType.legalCaseType.codeName}
                         </span>
                         <span className="text-base text-gray-900">
                           {
-                            decision.typeOfDecision.typeOfLegalCase
-                              .typeOfLegalCaseName
+                            decision.decisionType.legalCaseType
+                              .legalCaseTypeName
                           }
                         </span>
                       </div>
@@ -1093,9 +1093,9 @@ const LegalCaseDetailsPage = () => {
                         Tòa án ban hành:
                       </span>
                       <span className="text-base text-gray-900">
-                        {decision.typeOfDecision.courtIssued === "CURRENT_COURT"
+                        {decision.decisionType.courtIssued === "CURRENT_COURT"
                           ? "Tòa án hiện tại"
-                          : decision.typeOfDecision.courtIssued}
+                          : decision.decisionType.courtIssued}
                       </span>
                     </div>
                     <div>
@@ -1104,11 +1104,11 @@ const LegalCaseDetailsPage = () => {
                       </span>
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          decision.typeOfDecision.theEndDecision
+                          decision.decisionType.theEndDecision
                             ? "bg-green-100 text-green-800"
                             : "bg-gray-100 text-gray-800"
                         }`}>
-                        {decision.typeOfDecision.theEndDecision
+                        {decision.decisionType.theEndDecision
                           ? "Có"
                           : "Không"}
                       </span>
