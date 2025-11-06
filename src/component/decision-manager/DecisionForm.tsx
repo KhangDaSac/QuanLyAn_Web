@@ -10,6 +10,7 @@ interface DecisionFormProps {
     legalCaseId: string;
     isLoading?: boolean;
     legalCaseTypeId?: string;
+    decision?: any | null; // For edit mode - using any because the actual response has nested objects
 }
 
 const DecisionForm = ({
@@ -18,7 +19,8 @@ const DecisionForm = ({
     onSubmit,
     legalCaseId,
     isLoading = false,
-    legalCaseTypeId
+    legalCaseTypeId,
+    decision = null
 }: DecisionFormProps) => {
     const [formData, setFormData] = useState<DecisionRequest>({
         number: '',
@@ -31,20 +33,32 @@ const DecisionForm = ({
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [decisionTypes, setDecisionTypes] = useState<Option[]>([]);
 
-    // Reset form when modal opens
+    // Reset form when modal opens or decision changes
     useEffect(() => {
         if (isOpen) {
-            setFormData({
-                number: '',
-                releaseDate: '',
-                note: '',
-                decisionTypeId: '',
-                legalCaseId: legalCaseId,
-            });
+            if (decision) {
+                // Edit mode - populate form with existing data
+                setFormData({
+                    number: decision.number,
+                    releaseDate: decision.releaseDate,
+                    note: decision.note || '',
+                    decisionTypeId: decision.decisionType?.decisionTypeId || '',
+                    legalCaseId: legalCaseId,
+                });
+            } else {
+                // Add mode - reset form
+                setFormData({
+                    number: '',
+                    releaseDate: '',
+                    note: '',
+                    decisionTypeId: '',
+                    legalCaseId: legalCaseId,
+                });
+            }
             setErrors({});
             fetchTypeOfDecisions();
         }
-    }, [isOpen, legalCaseId]);
+    }, [isOpen, legalCaseId, decision]);
 
     // Prevent body scroll when modal is open
     useEffect(() => {
@@ -141,7 +155,7 @@ const DecisionForm = ({
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">
-                            Thêm quyết định mới
+                            {decision ? 'Sửa quyết định' : 'Thêm quyết định mới'}
                         </h2>
                         <button
                             onClick={onClose}
@@ -234,7 +248,7 @@ const DecisionForm = ({
                                         Đang lưu...
                                     </span>
                                 ) : (
-                                    'Thêm quyết định'
+                                    decision ? 'Cập nhật quyết định' : 'Thêm quyết định'
                                 )}
                             </button>
                             <button

@@ -112,6 +112,9 @@ const LegalCaseDetailsPage = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showRemoveAssignmentModal, setShowRemoveAssignmentModal] = useState(false);
   const [showDecisionForm, setShowDecisionForm] = useState(false);
+  const [showEditDecisionForm, setShowEditDecisionForm] = useState(false);
+  const [showDeleteDecisionModal, setShowDeleteDecisionModal] = useState(false);
+  const [selectedDecision, setSelectedDecision] = useState<any>(null);
   const [assignmentLoading, setAssignmentLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [decisionFormLoading, setDecisionFormLoading] = useState(false);
@@ -225,7 +228,47 @@ const LegalCaseDetailsPage = () => {
   };
 
   const handleAddDecision = () => {
+    setSelectedDecision(null);
     setShowDecisionForm(true);
+  };
+
+  const handleEditDecision = (decision: any) => {
+    setSelectedDecision(decision);
+    setShowEditDecisionForm(true);
+  };
+
+  const handleDeleteDecisionClick = (decision: any) => {
+    setSelectedDecision(decision);
+    setShowDeleteDecisionModal(true);
+  };
+
+  const confirmDeleteDecision = async () => {
+    if (!selectedDecision) return;
+
+    try {
+      const response = await DecisionService.delete(selectedDecision.decisionId);
+      
+      if (response.success) {
+        toast.success(
+          "Xóa quyết định thành công",
+          `Đã xóa quyết định số "${selectedDecision.number}"`
+        );
+        setShowDeleteDecisionModal(false);
+        setSelectedDecision(null);
+        await fetchDecisions();
+      } else {
+        toast.error(
+          "Xóa quyết định thất bại",
+          response.error || "Có lỗi xảy ra khi xóa quyết định"
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting decision:", error);
+      toast.error(
+        "Xóa quyết định thất bại",
+        "Có lỗi xảy ra khi xóa quyết định"
+      );
+    }
   };
 
   const handleDecisionSubmit = async (data: DecisionRequest) => {
@@ -253,6 +296,38 @@ const LegalCaseDetailsPage = () => {
       toast.error(
         "Thêm quyết định thất bại",
         "Có lỗi xảy ra khi thêm quyết định"
+      );
+    } finally {
+      setDecisionFormLoading(false);
+    }
+  };
+
+  const handleEditDecisionSubmit = async (data: DecisionRequest) => {
+    if (!selectedDecision) return;
+
+    setDecisionFormLoading(true);
+    try {
+      const response = await DecisionService.update(selectedDecision.decisionId, data);
+
+      if (response.success) {
+        toast.success(
+          "Cập nhật quyết định thành công",
+          `Đã cập nhật quyết định số "${data.number}"`
+        );
+        setShowEditDecisionForm(false);
+        setSelectedDecision(null);
+        await fetchDecisions();
+      } else {
+        toast.error(
+          "Cập nhật quyết định thất bại",
+          response.error || "Có lỗi xảy ra khi cập nhật quyết định"
+        );
+      }
+    } catch (error) {
+      console.error("Error updating decision:", error);
+      toast.error(
+        "Cập nhật quyết định thất bại",
+        "Có lỗi xảy ra khi cập nhật quyết định"
       );
     } finally {
       setDecisionFormLoading(false);
@@ -1018,7 +1093,45 @@ const LegalCaseDetailsPage = () => {
                       Quyết định {decision.number}
                     </h4>
                   </div>
-                  <div className="text-right">
+                  <div className="flex items-center gap-3">
+                    {auth?.hasPermission(Permission.EDIT_LEGAL_CASE) && (
+                      <button
+                        onClick={() => handleEditDecision(decision)}
+                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-yellow-600 bg-yellow-50 border border-yellow-300 rounded-lg hover:bg-yellow-100 transition-colors">
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        Sửa
+                      </button>
+                    )}
+                    {auth?.hasPermission(Permission.DELETE_LEGAL_CASE) && (
+                      <button
+                        onClick={() => handleDeleteDecisionClick(decision)}
+                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 transition-colors">
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Xóa
+                      </button>
+                    )}
                     <div className="text-sm text-gray-900 font-mono">
                       {decision.decisionId}
                     </div>
@@ -1171,14 +1284,42 @@ const LegalCaseDetailsPage = () => {
         cancelText="Hủy"
       />
 
-      {/* Decision Form */}
+      <ConfirmModal
+        isOpen={showDeleteDecisionModal}
+        onClose={() => setShowDeleteDecisionModal(false)}
+        onConfirm={confirmDeleteDecision}
+        title="Xác nhận xóa quyết định"
+        message={`Bạn có chắc chắn muốn xóa quyết định số "${selectedDecision?.number}"? Hành động này không thể hoàn tác.`}
+        type="danger"
+        confirmText="Xác nhận xóa"
+        cancelText="Hủy"
+      />
+
+      {/* Decision Form - Add */}
       <DecisionForm
         isOpen={showDecisionForm}
-        onClose={() => setShowDecisionForm(false)}
+        onClose={() => {
+          setShowDecisionForm(false);
+          setSelectedDecision(null);
+        }}
         onSubmit={handleDecisionSubmit}
         legalCaseId={legalCase.legalCaseId}
         isLoading={decisionFormLoading}
         legalCaseTypeId={legalCase.legalRelationship.legalCaseType.legalCaseTypeId}
+      />
+
+      {/* Decision Form - Edit */}
+      <DecisionForm
+        isOpen={showEditDecisionForm}
+        onClose={() => {
+          setShowEditDecisionForm(false);
+          setSelectedDecision(null);
+        }}
+        onSubmit={handleEditDecisionSubmit}
+        legalCaseId={legalCase.legalCaseId}
+        isLoading={decisionFormLoading}
+        legalCaseTypeId={legalCase.legalRelationship.legalCaseType.legalCaseTypeId}
+        decision={selectedDecision}
       />
 
       {/* Toast Container */}
