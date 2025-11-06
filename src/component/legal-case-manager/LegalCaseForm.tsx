@@ -211,9 +211,9 @@ const LegalCaseForm = ({
             litigants: litigants.map((lit, index) => ({
                 litigantType: lit.litigantType as any,
                 ordinal: index + 1,
-                name: lit.name.trim(),
-                yearOfBirth: lit.yearOfBirth.trim() || null,
-                address: lit.address.trim() || null
+                name: lit?.name?.trim(),
+                yearOfBirth: lit?.yearOfBirth?.trim() || null,
+                address: lit?.address?.trim() || null
             }))
         };
     };
