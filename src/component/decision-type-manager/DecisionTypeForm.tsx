@@ -38,8 +38,6 @@ const DecisionTypeForm = ({
     // Load data when editing
     useEffect(() => {
         if (typeOfDecision) {
-            console.log('TypeOfDecision from backend:', typeOfDecision);
-            console.log('CourtIssued value:', typeOfDecision.courtIssued);
             
             // Xử lý courtIssued - có thể backend trả về enum name hoặc enum value
             let courtIssuedValue: string;

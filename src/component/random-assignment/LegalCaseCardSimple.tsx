@@ -230,11 +230,6 @@ const LegalCaseCardSimple = ({
                         )}
                       </button>
                     )}
-                    {defendants.length === 0 && (
-                      <div className="text-center py-6 text-gray-400 italic bg-gray-50 rounded-lg border border-gray-200">
-                        Không có dữ liệu
-                      </div>
-                    )}
                   </div>
                 </div>
               );

@@ -9,6 +9,7 @@ interface DecisionFormProps {
     onSubmit: (data: DecisionRequest) => void;
     legalCaseId: string;
     isLoading?: boolean;
+    legalCaseTypeId?: string;
 }
 
 const DecisionForm = ({
@@ -16,7 +17,8 @@ const DecisionForm = ({
     onClose,
     onSubmit,
     legalCaseId,
-    isLoading = false
+    isLoading = false,
+    legalCaseTypeId
 }: DecisionFormProps) => {
     const [formData, setFormData] = useState<DecisionRequest>({
         number: '',
@@ -59,7 +61,7 @@ const DecisionForm = ({
 
     const fetchTypeOfDecisions = async () => {
         try {
-            const response = await DecisionTypeService.getAll();
+            const response = await DecisionTypeService.getByLegalCaseType(legalCaseTypeId || '');
             if (response.success && response.data) {
                 const options: Option[] = response.data.map(item => ({
                     value: item.decisionTypeId,

@@ -427,7 +427,7 @@ const LegalCaseForm = ({
                                                     Năm sinh
                                                 </label>
                                                 <input
-                                                    type="text"
+                                                    type="number"
                                                     value={litigant.yearOfBirth}
                                                     onChange={(e) => handleLitigantChange(index, 'yearOfBirth', e.target.value)}
                                                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"

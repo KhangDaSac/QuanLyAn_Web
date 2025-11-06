@@ -102,4 +102,14 @@ export class DecisionTypeService {
             token
         );
     }
+
+    static async getByLegalCaseType(legalCaseTypeId: string): Promise<ApiResponse<DecisionTypeResponse[]>> {
+        const token = localStorage.getItem("token");
+        return Connect.request<DecisionTypeResponse[]>(
+            `${this.api}/by-legal-case-type/${legalCaseTypeId}`,
+            'GET',
+            null,
+            token
+        );
+    }
 }

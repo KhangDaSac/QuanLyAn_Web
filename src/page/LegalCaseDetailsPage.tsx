@@ -1095,7 +1095,7 @@ const LegalCaseDetailsPage = () => {
                       <span className="text-base text-gray-900">
                         {decision.decisionType.courtIssued === "CURRENT_COURT"
                           ? "Tòa án hiện tại"
-                          : decision.decisionType.courtIssued}
+                          : "Tòa án cấp trên"}
                       </span>
                     </div>
                     <div>
@@ -1178,6 +1178,7 @@ const LegalCaseDetailsPage = () => {
         onSubmit={handleDecisionSubmit}
         legalCaseId={legalCase.legalCaseId}
         isLoading={decisionFormLoading}
+        legalCaseTypeId={legalCase.legalRelationship.legalCaseType.legalCaseTypeId}
       />
 
       {/* Toast Container */}
